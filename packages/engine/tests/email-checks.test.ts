@@ -77,8 +77,8 @@ describe('the DeBounce client', () => {
       didYouMean: null,
       sendTransactional: true,
     });
-    const typo = await client.verify('jan@gmial.com');
-    expect(typo).toMatchObject({ code: 6, didYouMean: 'jan@gmail.com', sendTransactional: false });
+    const typo = await client.verify('jan@exmaple.com');
+    expect(typo).toMatchObject({ code: 6, didYouMean: 'jan@example.com', sendTransactional: false });
   });
 
   it('reads numbers and booleans too, as DeBounce’s schema has them', async () => {

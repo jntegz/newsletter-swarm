@@ -438,11 +438,13 @@ export function parseBulkResults(csv: string): BulkRow[] {
 /**
  * What the fake answers for an address, by its local part or domain: bad… or invalid… will bounce,
  * trap… is a spam trap, temp… temporary, catchall… or @catchall.example accept-all, unknown…
- * unknown, info@ and support@ team addresses, anything at gmial.com bounces with a suggestion.
+ * unknown, info@ and support@ team addresses, anything at gmial.com or exmaple.com bounces with a
+ * suggestion.
  */
 export function fakeCode(email: string): { code: EmailCheckCode; didYouMean: string | null } {
   const [local = '', domain = ''] = email.toLowerCase().split('@');
   if (domain === 'gmial.com') return { code: 6, didYouMean: `${local}@gmail.com` };
+  if (domain === 'exmaple.com') return { code: 6, didYouMean: `${local}@example.com` };
   if (!domain) return { code: 1, didYouMean: null };
   if (/^(bad|invalid)/.test(local)) return { code: 6, didYouMean: null };
   if (local.startsWith('trap')) return { code: 2, didYouMean: null };

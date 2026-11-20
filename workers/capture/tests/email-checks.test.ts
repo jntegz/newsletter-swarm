@@ -113,19 +113,19 @@ describe('signup checks', () => {
 
   it('refuses a red address with DeBounce’s suggestion, and keeps nothing about it', async () => {
     const c = await allowed();
-    const res = await json(c.formId, 'jan@gmial.com');
+    const res = await json(c.formId, 'jan@exmaple.com');
     expect(res.status).toBe(400);
     const body = (await res.json()) as {
       error: { code: string; message: string; suggestion: string };
     };
     expect(body.error).toMatchObject({
       code: 'invalid_input',
-      suggestion: 'jan@gmail.com',
+      suggestion: 'jan@example.com',
       message:
-        'This email address can’t receive email. Check it for typos. Did you mean jan@gmail.com?',
+        'This email address can’t receive email. Check it for typos. Did you mean jan@example.com?',
     });
-    expect(await member(c.channelId, 'jan@gmial.com')).toBeNull();
-    expect(await checkOf(c.workspaceId, 'jan@gmial.com')).toBeNull();
+    expect(await member(c.channelId, 'jan@exmaple.com')).toBeNull();
+    expect(await checkOf(c.workspaceId, 'jan@exmaple.com')).toBeNull();
   });
 
   it('offers the suggestion on the plain form, with a fresh check that the person is real', async () => {
