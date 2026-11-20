@@ -15,7 +15,7 @@ Each address DeBounce checks uses one DeBounce credit. Swarm's own checks come f
 
 DeBounce is set up once for the whole Swarm, by the person who installed it. The key is a secret of the Swarm's workers, like its email service key: it is never typed into the dashboard and never stored in the database.
 
-1. **Create a DeBounce account** at [debounce.io](https://tegze.link/debounce) and buy credits there.
+1. **Create a DeBounce account** at [debounce.io](https://debounce.io) and buy credits there.
 2. In DeBounce, open **API settings** ([app.debounce.io/api](https://app.debounce.io/api)) and copy the API key.
 3. On the computer you installed Swarm from, run:
 
@@ -139,7 +139,7 @@ Swarm keeps one result per address per workspace: the colour, DeBounce's code an
 
 ## For developers
 
-**Code.** `packages/engine/src/debounce.ts` is the only code that talks to DeBounce: `debounceClient` (single check, balance, bulk upload, status, results download), `parseBulkResults`, and `fakeDebounceFetch`, the fake used in development and every test (the key `dev`, refused outside development). `packages/engine/src/email-checks.ts` holds the rules: availability (`emailCheckAccess`, the `site_code_rules` shape), Swarm's free checks (`localCheck`, on `addresses.ts`), the signup check (`checkSignup`, `afterJoin`), background checks, runs (`createRun`, `planRun`, `startRun`, `advanceRun`, `stopRun`, `resumeRun`), the served file (`emailCheckFile`) and summaries. Shared shapes and the colour mapping: `packages/domain/src/email-checks.ts`, with `DEBOUNCE_SIGNUP_URL`, the only copy of the referral link.
+**Code.** `packages/engine/src/debounce.ts` is the only code that talks to DeBounce: `debounceClient` (single check, balance, bulk upload, status, results download), `parseBulkResults`, and `fakeDebounceFetch`, the fake used in development and every test (the key `dev`, refused outside development). `packages/engine/src/email-checks.ts` holds the rules: availability (`emailCheckAccess`, the `site_code_rules` shape), Swarm's free checks (`localCheck`, on `addresses.ts`), the signup check (`checkSignup`, `afterJoin`), background checks, runs (`createRun`, `planRun`, `startRun`, `advanceRun`, `stopRun`, `resumeRun`), the served file (`emailCheckFile`) and summaries. Shared shapes and the colour mapping: `packages/domain/src/email-checks.ts`, with `DEBOUNCE_SIGNUP_URL`, the referral link every DeBounce signup link in the code uses. The DeBounce link at the top of this page is written out by hand, so update it when the constant changes.
 
 **Tables** (`migrations/0068_email_verification.sql`): `email_check_rules` and `email_check_workspaces` (who may use the key), `email_check_budgets` and `email_check_list_budgets` (each workspace's own numbers, `0099` and `0118`, with use counted in `usage_windows`), `email_check_settings` (a workspace's rules), `email_checks` (one result per workspace and address; no row means not checked), `email_check_runs`, `email_check_items` (a run's addresses, deleted when it ends), `email_check_parts` (bulk parts: list id, file key, token hash, expiry), `email_check_leases` (the concurrency limit), and `import_jobs.check_addresses` / `email_check_run_id`.
 

@@ -31,7 +31,7 @@ Fix what its last message names and run `pnpm swarm` again. Finished steps are s
 
 ### Which Cloudflare plan do I need?
 
-One that includes Queues and Durable Objects, such as Workers Paid. Swarm uses both, so the free plan is not enough.
+Workers Paid ($5 a month minimum). The Free plan includes Queues and Durable Objects, but Swarm runs six scheduled jobs (Free allows five), and one send to a large list goes past Free's daily queue and request limits.
 
 ### My domain is "pending" on Cloudflare
 
@@ -238,7 +238,7 @@ Paid subscriptions, custom domains and Google sign-in need one more step from wh
 
 Swarm itself is free and open source, and takes no share of what your readers pay you. You pay the services it runs on, directly.
 
-- **Cloudflare.** Swarm needs a Cloudflare plan that includes Queues and Durable Objects; the Workers Paid plan has them. Usage beyond what the plan includes is billed by Cloudflare. See Cloudflare's pricing page for current prices.
+- **Cloudflare.** Swarm needs the Workers Paid plan ($5 a month minimum). Usage beyond what the plan includes is billed by Cloudflare, and so is Cloudflare Images (resized copies of your site's images) beyond its free 5,000 transformations a month. See Cloudflare's pricing page for current prices.
 - **A domain name**, on Cloudflare.
 - **An email service.** This is usually the main cost as your list grows.
   - **Resend:** a free plan of 100 emails a day and 3,000 a month, then paid plans by monthly volume.

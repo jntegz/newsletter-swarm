@@ -9,8 +9,9 @@ const timestamp = z.iso.datetime().openapi({ example: '2026-11-16T12:00:00.000Z'
 const id = (kind: Parameters<typeof idPattern>[0]) => z.string().regex(idPattern(kind));
 
 /**
- * Where every "create a DeBounce account" link goes: the referral link of Swarm's owner. Keep it
- * the only copy, so it can be changed in one place.
+ * Where every "create a DeBounce account" link in the code goes: the referral link of Swarm's
+ * owner. The first link in docs/email-verification.md and two tests spell it out too, so
+ * change them along with it.
  */
 export const DEBOUNCE_SIGNUP_URL = 'https://tegze.link/debounce';
 /** DeBounce's own page with the account's API key. */

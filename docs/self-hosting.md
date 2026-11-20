@@ -7,7 +7,7 @@ This guide is for people running their own Swarm. For the manual, binding-by-bin
 ## What you need
 
 - **A Cloudflare account with a domain on it.** The domain's status must be _Active_, which means its nameservers point to Cloudflare. Swarm only adds subdomains (`app.`, `forms.`, `mail.` and a few more); your main site and the domain's own mail are not touched.
-- **A Cloudflare plan that includes Queues and Durable Objects.** Swarm uses both. The Workers Paid plan has them; check your plan if you are on another one.
+- **The Workers Paid plan** ($5 a month minimum). Swarm runs six scheduled jobs, more than the Free plan's five, and its queues and sends go past the Free plan's daily limits.
 - **Node.js 22 or newer, pnpm 10 and git.** Run `corepack enable` once to get pnpm.
 - **A way to send email**, one of:
   - a [Resend](https://resend.com) API key with _Full access_, or
@@ -364,7 +364,7 @@ Installs made before it get one new worker, `swarm-vault`, on their next update.
 - **Without this command:** turn on **Stripe with a restricted key** in Settings → Instance, and each publication's owner adds a restricted Stripe key under Settings → Payments ([details](deployment.md#payments-with-a-publications-own-key)).
 - **`enable payments`** turns on paid subscriptions through Stripe Connect. It asks for the platform account's full secret key (`sk_live_…` or `sk_test_…`; a restricted key is not enough) and the Connect client id (`ca_…`), creates the Connect webhook at `https://app.<your domain>/api/v1/stripe/webhook`, and redeploys. One step is left for you in Stripe: add `https://app.<your domain>/api/v1/payments/connect/callback` as a redirect URI under _Connect > Settings > OAuth_.
 - **`enable google`** turns on Google sign-in. Create an OAuth client (type _Web application_) in Google Cloud Console with the redirect URI `https://app.<your domain>/api/v1/auth/google/callback`, then paste the client id and secret.
-- **`enable debounce`** turns on [email checks](email-verification.md): subscriber addresses checked with DeBounce at signup, on import and across the list. Create a DeBounce account at [debounce.io](https://tegze.link/debounce), copy the API key from DeBounce's API settings and paste it. The installer checks it with DeBounce (not in a dry run), keeps it in `.swarm/<env>.secrets.json` and redeploys the capture, jobs and api workers with it as `DEBOUNCE_API_KEY`. The credits are yours: only workspaces an instance admin owns use them, until you allow others on the DeBounce card under Apps. `pnpm swarm doctor` reports whether the key is set and how many credits are left. In an answers file the key is `debounceApiKey`, or set `DEBOUNCE_API_KEY` in the environment.
+- **`enable debounce`** turns on [email checks](email-verification.md): subscriber addresses checked with DeBounce at signup, on import and across the list. Create a DeBounce account at [debounce.io](https://debounce.io), copy the API key from DeBounce's API settings and paste it. The installer checks it with DeBounce (not in a dry run), keeps it in `.swarm/<env>.secrets.json` and redeploys the capture, jobs and api workers with it as `DEBOUNCE_API_KEY`. The credits are yours: only workspaces an instance admin owns use them, until you allow others on the DeBounce card under Apps. `pnpm swarm doctor` reports whether the key is set and how many credits are left. In an answers file the key is `debounceApiKey`, or set `DEBOUNCE_API_KEY` in the environment.
 
 ### Rotate keys: `pnpm swarm rotate-keys`
 
