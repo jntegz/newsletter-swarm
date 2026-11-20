@@ -1,15 +1,52 @@
 # Swarm
 
-An open-source newsletter platform you run on your own Cloudflare account. Write posts, send them by email, publish them on your own website, grow your list and take paid subscriptions, with no platform fee and your subscribers in your own database.
+[![License: AGPL-3.0](https://img.shields.io/badge/license-AGPL--3.0-blue.svg)](LICENSE)
+[![Version 0.0.1, pre-release](https://img.shields.io/badge/version-0.0.1%20pre--release-orange.svg)](CHANGELOG.md)
+[![Runs on Cloudflare Workers](https://img.shields.io/badge/runs%20on-Cloudflare%20Workers-f38020.svg)](https://workers.cloudflare.com/)
+[![Node 22+](https://img.shields.io/badge/node-%E2%89%A522-brightgreen.svg)](package.json)
+
+**Your whole newsletter on your own Cloudflare account: the editor, the sending, the website and the paid subscriptions.**
+
+Write a post, send it to your list, publish it on your own domain and let readers pay for it. Your subscribers live in a database on your account, your email goes out through the service you pick, and Swarm takes 0% of what readers pay you. Stripe's own fees are the only ones on a payment.
+
+[**Install it**](#install) · [**Try it on your computer first**](#try-it-on-your-computer) · [Learn more at swarm.jantegze.com](https://swarm.jantegze.com/)
 
 > [!WARNING]
 > **Pre-release, version 0.0.1.** Swarm is published so people can try it, not yet for a newsletter you depend on. I'm testing it on real accounts and fixing bugs as I find them, so expect rough edges and changes between versions.
 >
 > **Testers and ideas are welcome.** If you install it, [send an install report](https://github.com/jntegz/newsletter-swarm/issues/new?template=install_report.yml), [report a bug](https://github.com/jntegz/newsletter-swarm/issues/new?template=bug_report.yml) or [suggest a feature](https://github.com/jntegz/newsletter-swarm/issues/new?template=feature_request.yml). Pull requests with fixes are welcome too; see [Contributing](#contributing).
 
-**Learn more about Swarm at [swarm.jantegze.com](https://swarm.jantegze.com/).**
+![The Swarm dashboard home for a publication called Field Notes: what needs attention, the posts up next, and the last send with 12,617 of 12,731 emails delivered and delivery rates by mailbox provider](docs/images/home.webp)
 
-Everything below is built and covered by automated tests, but several parts have only run against stand-ins, not real accounts. Read [What is tested and what is not](#what-is-tested-and-what-is-not) before you rely on it.
+[Why Swarm](#why-swarm) · [Screenshots](#screenshots) · [Features](#what-you-get) · [Install](#install) · [Costs](#what-it-costs) · [Documentation](#documentation) · [What is tested](#what-is-tested-and-what-is-not) · [Contributing](#contributing)
+
+## Why Swarm
+
+|                           | A typical hosted newsletter platform                    | Swarm                                                                                                              |
+| ------------------------- | ------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| Fee on paid subscriptions | Often a share of every payment, on top of payment fees  | 0%. Readers pay you through Stripe, and only Stripe's fees apply                                                   |
+| What you pay              | A monthly plan, usually priced by the size of your list | Your Cloudflare plan and your email service, priced by what you use                                                |
+| Where your list lives     | On the platform's servers                               | In a D1 database on your own Cloudflare account                                                                    |
+| Code                      | Usually closed                                          | Open source under AGPL-3.0                                                                                         |
+| Your data                 | Usually a CSV of subscribers                            | The whole database is on your account. Export subscribers any time, or copy them to your own storage on a schedule |
+| Deliverability            | Varies, often with little you can inspect or change     | Your own sending domain, a check-up that names each problem and its fix, and warm-up for new domains               |
+
+Hosted platforms differ. This compares Swarm with the usual arrangement, not with any one service.
+
+## Screenshots
+
+|                                                                                                                                                        |                                                                                                                                                  |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| ![The post editor with a subject, preview text, an inbox preview showing how the email appears, and the block editor toolbar](docs/images/editor.webp) | ![A send report: 12,731 of 12,731 delivered, 50.1% opened by people, 600 clicks and 9 unsubscribes](docs/images/send-report.webp)                |
+| **Write.** A block editor with an inbox preview, previews for desktop, phone and dark mode, and a "view as" switch for free and paid readers.          | **Send.** A live report while the send runs, with opens from privacy proxies and clicks from link scanners counted apart from people.            |
+| ![The deliverability check-up with a score of 85 out of 100 and two things worth improving, each with what to do](docs/images/checkup.webp)            | ![The automation builder showing a welcome series: a trigger, a welcome email, a three-day wait and a second email](docs/images/automation.webp) |
+| **Reach the inbox.** A check-up scores everything that decides delivery and says how to fix each item.                                                 | **Grow.** Automations with a visual builder and ready-made recipes such as a welcome series and a win-back.                                      |
+| ![The subscriber list with green, orange and red email checks next to each address](docs/images/subscribers.webp)                                      | ![The paid subscriptions revenue dashboard: MRR, active paid subscribers, churn and revenue by day](docs/images/revenue.webp)                    |
+| **Keep the list clean.** Optional address checks with DeBounce mark every subscriber green, orange or red.                                             | **Earn.** Paid plans, trials, coupons and gifts through Stripe, with a revenue dashboard.                                                        |
+
+![The website template chooser with six layouts: the current layout, Gate, Letter, Magazine, Newspaper and Launch](docs/images/website-templates.webp)
+
+**Publish.** Every publication gets a website on your own domain, with five templates, an archive, search and RSS.
 
 ## What you get
 
@@ -27,6 +64,29 @@ It runs on Cloudflare (Workers, D1, R2, KV, Queues, Durable Objects). Email goes
 
 ## Install
 
+There are three ways in. Pick by what you want to do today.
+
+| You want to                              | Use                                                                | Needs                                                    | Status                                         |
+| ---------------------------------------- | ------------------------------------------------------------------ | -------------------------------------------------------- | ---------------------------------------------- |
+| Look around the dashboard and test it    | [Run it on your computer](#try-it-on-your-computer)                | Node.js 22, pnpm 10 and git. No accounts                 | Available                                      |
+| Run a real newsletter on your own domain | [The installer, `pnpm swarm`](#install-on-your-cloudflare-account) | A Cloudflare account with a domain, and an email service | Available, still being tested on real accounts |
+| Install without a terminal               | [The browser setup page](#install-without-a-terminal)              | A Cloudflare account with a domain, and an email service | Waiting for the first signed release           |
+
+### Try it on your computer
+
+The whole product runs locally, on Cloudflare's local runtimes, with no Cloudflare account and no email service. This is the quickest way to see what Swarm does and to test a fix.
+
+```bash
+git clone https://github.com/jntegz/newsletter-swarm.git swarm && cd swarm
+pnpm install
+pnpm setup:dev   # writes each worker's local settings and creates the local database
+pnpm dev         # every worker plus the dashboard on http://localhost:5273
+```
+
+Open http://localhost:5273 and ask for a sign-in link. No email leaves your computer: the link lands in a dev mailbox at http://localhost:5273/__dev/mail.
+
+### Install on your Cloudflare account
+
 You need:
 
 - a Cloudflare account with a domain on it, on a plan that includes Queues and Durable Objects (the Workers Paid plan does);
@@ -40,7 +100,7 @@ pnpm swarm --dry-run   # optional: shows every step and changes nothing
 pnpm swarm
 ```
 
-The installer asks for your domain, your name and email, the name of your first publication and how to send email. It then creates the database, storage, queues and DNS records on your account, deploys everything and prints a one-time sign-in link. If it stops for any reason, run it again: finished steps are skipped.
+The installer asks for your domain, your name and email, the name of your first publication and how to send email. It then creates the database, storage, queues and DNS records on your account, deploys everything and prints a one-time sign-in link. Your main domain's website and its email are left alone: Swarm adds subdomains such as `app.`, `forms.` and `mail.`. If the installer stops for any reason, run it again: finished steps are skipped.
 
 After you sign in, follow [Getting started](docs/getting-started.md): it takes you from an empty dashboard to your first post in subscribers' inboxes.
 
@@ -52,9 +112,24 @@ After you sign in, follow [Getting started](docs/getting-started.md): it takes y
 | Turn things on later    | `pnpm swarm enable custom-domains`, `enable payments`, `enable google` |
 | Change email service    | `pnpm swarm mail switch <service>`                                     |
 
-The full guide, with what the installer creates, how to choose an email service, backups, staging and removal, is [docs/self-hosting.md](docs/self-hosting.md). There is also a [browser setup page](docs/setup-guide.md) for people who would rather not use a terminal; it is a preview, and it installs only signed releases, so it can't be used until the first release is out. If something goes wrong, see the [FAQ](docs/faq.md#installing).
+**Back up the `.swarm/` folder** the installer creates. It holds the keys for your install and is not in git. Without it you can't update the install.
 
-**Back up the `.swarm/` folder** the installer creates. It holds the keys for your install and is not in git.
+The full guide, with what the installer creates, how to choose an email service, backups, staging and removal, is [docs/self-hosting.md](docs/self-hosting.md). If something goes wrong, see the [FAQ](docs/faq.md#installing), and please [tell me in an install report](https://github.com/jntegz/newsletter-swarm/issues/new?template=install_report.yml).
+
+### Install without a terminal
+
+The browser setup page ([guide](docs/setup-guide.md)) is a small Worker you deploy to your account. It asks for a Cloudflare token and your email service key, shows exactly which release it is about to install, and installs it for you. It is built and tested, but it installs only signed releases, and the first one isn't out yet. A **Deploy to Cloudflare** button will appear here with that release. Until then, use the installer above.
+
+### What it costs
+
+Swarm is free and takes no share of what your readers pay you. You pay the services it runs on, directly:
+
+- **Cloudflare:** a plan that includes Queues and Durable Objects (Workers Paid), plus any usage beyond what the plan includes. See [Cloudflare's pricing](https://developers.cloudflare.com/workers/platform/pricing/).
+- **A domain** on Cloudflare.
+- **An email service**, usually the main cost as your list grows. Resend has a free plan of 100 emails a day and 3,000 a month; Amazon SES charges per email, about $0.10 per 1,000.
+- **Stripe**, if you sell subscriptions, charges its own fees on each payment.
+
+Prices change, so check each service. More in the [FAQ](docs/faq.md#costs).
 
 ## Documentation
 
@@ -86,13 +161,7 @@ If you install it, please [send an install report](https://github.com/jntegz/new
 
 ## Local development
 
-```bash
-pnpm install
-pnpm setup:dev   # writes each worker's .dev.vars and creates the local database
-pnpm dev         # every worker plus the dashboard on http://localhost:5273
-```
-
-Local email is never sent. Ask for a sign-in link on the sign-in page, then open the dev mailbox it links to (`http://localhost:5273/__dev/mail`).
+Start the workers and the dashboard as in [Try it on your computer](#try-it-on-your-computer). Local email is never sent; it lands in the dev mailbox at `http://localhost:5273/__dev/mail`.
 
 | Service   | Local port |
 | --------- | ---------- |
