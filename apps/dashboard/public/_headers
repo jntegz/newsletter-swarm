@@ -1,0 +1,11 @@
+# Security headers for the dashboard. The SPA is served by Workers static assets without running
+# the API worker (see `run_worker_first` in workers/api/wrangler.jsonc), so the worker's
+# secure-headers middleware never sees these responses; this file is their only source.
+# Pinned by apps/dashboard/src/headers.test.ts; each directive is explained in docs/security.md.
+/*
+  Content-Security-Policy: default-src 'self'; script-src 'self' https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self'; frame-src https://challenges.cloudflare.com; frame-ancestors 'none'; form-action 'self'; base-uri 'none'; object-src 'none'
+  Strict-Transport-Security: max-age=63072000; includeSubDomains; preload
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  Referrer-Policy: strict-origin-when-cross-origin
+  Cross-Origin-Opener-Policy: same-origin

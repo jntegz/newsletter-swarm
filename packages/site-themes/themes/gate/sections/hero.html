@@ -1,0 +1,132 @@
+{% assign s = section.settings %} {% if reader.is_subscriber %}
+<section
+  class="gate-hero gate-hero--back gate-hero--{{ s.layout }}"
+  aria-labelledby="{{ section.id }}-title"
+>
+  <div class="gate-hero__inner">
+    <h1 class="gate-hero__title" id="{{ section.id }}-title">Welcome back to {{ site.name }}</h1>
+    {% assign newest = posts.first %} {% if newest %}
+    <article class="gate-newest{% if newest.image %} gate-newest--image{% endif %}">
+      {% if newest.image %}
+      <div class="gate-newest__image">
+        {{ newest.image | image: '(min-width: 720px) 280px, 100vw' }}
+      </div>
+      {% endif %}
+      <div class="gate-newest__body">
+        <p class="gate-newest__label">The newest issue</p>
+        <h2 class="gate-newest__title"><a href="{{ newest.url }}">{{ newest.title }}</a></h2>
+        {% if newest.excerpt %}
+        <p class="gate-newest__excerpt">{{ newest.excerpt | truncate: 150 }}</p>
+        {% endif %}
+        <p class="gate-newest__meta">
+          <time datetime="{{ newest.date | date: 'iso' }}">{{ newest.date | date: 'long' }}</time>
+          {% if newest.reading_minutes %} · {{ newest.reading_minutes }} min read{% endif %}
+        </p>
+      </div>
+    </article>
+    {% else %}
+    <p class="gate-hero__pitch">The first issue is on its way to your inbox.</p>
+    {% endif %} {% if site.plans_url %}{% unless reader.is_paid %}
+    <p class="gate-hero__past"><a href="{{ site.plans_url }}">See the paid plans</a></p>
+    {% endunless %}{% endif %}
+  </div>
+</section>
+{% else %}
+<section class="gate-hero gate-hero--{{ s.layout }}" aria-labelledby="{{ section.id }}-title">
+  <div class="gate-hero__inner">
+    {% if s.show_logo and site.logo or s.image %}
+    <div class="gate-hero__marks">
+      {% if s.show_logo and site.logo %}{{ site.logo | image: '88px' }}{% endif %} {% if s.image
+      %}{{ s.image | image: '88px' }}{% endif %}
+    </div>
+    {% endif %}
+    <h1 class="gate-hero__title" id="{{ section.id }}-title">
+      {{ s.heading | default: site.name }}
+    </h1>
+    {% assign pitch = s.pitch | default: site.description %} {% if pitch %}
+    <p class="gate-hero__pitch">{{ pitch }}</p>
+    {% endif %}
+    <div class="gate-hero__form" id="subscribe">
+      {% subscribe_form %} {% if s.promise or s.privacy_note %}
+      <p class="gate-hero__note">
+        {% if s.promise %}<strong>{{ s.promise }}</strong>{% endif %} {{ s.privacy_note }}
+      </p>
+      {% endif %}
+    </div>
+    {% if s.show_count and site.subscriber_count %}
+    <p class="gate-hero__proof">
+      <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false">
+        <path
+          d="M8 11a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Zm8 0a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM1.5 19.5c.6-3.2 3.3-5.5 6.5-5.5s5.9 2.3 6.5 5.5M14 14.3c.6-.2 1.3-.3 2-.3 2.9 0 5.3 2.1 5.8 5"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.6"
+          stroke-linecap="round"
+        />
+      </svg>
+      Read by {{ site.subscriber_count | number }} people
+    </p>
+    {% endif %} {% if posts %}
+    <p class="gate-hero__past"><a href="{{ site.archive_url }}">Read past issues first</a></p>
+    {% endif %}
+  </div>
+</section>
+{% endif %} {% comment %}<!-- prettier-ignore -->{% endcomment %}
+{% schema %}
+{
+  "name": "Hero",
+  "description": "The first screen: the promise and the signup form.",
+  "limit": 1,
+  "settings": [
+    {
+      "id": "heading",
+      "type": "text",
+      "label": "Heading",
+      "max": 120,
+      "info": "Leave it empty to use the publication’s name."
+    },
+    {
+      "id": "pitch",
+      "type": "textarea",
+      "label": "The line under it",
+      "max": 400,
+      "info": "Leave it empty to use the description."
+    },
+    {
+      "id": "promise",
+      "type": "text",
+      "label": "What and how often",
+      "max": 120,
+      "info": "Shown next to the form. For example: Every Sunday. Free."
+    },
+    {
+      "id": "show_count",
+      "type": "checkbox",
+      "label": "Show how many people read it",
+      "default": true,
+      "info": "Shown once there are at least 100 subscribers."
+    },
+    { "id": "show_logo", "type": "checkbox", "label": "Show the logo", "default": false },
+    {
+      "id": "privacy_note",
+      "type": "text",
+      "label": "Note under the form",
+      "max": 160,
+      "default": "Unsubscribe at any time."
+    },
+    {
+      "id": "layout",
+      "type": "select",
+      "label": "Layout",
+      "options": [{ "value": "centred", "label": "Centred" }, { "value": "left", "label": "Left-aligned" }],
+      "default": "centred"
+    },
+    {
+      "id": "image",
+      "type": "image",
+      "label": "Your photo",
+      "info": "A photo of you or the publication, near the form."
+    }
+  ]
+}
+{% endschema %}

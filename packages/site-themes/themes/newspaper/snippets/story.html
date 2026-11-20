@@ -1,0 +1,21 @@
+<article
+  class="news-story news-story--{{ size }}{% if post.image and s.show_images %} news-story--image{% endif %}"
+>
+  {% if post.image and s.show_images %}{% if size == 'lead' or size == 'card' %}
+  <figure class="news-story__image">
+    {{ post.image | image: '(min-width:960px)60vw,100vw' }} {% if size == 'lead' and post.image.alt
+    %}
+    <figcaption>{{ post.image.alt }}</figcaption>
+    {% endif %}
+  </figure>
+  {% endif %}{% endif %}
+  <h3 class="news-story__title"><a href="{{ post.url }}">{{ post.title }}</a></h3>
+  {% if s.show_excerpt and post.excerpt %}{% unless size == 'brief' %}
+  <p class="news-story__excerpt">{{ post.excerpt }}</p>
+  {% endunless %}{% endif %}
+  <p class="news-story__meta">
+    <time datetime="{{ post.date | date: 'iso' }}">{{ post.date | date: 'long' }}</time>
+    {% if post.reading_minutes %}<span>{{ post.reading_minutes }} min read</span>{% endif %} {% if
+    post.is_paid %}<span class="news-badge">Paid</span>{% endif %}
+  </p>
+</article>

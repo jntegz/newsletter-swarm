@@ -1,0 +1,44 @@
+name: Bug report
+description: Something in Swarm doesn't work as it should.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: Please report security problems through SECURITY.md, not here. Remove real subscriber data, keys and tokens from anything you paste.
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: What you did, what you expected, and what you saw instead.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: How can we reproduce it?
+      placeholder: |
+        1. Open …
+        2. Click …
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Version or commit
+      description: The commit you installed, if you know it.
+  - type: dropdown
+    id: email-service
+    attributes:
+      label: Email service
+      options:
+        - Amazon SES
+        - Resend
+        - Mailgun
+        - Postmark
+        - Own mail server (SMTP)
+        - Not related to sending
+  - type: textarea
+    id: logs
+    attributes:
+      label: Error messages or logs
+      render: text

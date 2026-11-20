@@ -1,0 +1,32 @@
+{
+  "name": "@swarm/vault",
+  "private": true,
+  "license": "AGPL-3.0-only",
+  "type": "module",
+  "version": "0.0.0",
+  "exports": {
+    ".": "./src/index.ts",
+    "./api": "./src/api.ts",
+    "./core": "./src/core/index.ts",
+    "./testing": "./src/testing.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@swarm/db": "workspace:*",
+    "@swarm/domain": "workspace:*",
+    "@swarm/engine": "workspace:*",
+    "@swarm/mail": "workspace:*",
+    "@swarm/runtime": "workspace:*",
+    "@swarm/tokens": "workspace:*",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "catalog:",
+    "@types/node": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  }
+}

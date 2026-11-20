@@ -1,0 +1,51 @@
+{% assign s = section.settings %} {% if featured %}
+<section class="nt-featured" aria-labelledby="{{ section.id }}-title">
+  <div class="nt-head">
+    {% if s.heading %}
+    <h2 class="nt-h2" id="{{ section.id }}-title">{{ s.heading }}</h2>
+    {% else %}
+    <h2 class="sw-sr" id="{{ section.id }}-title">A featured issue</h2>
+    {% endif %}
+  </div>
+  <article class="nt-feature{% if featured.image %} nt-feature--image{% endif %}">
+    {% if featured.image %}
+    <div class="nt-feature__image">
+      {{ featured.image | image: '(min-width:1100px)1100px,100vw' }}
+    </div>
+    {% endif %}
+    <div class="nt-feature__body">
+      <p class="nt-feature__meta">
+        <time datetime="{{ featured.date | date: 'iso' }}">{{ featured.date | date: 'long' }}</time>
+        {% if featured.reading_minutes %}<span>{{ featured.reading_minutes }} min read</span>{%
+        endif %}
+      </p>
+      <h3 class="nt-feature__title">{{ featured.title }}</h3>
+      {% if featured.excerpt %}
+      <p class="nt-feature__excerpt">{{ featured.excerpt }}</p>
+      {% endif %}
+      <p class="nt-feature__action">
+        <a class="sw-button" href="{{ featured.url }}"
+          >{{ s.button_label | default: featured.title }}</a
+        >
+      </p>
+    </div>
+  </article>
+</section>
+{% endif %} {% comment %}<!-- prettier-ignore -->{% endcomment %}
+{% schema %}
+{
+  "name": "Featured issue",
+  "description": "One issue up close, in widescreen: the pinned one, else the latest.",
+  "limit": 1,
+  "settings": [
+    { "id": "heading", "type": "text", "label": "Heading", "max": 120, "default": "Read a sample" },
+    {
+      "id": "button_label",
+      "type": "text",
+      "label": "Button",
+      "max": 40,
+      "default": "Read the issue"
+    }
+  ]
+}
+{% endschema %}

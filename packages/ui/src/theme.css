@@ -1,0 +1,125 @@
+/* Tailwind 4 theme mapped onto the Indigo tokens. Import after `@import "tailwindcss";`. */
+@import './tokens.css';
+@import './components.css';
+
+@theme inline {
+  --color-surface: var(--surface);
+  --color-surface-alt: var(--surface-alt);
+  --color-page: var(--page);
+  --color-ink: var(--ink);
+  --color-sub: var(--text-sub);
+  --color-muted: var(--text-muted);
+  --color-purple: var(--purple);
+  --color-purple-deep: var(--purple-deep);
+  --color-lavender: var(--lavender);
+  --color-lavender-line: var(--lavender-line);
+  --color-line: var(--line);
+  --color-line-soft: var(--line-soft);
+  --color-line-app: var(--line-app);
+  --color-line-control: var(--line-control);
+  --color-line-control-hover: var(--line-control-hover);
+  --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+  --color-caution: var(--caution);
+  --color-caution-soft: var(--caution-soft);
+  --color-scheduled: var(--scheduled);
+  --color-scheduled-soft: var(--scheduled-soft);
+
+  --radius-pill: var(--r-pill);
+  --radius-card: var(--r-card);
+  --radius-card-app: var(--r-card-app);
+  --radius-shell: var(--r-shell);
+  --radius-control: var(--r-control);
+
+  --shadow-card: var(--shadow-card);
+  --shadow-soft: var(--shadow-soft);
+  --shadow-purple: var(--shadow-purple);
+
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
+}
+
+@layer base {
+  html {
+    color: var(--ink);
+    font-family: var(--font-sans);
+    font-size: 15.5px;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+    caret-color: var(--purple);
+    scrollbar-color: var(--chart-marker) transparent;
+    font-feature-settings: 'ss01';
+  }
+
+  a {
+    text-underline-offset: 3px;
+    text-decoration-thickness: 1px;
+  }
+
+  ::placeholder {
+    color: var(--text-sub);
+    opacity: 1;
+  }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: var(--chart-marker);
+    border: 3px solid transparent;
+    border-radius: 999px;
+    background-clip: padding-box;
+  }
+
+  body {
+    margin: 0;
+    background:
+      radial-gradient(1100px 520px at 8% -8%, #f2edff 0%, rgba(242, 237, 255, 0) 60%),
+      radial-gradient(900px 480px at 104% 6%, #f7f1ff 0%, rgba(247, 241, 255, 0) 55%), var(--page);
+    min-height: 100vh;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--purple);
+    outline-offset: 3px;
+  }
+
+  ::selection {
+    background: var(--purple);
+    color: #ffffff;
+  }
+
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+/* Loading placeholders wait a moment before they show, so a fast answer never flashes grey
+   rows. They still hold their space, so nothing jumps when the content arrives. */
+@keyframes swarm-appear {
+  to {
+    opacity: 1;
+  }
+}
+.loading-delayed {
+  opacity: 0;
+  animation: swarm-appear 160ms ease-out 200ms forwards;
+}
+@media (prefers-reduced-motion: reduce) {
+  .loading-delayed {
+    animation-duration: 0ms;
+  }
+}

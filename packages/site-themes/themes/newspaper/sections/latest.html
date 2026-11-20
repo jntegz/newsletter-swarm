@@ -1,0 +1,72 @@
+{% assign s = section.settings %}
+<section class="news-latest news-latest--{{ s.style }}" aria-labelledby="{{ section.id }}-title">
+  {% if s.heading %}
+  <h2 class="news-h2" id="{{ section.id }}-title">{{ s.heading }}</h2>
+  {% else %}
+  <h2 class="sw-sr" id="{{ section.id }}-title">Latest issues</h2>
+  {% endif %} {% if posts %} {% if s.style == 'front' %}
+  <div class="news-front">
+    <div class="news-front__lead">{% render 'story', post: posts.first, s: s, size: 'lead' %}</div>
+    {% if s.count > 1 %}
+    <div class="news-front__side">
+      {% for post in posts limit: 3 offset: 1 %} {% if forloop.index < s.count %}{% render 'story',
+      post: post, s: s, size: 'side' %}{% endif %} {% endfor %}
+    </div>
+    {% endif %}
+  </div>
+  {% assign rest = s.count | minus: 4 %} {% if rest > 0 %}
+  <ul class="news-columns" role="list">
+    {% for post in posts limit: rest offset: 4 %}
+    <li>{% render 'story', post: post, s: s, size: 'brief' %}</li>
+    {% endfor %}
+  </ul>
+  {% endif %} {% else %}
+  <ul class="news-list" role="list">
+    {% for post in posts limit: s.count %}
+    <li>
+      {% if s.style == 'cards' %} {% render 'story', post: post, s: s, size: 'card' %} {% elsif
+      s.style == 'compact' %} {% render 'story', post: post, s: s, size: 'brief' %} {% else %} {%
+      render 'story', post: post, s: s, size: 'side' %} {% endif %}
+    </li>
+    {% endfor %}
+  </ul>
+  {% endif %}
+  <p class="news-more"><a href="{{ site.archive_url }}">Every edition in the archive</a></p>
+  {% else %}
+  <p class="news-empty">The first edition is being set.</p>
+  {% endif %}
+</section>
+
+{% comment %}<!-- prettier-ignore -->{% endcomment %}
+{% schema %}
+{
+  "name": "Latest issues",
+  "description": "The newest issues.",
+  "settings": [
+    { "id": "heading", "type": "text", "label": "Heading", "max": 120, "default": "Latest" },
+    {
+      "id": "count",
+      "type": "range",
+      "label": "How many",
+      "min": 1,
+      "max": 12,
+      "step": 1,
+      "default": 9
+    },
+    {
+      "id": "style",
+      "type": "select",
+      "label": "Style",
+      "options": [
+        { "value": "front", "label": "Front page, with a lead story" },
+        { "value": "cards", "label": "Cards" },
+        { "value": "list", "label": "List" },
+        { "value": "compact", "label": "Compact" }
+      ],
+      "default": "front"
+    },
+    { "id": "show_images", "type": "checkbox", "label": "Show images", "default": true },
+    { "id": "show_excerpt", "type": "checkbox", "label": "Show summaries", "default": true }
+  ]
+}
+{% endschema %}

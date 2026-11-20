@@ -1,0 +1,59 @@
+{% assign s = section.settings %}
+<section class="gate-latest gate-latest--{{ s.style }}" aria-labelledby="{{ section.id }}-title">
+  <div class="gate-head">
+    {% if s.heading %}
+    <h2 class="gate-head__title" id="{{ section.id }}-title">{{ s.heading }}</h2>
+    {% else %}
+    <h2 class="sw-sr" id="{{ section.id }}-title">Latest issues</h2>
+    {% endif %} {% if posts %}<a class="gate-head__link" href="{{ site.archive_url }}">All issues</a
+    >{% endif %}
+  </div>
+  {% if posts %} {% if s.style == 'cards' %}
+  <ul class="gate-cards" role="list">
+    {% for post in posts limit: s.count %}
+    <li>{% render 'post-card', post: post, s: s %}</li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <ol class="gate-rows" role="list">
+    {% for post in posts limit: s.count %}
+    <li>{% render 'post-row', post: post, s: s %}</li>
+    {% endfor %}
+  </ol>
+  {% endif %} {% else %}
+  <p class="gate-empty">The first issue is on its way.</p>
+  {% endif %}
+</section>
+
+{% comment %}<!-- prettier-ignore -->{% endcomment %}
+{% schema %}
+{
+  "name": "Latest issues",
+  "description": "The newest issues.",
+  "settings": [
+    { "id": "heading", "type": "text", "label": "Heading", "max": 120, "default": "Recent issues" },
+    {
+      "id": "count",
+      "type": "range",
+      "label": "How many",
+      "min": 1,
+      "max": 12,
+      "step": 1,
+      "default": 3
+    },
+    {
+      "id": "style",
+      "type": "select",
+      "label": "Style",
+      "options": [
+        { "value": "cards", "label": "Cards" },
+        { "value": "list", "label": "List" },
+        { "value": "compact", "label": "Compact" }
+      ],
+      "default": "compact"
+    },
+    { "id": "show_images", "type": "checkbox", "label": "Show images", "default": false },
+    { "id": "show_excerpt", "type": "checkbox", "label": "Show summaries", "default": false }
+  ]
+}
+{% endschema %}

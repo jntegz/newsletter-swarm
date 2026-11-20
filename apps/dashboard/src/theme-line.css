@@ -1,0 +1,880 @@
+/*
+ * Line: the dashboard's visual system (design/2026-11/a-line). It redefines the Indigo token
+ * values from @swarm/ui for the dashboard only, so every existing utility (bg-lavender,
+ * text-purple-deep, border-line-app…) picks up the new palette without a rename. Import
+ * after '@swarm/ui/theme.css'.
+ *
+ * The names stay; the meaning shifts:
+ *   --purple       night, the primary action colour
+ *   --purple-deep  night hover
+ *   --lavender     the soft tint for active and selected states
+ * Signal yellow is for "you are here / next step" only, never decoration.
+ */
+:root {
+  /* Surfaces */
+  --surface: #ffffff;
+  --surface-alt: #f4f6f9;
+  --page: #ffffff;
+
+  /* Text (all ≥ 4.5:1 on white) */
+  --ink: #111827;
+  --text-sub: #4b5568;
+  --text-muted: #687082;
+
+  /* Night replaces purple */
+  --purple: #14203a;
+  --purple-deep: #22325a;
+  --lavender: #eef1f6;
+  --lavender-line: #d9dfea;
+
+  /* Lines */
+  --line: #e2e6ec;
+  --line-soft: #eef1f5;
+  --line-app: #e2e6ec;
+  --line-control: #8a94a6; /* 3.1:1 on white: form-control boundaries need 3:1 */
+  --line-control-hover: #6b7486;
+
+  /* Status */
+  --success: #12724b;
+  --success-soft: #e7f3ec;
+  --danger: #b42318;
+  --danger-soft: #fef0ee;
+  --danger-ink: #7a1a11;
+  --warn: #8a5300;
+  --warn-soft: #fff5db;
+  --rose: #b4235f;
+  --scheduled: #2f4a7a;
+  --scheduled-soft: #eef2f8;
+
+  /* Charts */
+  --chart-1: #14203a;
+  --chart-2: #aeb8cb;
+  --chart-3: #c9772b;
+  --chart-grid: #e2e6ec;
+  --chart-marker: #cbd2dc;
+  --chart-track: #eef1f5;
+  --meter-track: #e2e6ec;
+
+  /* Elevation: soft and close */
+  --shadow-card: 0 1px 2px rgba(17, 24, 39, 0.06), 0 8px 24px -12px rgba(17, 24, 39, 0.18);
+  --shadow-soft: 0 1px 2px rgba(17, 24, 39, 0.05);
+  --shadow-purple: none;
+
+  /* Radii: controls 8, cards 10, pills stay round */
+  --r-pill: 999px;
+  --r-card: 10px;
+  --r-card-app: 10px;
+  --r-shell: 10px;
+  --r-control: 8px;
+
+  /* Type */
+  --font-sans:
+    'Atkinson Hyperlegible Next Variable', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: 'Atkinson Hyperlegible Mono Variable', ui-monospace, Menlo, Consolas, monospace;
+
+  /* The line */
+  --rail: #14203a;
+  --rail-2: #1d2b4b;
+  --rail-3: #2c3c63;
+  --rail-text: #d5dcea;
+  --rail-muted: #9aa6bf;
+  --rail-line: #33446a;
+  --signal: #ffc83d;
+  --signal-soft: #ffe7a3;
+  --route: #12724b;
+  --route-rail: #1c8c5e;
+
+  --duration-hover: 150ms;
+}
+
+@theme inline {
+  --color-rail: var(--rail);
+  --color-rail-2: var(--rail-2);
+  --color-rail-3: var(--rail-3);
+  --color-rail-text: var(--rail-text);
+  --color-rail-muted: var(--rail-muted);
+  --color-rail-line: var(--rail-line);
+  --color-signal: var(--signal);
+  --color-route: var(--route);
+  --color-warn: var(--warn);
+  --color-warn-soft: var(--warn-soft);
+  --color-danger-ink: var(--danger-ink);
+}
+
+@layer base {
+  html {
+    caret-color: var(--purple);
+    accent-color: var(--purple);
+    scrollbar-color: var(--line-control) transparent;
+    font-feature-settings: normal;
+  }
+
+  body {
+    background: var(--surface);
+    font-size: 15px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  ::selection {
+    background: var(--signal-soft);
+    color: var(--ink);
+  }
+
+  ::placeholder {
+    color: var(--text-muted);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--purple);
+    outline-offset: 2px;
+  }
+
+  /* On the dark rail the ring turns yellow so it stays visible. */
+  .on-rail :focus-visible {
+    outline-color: var(--signal);
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: var(--line-control);
+  }
+
+  .on-rail {
+    scrollbar-color: var(--rail-line) transparent;
+  }
+}
+
+@layer components {
+  .btn-primary,
+  .btn-ghost,
+  .btn-danger,
+  .btn-quiet {
+    min-height: 36px;
+    padding: 0 14px;
+    border-radius: var(--r-control);
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1;
+    box-shadow: none;
+    transition:
+      background-color var(--duration-hover) ease,
+      border-color var(--duration-hover) ease,
+      color var(--duration-hover) ease;
+  }
+  .btn-primary.btn-sm,
+  .btn-ghost.btn-sm,
+  .btn-danger.btn-sm,
+  .btn-quiet.btn-sm {
+    min-height: 32px;
+    padding: 0 11px;
+    font-size: 13px;
+  }
+  .btn-primary {
+    border: 1px solid var(--purple);
+  }
+  .btn-primary:hover {
+    border-color: var(--purple-deep);
+    transform: none;
+  }
+  .btn-ghost {
+    border-color: var(--line-control);
+  }
+  .btn-ghost:hover {
+    background: var(--surface-alt);
+    border-color: var(--line-control-hover);
+    transform: none;
+  }
+  .btn-quiet {
+    padding: 0 10px;
+    color: var(--purple);
+  }
+  .btn-quiet:hover {
+    background: var(--surface-alt);
+  }
+  :is(.btn-primary, .btn-ghost, .btn-danger, .btn-quiet):is(:disabled, [aria-disabled='true']) {
+    opacity: 1;
+  }
+  .btn-primary:is(:disabled, [aria-disabled='true']) {
+    background: var(--line-soft);
+    border-color: var(--line-soft);
+    color: var(--text-sub);
+  }
+  :is(.btn-ghost, .btn-quiet, .btn-danger):is(:disabled, [aria-disabled='true']) {
+    color: var(--text-muted);
+  }
+  /* A split button: the main action and a chevron for its menu, joined, with a hairline of the
+     surface between them (Publish in the design studio). */
+  .btn-split {
+    display: inline-flex;
+  }
+  .btn-split > :first-child {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+  }
+  .btn-split > :last-child {
+    padding: 0 9px;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    border-left-color: color-mix(in srgb, var(--surface) 40%, var(--purple));
+  }
+  .btn-split > :last-child:is(:disabled, [aria-disabled='true']) {
+    border-left-color: var(--surface);
+  }
+  /* A busy button keeps its colour; only the spinner says it is working. */
+  .btn-primary[aria-busy='true'] {
+    background: var(--purple);
+    border-color: var(--purple);
+    color: #fff;
+  }
+
+  .card-app {
+    box-shadow: none;
+  }
+
+  .status-pill {
+    padding: 2px 8px;
+    border: 1px solid currentColor;
+    background: transparent;
+    font-size: 12px;
+    letter-spacing: 0;
+    text-transform: none;
+  }
+
+  /* Text inputs and selects, for screens that draw their own fields. */
+  .line-input {
+    width: 100%;
+    min-height: 40px;
+    padding: 0 10px;
+    border: 1px solid var(--line-control);
+    border-radius: var(--r-control);
+    background: var(--surface);
+    color: var(--ink);
+    font: inherit;
+    transition: border-color var(--duration-hover) ease;
+  }
+  .line-input:hover {
+    border-color: var(--line-control-hover);
+  }
+  .line-input:focus-visible {
+    outline: 2px solid var(--purple);
+    outline-offset: 0;
+    border-color: var(--purple);
+  }
+  .line-input:read-only {
+    background: var(--surface-alt);
+  }
+
+  /* A radio or checkbox inside its label: the whole label is the target, at least 24px tall
+     (WCAG 2.5.8), with the pointer and a soft wash on hover. The wash is a shadow, so rows don't
+     move; it works on white and on the grey panels alike. */
+  label:has(> input:is([type='radio'], [type='checkbox']):not(:disabled)) {
+    min-height: 24px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition:
+      background-color var(--duration-hover),
+      box-shadow var(--duration-hover);
+  }
+  label:has(> input:is([type='radio'], [type='checkbox']):not(:disabled)):hover {
+    background-color: color-mix(in srgb, var(--ink) 5%, transparent);
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--ink) 5%, transparent);
+  }
+  label > input:is([type='radio'], [type='checkbox']) {
+    cursor: inherit;
+  }
+
+  /* A floating menu: publication switcher, New post, insert. */
+  .line-menu {
+    z-index: 40;
+    min-width: 240px;
+    padding: 6px;
+    border: 1px solid var(--line);
+    border-radius: var(--r-card);
+    background: var(--surface);
+    box-shadow: var(--shadow-card);
+    color: var(--ink);
+  }
+  .line-menu-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 8px 10px;
+    border: 0;
+    border-radius: 6px;
+    background: none;
+    color: var(--ink);
+    font: inherit;
+    font-size: 14px;
+    text-align: left;
+    text-decoration: none;
+    cursor: pointer;
+  }
+  .line-menu-item:hover,
+  .line-menu-item:focus-visible {
+    background: var(--surface-alt);
+  }
+  .line-menu-item:focus-visible {
+    outline-offset: -2px;
+  }
+  .line-menu-item:disabled {
+    color: var(--text-muted);
+    cursor: not-allowed;
+  }
+  .line-menu-item:disabled:hover {
+    background: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+  }
+}
+
+/* ---- The rail: navigation drawn as a transit line ------------------------------------------ */
+@layer components {
+  .line-nav {
+    --lx: 13px;
+    position: relative;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  /* The track. */
+  .line-nav::before {
+    content: '';
+    position: absolute;
+    top: 16px;
+    bottom: 16px;
+    left: calc(var(--lx) - 1px);
+    width: 2px;
+    border-radius: 1px;
+    background: var(--rail-line);
+  }
+  .line-nav ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .line-nav li {
+    position: relative;
+  }
+  .line-stn + .line-stn {
+    margin-top: 6px;
+  }
+  /* A group label is a station: an open ring on the track. */
+  .line-stn-label {
+    display: flex;
+    align-items: center;
+    min-height: 32px;
+    margin-left: 30px;
+    color: var(--rail-muted);
+    font-size: 13px;
+    font-weight: 650;
+  }
+  .line-stn-label::before,
+  .line-nav a[aria-current='page']::before {
+    content: '';
+    position: absolute;
+    top: 9px;
+    left: calc(var(--lx) - 7px);
+    width: 14px;
+    height: 14px;
+    border: 2px solid var(--rail-text);
+    border-radius: 50%;
+    background: var(--rail);
+  }
+  .line-nav a {
+    display: flex;
+    align-items: center;
+    min-height: 32px;
+    border-radius: 6px;
+    color: var(--rail-text);
+    text-decoration: none;
+    transition:
+      background-color var(--duration-hover) ease,
+      color var(--duration-hover) ease;
+  }
+  .line-nav a:hover {
+    background: rgba(255, 255, 255, 0.06);
+    color: #fff;
+  }
+  a.line-stn-label {
+    margin-left: 22px;
+    padding: 0 10px 0 8px;
+    color: var(--rail-text);
+    font-size: 15px;
+    font-weight: 600;
+  }
+  .line-items a {
+    margin-left: 30px;
+    padding: 0 10px 0 12px;
+    font-size: 15px;
+  }
+  /* A stop: a short spur off the track. */
+  .line-items a::before {
+    content: '';
+    position: absolute;
+    top: 15px;
+    left: calc(var(--lx) + 1px);
+    width: 9px;
+    height: 2px;
+    background: var(--rail-line);
+  }
+  /* You are here: a yellow stop with a night centre. */
+  .line-nav a[aria-current='page'] {
+    background: var(--rail-2);
+    color: #fff;
+    font-weight: 600;
+  }
+  .line-nav a[aria-current='page']::before {
+    top: 9px;
+    left: calc(var(--lx) - 7px);
+    width: 14px;
+    height: 14px;
+    border: 0;
+    background: var(--signal);
+    box-shadow: 0 0 0 3px var(--rail);
+  }
+  .line-nav a[aria-current='page']::after {
+    content: '';
+    position: absolute;
+    top: 13.5px;
+    left: calc(var(--lx) - 2.5px);
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--rail);
+  }
+
+  /* The route used on Home (last send, setup) and in the editor's send panel. */
+  .line-route {
+    display: grid;
+    grid-auto-columns: minmax(0, 1fr);
+    grid-auto-flow: column;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .line-route > li {
+    position: relative;
+    min-width: 0;
+    padding: 32px 20px 0 0;
+  }
+  .line-route > li::before {
+    content: '';
+    position: absolute;
+    top: 8px;
+    right: -9px;
+    left: 9px;
+    height: 3px;
+    border-radius: 2px;
+    background: var(--route);
+  }
+  .line-route > li:last-child::before {
+    display: none;
+  }
+  .line-route > li.is-ahead::before {
+    background: var(--line);
+  }
+  .line-mk {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 1;
+    display: grid;
+    place-items: center;
+    width: 19px;
+    height: 19px;
+    border: 3px solid var(--route);
+    border-radius: 50%;
+    background: var(--surface);
+    color: #fff;
+  }
+  .is-done > .line-mk {
+    background: var(--route);
+  }
+  .is-now > .line-mk {
+    border-color: var(--signal);
+    background: var(--signal);
+    box-shadow: 0 0 0 3px var(--surface);
+  }
+  .is-now > .line-mk::after {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--rail);
+  }
+  .is-future > .line-mk {
+    border-color: var(--line-control);
+  }
+
+  /* The posts calendar: ruled days, no cards. Today is night, because yellow is the rail's. */
+  .cal-grid {
+    width: 100%;
+    table-layout: fixed;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  .cal-grid th {
+    padding: 0 8px 6px;
+    color: var(--text-sub);
+    font-weight: 600;
+    text-align: left;
+  }
+  .cal-grid td {
+    height: 112px;
+    padding: 6px 8px 8px;
+    border: 1px solid var(--line);
+    vertical-align: top;
+    transition: background-color var(--duration-hover);
+  }
+  .cal-grid td.cal-other {
+    background: var(--surface-alt);
+  }
+  .cal-grid td.cal-other .cal-num {
+    color: var(--text-muted);
+  }
+  .cal-grid td.cal-over {
+    background: var(--lavender);
+    outline: 2px solid var(--purple);
+    outline-offset: -2px;
+  }
+  .cal-num,
+  .cal-today {
+    display: inline-grid;
+    place-items: center;
+    min-width: 22px;
+    height: 22px;
+    font-size: 13px;
+    font-weight: 600;
+  }
+  .cal-today {
+    border-radius: 50%;
+    background: var(--rail);
+    color: #fff;
+  }
+  .cal-entry {
+    display: grid;
+    grid-template-columns: 10px minmax(0, 1fr);
+    gap: 6px;
+    overflow-wrap: anywhere;
+  }
+  .cal-mk {
+    width: 10px;
+    height: 10px;
+    margin-top: 3px;
+    border: 2px solid var(--line-control);
+    border-radius: 50%;
+    background: var(--surface);
+  }
+  .cal-mk-draft {
+    border-style: dotted;
+  }
+  .cal-mk-scheduled {
+    border-color: var(--rail);
+  }
+  .cal-mk-sending {
+    border-color: var(--rail);
+    background: var(--rail);
+  }
+  .cal-mk-sent {
+    border-color: var(--route);
+    background: var(--route);
+  }
+  .cal-mk-past {
+    border-radius: 2px;
+    background: var(--line-control);
+  }
+  .cal-action {
+    display: block;
+    margin-top: 1px;
+    color: var(--purple-deep);
+    font-size: 12px;
+    font-weight: 600;
+    text-align: left;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    cursor: pointer;
+  }
+  .cal-new {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    margin-top: 6px;
+    color: var(--text-sub);
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+    opacity: 0;
+    cursor: pointer;
+    transition: opacity var(--duration-hover);
+  }
+  .cal-grid td:hover .cal-new,
+  .cal-new:focus-visible {
+    opacity: 1;
+  }
+  @media (hover: none) {
+    .cal-new {
+      opacity: 1;
+    }
+  }
+
+  /* The setup route: the current step gets the room. */
+  .line-route-setup {
+    grid-template-columns: 1fr 2.6fr 1fr 1fr;
+    grid-auto-flow: row;
+  }
+
+  .line-band {
+    container-type: inline-size;
+  }
+  @container (max-width: 760px) {
+    .line-route-setup {
+      grid-template-columns: 1fr;
+    }
+    .line-route-setup > li {
+      padding: 0 0 22px 34px;
+    }
+    .line-route-setup > li::before {
+      top: 9px;
+      right: auto;
+      bottom: -9px;
+      left: 8px;
+      width: 3px;
+      height: auto;
+    }
+  }
+  @container (max-width: 560px) {
+    .line-route-est {
+      grid-auto-columns: auto;
+      grid-auto-flow: row;
+    }
+    .line-route-est > li {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: baseline;
+      column-gap: 12px;
+      padding: 0 0 18px 34px;
+    }
+    .line-route-est > li::before {
+      top: 9px;
+      right: auto;
+      bottom: -9px;
+      left: 8px;
+      width: 3px;
+      height: auto;
+    }
+    .line-route-est .line-fig {
+      grid-row: 1 / 3;
+      grid-column: 2;
+      font-size: 22px;
+      text-align: right;
+    }
+  }
+
+  /* The warm-up route on Sending: five stops across, down the side in a narrow card. */
+  @container (max-width: 760px) {
+    .line-route-warmup {
+      grid-auto-columns: auto;
+      grid-auto-flow: row;
+    }
+    .line-route-warmup > li {
+      padding: 0 0 18px 34px;
+    }
+    .line-route-warmup > li:last-child {
+      padding-bottom: 0;
+    }
+    .line-route-warmup > li::before {
+      top: 9px;
+      right: auto;
+      bottom: -9px;
+      left: 8px;
+      width: 3px;
+      height: auto;
+    }
+  }
+
+  /* The editor's send route: three stops down the side panel. */
+  .line-steps > li {
+    position: relative;
+    padding-bottom: 8px;
+  }
+  .line-steps > li::before {
+    content: '';
+    position: absolute;
+    top: 22px;
+    bottom: -14px;
+    left: 9px;
+    width: 3px;
+    border-radius: 2px;
+    background: var(--line-control);
+  }
+  .line-steps > li:last-child::before {
+    display: none;
+  }
+  .line-steps > li.is-done::before {
+    background: var(--route);
+  }
+  .line-smk {
+    position: absolute;
+    top: 9px;
+    left: 0;
+    z-index: 1;
+    display: grid;
+    place-items: center;
+    width: 21px;
+    height: 21px;
+    border: 3px solid var(--line-control);
+    border-radius: 50%;
+    background: var(--surface-alt);
+    color: #fff;
+  }
+  .is-done .line-smk {
+    border-color: var(--route);
+    background: var(--route);
+  }
+  .is-now .line-smk {
+    border-color: var(--signal);
+    background: var(--signal);
+    box-shadow: 0 0 0 3px var(--surface-alt);
+  }
+  .is-now .line-smk::after {
+    content: '';
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--rail);
+  }
+}
+
+/* Table and list headings, and other small labels over a group: 13px semibold in sentence case.
+   Line has no uppercase micro labels (scripts/check-vocabulary.mjs fails on the class). */
+@layer components {
+  .table-head {
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.4;
+    letter-spacing: 0;
+    text-transform: none;
+    color: var(--text-sub);
+  }
+  .table-head th {
+    font-weight: inherit;
+  }
+}
+
+/* Every single-line select draws Line's chevron instead of the browser's, so selects match the
+   fields beside them on every platform. Unlayered on purpose: it wins over a utility's padding,
+   so the text never runs under the chevron. */
+select:not([multiple], [size]) {
+  padding-right: 34px;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%234B5568' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6.5 9.5l5.5 5.5 5.5-5.5'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 16px;
+  cursor: pointer;
+}
+select:not([multiple], [size]):disabled {
+  cursor: not-allowed;
+}
+
+/* Page header: the title, one line under it, and the page's actions, all 36px. */
+@layer components {
+  .page-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 12px 24px;
+    padding-bottom: 20px;
+  }
+  .page-title {
+    font-size: 26px;
+    font-weight: 600;
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+    text-wrap: balance;
+  }
+  .page-sub {
+    margin-top: 6px;
+    color: var(--text-sub);
+    font-size: 14px;
+    line-height: 1.5;
+  }
+  .page-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+  }
+  @media (max-width: 639px) {
+    .page-title {
+      font-size: 24px;
+    }
+  }
+
+  /* Filter chips over a list (status with counts). One row: on a phone it scrolls sideways
+     inside itself instead of wrapping into three rows above the list. */
+  .line-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  @media (max-width: 639px) {
+    .line-chips {
+      flex-wrap: nowrap;
+      padding-block: 2px;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+  }
+  .line-chip {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    gap: 6px;
+    min-height: 32px;
+    padding: 0 12px;
+    border: 1px solid var(--line);
+    border-radius: var(--r-pill);
+    background: var(--surface);
+    color: var(--text-sub);
+    font-size: 13px;
+    font-weight: 600;
+    white-space: nowrap;
+    cursor: pointer;
+    transition:
+      background-color var(--duration-hover) ease,
+      border-color var(--duration-hover) ease,
+      color var(--duration-hover) ease;
+  }
+  .line-chip:hover {
+    border-color: var(--line-control);
+    color: var(--ink);
+  }
+  .line-chip[aria-pressed='true'] {
+    border-color: var(--purple);
+    background: var(--lavender);
+    color: var(--ink);
+  }
+  .line-chip-count {
+    color: var(--text-sub);
+    font-weight: 400;
+  }
+
+  /* A row's secondary action (Archive) shows on hover or focus where there is a pointer, so a
+     list of rows doesn't read as a column of buttons. Touch screens always show it. */
+  @media (hover: hover) and (pointer: fine) {
+    .row-reveal {
+      opacity: 0;
+    }
+    tr:hover .row-reveal,
+    tr:focus-within .row-reveal,
+    .row-reveal:focus-within {
+      opacity: 1;
+    }
+  }
+}

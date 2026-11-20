@@ -1,0 +1,86 @@
+{% assign s = section.settings %}
+<section class="nt-latest nt-latest--{{ s.style }}" aria-labelledby="{{ section.id }}-title">
+  <div class="nt-head">
+    {% if s.heading %}
+    <h2 class="nt-h2" id="{{ section.id }}-title">{{ s.heading }}</h2>
+    {% else %}
+    <h2 class="sw-sr" id="{{ section.id }}-title">Latest issues</h2>
+    {% endif %} {% if posts %}<a class="nt-link" href="{{ site.archive_url }}">All issues</a>{%
+    endif %}
+  </div>
+  {% if posts %} {% if s.style == 'reel' %}
+  <div
+    class="nt-reel{% if posts.size > 1 and s.count > 1 %} nt-reel--more{% endif %}{% if posts.size > 4 and s.count > 4 %} nt-reel--many{% endif %}"
+    role="region"
+    aria-label="{{ s.heading | default: 'Latest issues' }}, scrolls sideways"
+    tabindex="0"
+  >
+    <ol class="nt-reel__list" role="list">
+      {% for post in posts limit: s.count %}
+      <li class="nt-reel__item">{% render 'cover', post: post, s: s %}</li>
+      {% endfor %}
+    </ol>
+  </div>
+  <p class="nt-reel__hint" aria-hidden="true">
+    Scroll sideways for more
+    <svg viewBox="0 0 24 24" width="18" height="18" focusable="false">
+      <path
+        d="M4 12h15m-5-5 5 5-5 5"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.8"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      />
+    </svg>
+  </p>
+  {% elsif s.style == 'cards' %}
+  <ul class="nt-grid" role="list">
+    {% for post in posts limit: s.count %}
+    <li>{% render 'cover', post: post, s: s %}</li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <ol class="nt-rows" role="list">
+    {% for post in posts limit: s.count %}
+    <li>{% render 'row', post: post, s: s %}</li>
+    {% endfor %}
+  </ol>
+  {% endif %} {% else %}
+  <p class="nt-empty">The first issue is on its way. Subscribe and it comes straight to you.</p>
+  {% endif %}
+</section>
+
+{% comment %}<!-- prettier-ignore -->{% endcomment %}
+{% schema %}
+{
+  "name": "Latest issues",
+  "description": "The newest issues, on a reel you scroll sideways or in rows.",
+  "settings": [
+    { "id": "heading", "type": "text", "label": "Heading", "max": 120, "default": "Recent issues" },
+    {
+      "id": "count",
+      "type": "range",
+      "label": "How many",
+      "min": 1,
+      "max": 12,
+      "step": 1,
+      "default": 8
+    },
+    {
+      "id": "style",
+      "type": "select",
+      "label": "Style",
+      "options": [
+        { "value": "reel", "label": "A reel of covers" },
+        { "value": "cards", "label": "Cards" },
+        { "value": "list", "label": "List" },
+        { "value": "compact", "label": "Compact, like credits" }
+      ],
+      "default": "reel"
+    },
+    { "id": "show_images", "type": "checkbox", "label": "Show images", "default": true },
+    { "id": "show_excerpt", "type": "checkbox", "label": "Show summaries", "default": false }
+  ]
+}
+{% endschema %}

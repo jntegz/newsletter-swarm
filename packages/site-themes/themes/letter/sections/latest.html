@@ -1,0 +1,63 @@
+{% assign s = section.settings %}
+<section
+  class="letter-latest letter-latest--{{ s.style }}"
+  aria-labelledby="{{ section.id }}-title"
+>
+  {% if s.heading %}
+  <h2 class="letter-h2" id="{{ section.id }}-title">{{ s.heading }}</h2>
+  {% else %}
+  <h2 class="sw-sr" id="{{ section.id }}-title">Past letters</h2>
+  {% endif %} {% if posts %} {% if s.style == 'cards' %}
+  <ul class="letter-cards" role="list">
+    {% for post in posts limit: s.count %}
+    <li>{% render 'post-card', post: post, s: s %}</li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <ol class="letter-rows" role="list">
+    {% for post in posts limit: s.count %}
+    <li>{% render 'post-row', post: post, s: s %}</li>
+    {% endfor %}
+  </ol>
+  {% endif %} {% if site.issue_count > s.count %}
+  <p class="letter-more">
+    <a href="{{ site.archive_url }}">All {{ site.issue_count | plural: 'letter', 'letters' }}</a>
+  </p>
+  {% endif %} {% else %}
+  <p class="letter-empty">The first letter is still being written.</p>
+  {% endif %}
+</section>
+
+{% comment %}<!-- prettier-ignore -->{% endcomment %}
+{% schema %}
+{
+  "name": "Latest issues",
+  "description": "The newest issues.",
+  "settings": [
+    { "id": "heading", "type": "text", "label": "Heading", "max": 120, "default": "Past letters" },
+    {
+      "id": "count",
+      "type": "range",
+      "label": "How many",
+      "min": 1,
+      "max": 12,
+      "step": 1,
+      "default": 8
+    },
+    {
+      "id": "style",
+      "type": "select",
+      "label": "Style",
+      "options": [
+        { "value": "letters", "label": "Letters, by date" },
+        { "value": "cards", "label": "Cards" },
+        { "value": "list", "label": "List" },
+        { "value": "compact", "label": "Compact" }
+      ],
+      "default": "letters"
+    },
+    { "id": "show_images", "type": "checkbox", "label": "Show images", "default": false },
+    { "id": "show_excerpt", "type": "checkbox", "label": "Show summaries", "default": true }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,5 @@
+# Copy to .dev.vars for local development. Never commit .dev.vars.
+# send and track must use the same keys; generate real ones with:
+#   node -e "console.log('k1:' + require('crypto').randomBytes(32).toString('hex'))"
+TRACK_KEYS=k1:development-only-track-key-replace-before-using-this-file
+UNSUBSCRIBE_KEYS=k1:development-only-unsubscribe-key-replace-before-using-this-file

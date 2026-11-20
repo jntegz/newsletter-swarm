@@ -1,0 +1,39 @@
+{% assign s = section.settings %} {% if s.items %}
+<section class="letter-faq" aria-labelledby="{{ section.id }}-title">
+  {% if s.heading %}
+  <h2 class="letter-h2" id="{{ section.id }}-title">{{ s.heading }}</h2>
+  {% else %}
+  <h2 class="sw-sr" id="{{ section.id }}-title">Questions</h2>
+  {% endif %} {% for item in s.items %}{% if item.question %}
+  <details class="letter-faq__item">
+    <summary>{{ item.question }}</summary>
+    <div class="letter-faq__answer">{{ item.answer | paragraphs }}</div>
+  </details>
+  {% endif %}{% endfor %}
+</section>
+{% endif %} {% comment %}<!-- prettier-ignore -->{% endcomment %}
+{% schema %}
+{
+  "name": "Questions",
+  "description": "Questions before signing up, opened one at a time.",
+  "settings": [
+    {
+      "id": "heading",
+      "type": "text",
+      "label": "Heading",
+      "max": 120,
+      "default": "A few questions"
+    },
+    {
+      "id": "items",
+      "type": "list",
+      "label": "Questions",
+      "max": 12,
+      "fields": [
+        { "id": "question", "type": "text", "label": "Question", "max": 160 },
+        { "id": "answer", "type": "textarea", "label": "Answer", "max": 800 }
+      ]
+    }
+  ]
+}
+{% endschema %}

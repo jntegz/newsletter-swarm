@@ -1,0 +1,54 @@
+{% assign s = section.settings %} {% if featured %}
+<section class="news-featured" aria-labelledby="{{ section.id }}-title">
+  {% if s.heading %}
+  <h2 class="news-h2" id="{{ section.id }}-title">{{ s.heading }}</h2>
+  {% else %}
+  <h2 class="sw-sr" id="{{ section.id }}-title">A featured issue</h2>
+  {% endif %}
+  <article class="news-feature{% if featured.image %} news-feature--image{% endif %}">
+    {% if featured.image %}
+    <div class="news-feature__image">
+      {{ featured.image | image: '(min-width:960px)50vw,100vw' }}
+    </div>
+    {% endif %}
+    <div class="news-feature__body">
+      <h3 class="news-feature__title">{{ featured.title }}</h3>
+      <p class="news-feature__meta">
+        <time datetime="{{ featured.date | date: 'iso' }}">{{ featured.date | date: 'long' }}</time>
+        {% if featured.reading_minutes %} · {{ featured.reading_minutes }} min read{% endif %}
+      </p>
+      {% if featured.excerpt %}
+      <p class="news-feature__excerpt">{{ featured.excerpt }}</p>
+      {% endif %}
+      <p>
+        <a class="sw-button" href="{{ featured.url }}"
+          >{{ s.button_label | default: featured.title }}</a
+        >
+      </p>
+    </div>
+  </article>
+</section>
+{% endif %} {% comment %}<!-- prettier-ignore -->{% endcomment %}
+{% schema %}
+{
+  "name": "Featured issue",
+  "description": "One issue up close: the pinned one, else the latest.",
+  "limit": 1,
+  "settings": [
+    {
+      "id": "heading",
+      "type": "text",
+      "label": "Heading",
+      "max": 120,
+      "default": "From the archive"
+    },
+    {
+      "id": "button_label",
+      "type": "text",
+      "label": "Button",
+      "max": 40,
+      "default": "Read the full story"
+    }
+  ]
+}
+{% endschema %}

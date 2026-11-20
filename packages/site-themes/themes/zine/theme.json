@@ -1,0 +1,216 @@
+{
+  "name": "Zine",
+  "settings": [
+    {
+      "id": "accent",
+      "type": "color",
+      "label": "Accent",
+      "group": "Colour",
+      "default": "#1f4fd1",
+      "info": "Buttons, links and highlights."
+    },
+    {
+      "id": "page",
+      "type": "color",
+      "label": "Background",
+      "group": "Colour",
+      "default": "#f7f2e8"
+    },
+    {
+      "id": "ink",
+      "type": "color",
+      "label": "Text",
+      "group": "Colour",
+      "default": "#1c1a22"
+    },
+    {
+      "id": "scheme",
+      "type": "select",
+      "label": "Light or dark",
+      "group": "Colour",
+      "default": "light",
+      "options": [
+        {
+          "value": "light",
+          "label": "Light"
+        },
+        {
+          "value": "dark",
+          "label": "Dark"
+        },
+        {
+          "value": "auto",
+          "label": "Follow the reader’s device"
+        }
+      ]
+    },
+    {
+      "id": "heading_font",
+      "type": "font",
+      "label": "Headings",
+      "group": "Type",
+      "default": "archivo"
+    },
+    {
+      "id": "body_font",
+      "type": "font",
+      "label": "Text",
+      "group": "Type",
+      "default": "grotesk"
+    },
+    {
+      "id": "scale",
+      "type": "select",
+      "label": "Text size",
+      "group": "Type",
+      "default": "regular",
+      "options": [
+        {
+          "value": "compact",
+          "label": "Compact"
+        },
+        {
+          "value": "regular",
+          "label": "Regular"
+        },
+        {
+          "value": "large",
+          "label": "Large"
+        }
+      ]
+    },
+    {
+      "id": "corners",
+      "type": "select",
+      "label": "Corners",
+      "group": "Shape",
+      "default": "soft",
+      "options": [
+        {
+          "value": "square",
+          "label": "Square"
+        },
+        {
+          "value": "soft",
+          "label": "Soft"
+        },
+        {
+          "value": "round",
+          "label": "Round"
+        }
+      ]
+    },
+    {
+      "id": "width",
+      "type": "select",
+      "label": "Page width",
+      "group": "Shape",
+      "default": "regular",
+      "options": [
+        {
+          "value": "narrow",
+          "label": "Narrow"
+        },
+        {
+          "value": "regular",
+          "label": "Regular"
+        },
+        {
+          "value": "wide",
+          "label": "Wide"
+        }
+      ]
+    },
+    {
+      "id": "buttons",
+      "type": "select",
+      "label": "Buttons",
+      "group": "Shape",
+      "default": "solid",
+      "options": [
+        {
+          "value": "solid",
+          "label": "Solid"
+        },
+        {
+          "value": "pill",
+          "label": "Pill"
+        },
+        {
+          "value": "outline",
+          "label": "Outline"
+        }
+      ]
+    },
+    {
+      "id": "second_ink",
+      "type": "color",
+      "text_on": true,
+      "label": "Second ink",
+      "group": "Colour",
+      "default": "#ff5c93",
+      "info": "Printed over the accent and the third ink. Text sits on it, so keep it light and bright."
+    },
+    {
+      "id": "third_ink",
+      "type": "color",
+      "text_on": true,
+      "label": "Third ink",
+      "group": "Colour",
+      "default": "#ffd23f",
+      "info": "For stickers, notes and shapes. Text sits on it, so keep it light and bright."
+    },
+    {
+      "id": "tilt",
+      "type": "select",
+      "label": "Stickers and notes",
+      "group": "Shape",
+      "default": "playful",
+      "options": [
+        {
+          "value": "playful",
+          "label": "Tilted, as if stuck on by hand"
+        },
+        {
+          "value": "straight",
+          "label": "Straight"
+        }
+      ]
+    }
+  ],
+  "sections": [
+    {
+      "type": "hero",
+      "settings": {
+        "layout": "poster",
+        "show_count": true
+      }
+    },
+    {
+      "type": "benefits",
+      "audience": "visitors"
+    },
+    {
+      "type": "latest",
+      "settings": {
+        "style": "stack",
+        "count": 6
+      }
+    },
+    {
+      "type": "testimonials",
+      "audience": "visitors"
+    },
+    {
+      "type": "author"
+    },
+    {
+      "type": "faq",
+      "audience": "visitors"
+    },
+    {
+      "type": "subscribe_band",
+      "audience": "visitors"
+    }
+  ]
+}

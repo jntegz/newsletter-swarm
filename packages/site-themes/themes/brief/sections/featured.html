@@ -1,0 +1,46 @@
+{% assign s = section.settings %} {% if featured %}
+<section class="br-featured br-split" aria-labelledby="{{ section.id }}-title">
+  <div class="br-split__head">
+    {% if s.heading %}
+    <h2 class="br-h2" id="{{ section.id }}-title">{{ s.heading }}</h2>
+    {% else %}
+    <h2 class="sw-sr" id="{{ section.id }}-title">A featured issue</h2>
+    {% endif %}
+    <p class="br-feature__meta br-fig">
+      <time datetime="{{ featured.date | date: 'iso' }}">{{ featured.date | date: 'long' }}</time>
+      {% if featured.reading_minutes %}<span>{{ featured.reading_minutes }} min read</span>{% endif
+      %}
+    </p>
+  </div>
+  <article class="br-feature br-split__body">
+    <h3 class="br-feature__title">{{ featured.title }}</h3>
+    {% if featured.excerpt %}
+    <p class="br-feature__excerpt">{{ featured.excerpt }}</p>
+    {% endif %} {% if featured.image %}
+    <div class="br-feature__image">{{ featured.image | image: '(min-width:960px)60vw,100vw' }}</div>
+    {% endif %}
+    <p class="br-feature__action">
+      <a class="sw-button" href="{{ featured.url }}"
+        >{{ s.button_label | default: featured.title }}</a
+      >
+    </p>
+  </article>
+</section>
+{% endif %} {% comment %}<!-- prettier-ignore -->{% endcomment %}
+{% schema %}
+{
+  "name": "Featured issue",
+  "description": "One issue up close: the pinned one, else the latest.",
+  "limit": 1,
+  "settings": [
+    { "id": "heading", "type": "text", "label": "Heading", "max": 120, "default": "Read a sample" },
+    {
+      "id": "button_label",
+      "type": "text",
+      "label": "Button",
+      "max": 40,
+      "default": "Read the full issue"
+    }
+  ]
+}
+{% endschema %}

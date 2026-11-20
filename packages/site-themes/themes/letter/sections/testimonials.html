@@ -1,0 +1,38 @@
+{% assign s = section.settings %} {% if s.items %}
+<section class="letter-notes" aria-labelledby="{{ section.id }}-title">
+  {% if s.heading %}
+  <h2 class="letter-h2" id="{{ section.id }}-title">{{ s.heading }}</h2>
+  {% else %}
+  <h2 class="sw-sr" id="{{ section.id }}-title">What readers say</h2>
+  {% endif %}
+  <div class="letter-notes__list">
+    {% for item in s.items %}{% if item.quote %}
+    <figure class="letter-note">
+      <blockquote class="letter-note__text"><p>{{ item.quote }}</p></blockquote>
+      <figcaption>{% render 'signature', item: item %}</figcaption>
+    </figure>
+    {% endif %}{% endfor %}
+  </div>
+</section>
+{% endif %} {% comment %}<!-- prettier-ignore -->{% endcomment %}
+{% schema %}
+{
+  "name": "Testimonials",
+  "description": "What readers say.",
+  "settings": [
+    { "id": "heading", "type": "text", "label": "Heading", "max": 120, "default": "From readers" },
+    {
+      "id": "items",
+      "type": "list",
+      "label": "Quotes",
+      "max": 9,
+      "fields": [
+        { "id": "quote", "type": "textarea", "label": "Quote", "max": 400 },
+        { "id": "name", "type": "text", "label": "Name", "max": 80 },
+        { "id": "role", "type": "text", "label": "Who they are", "max": 80 },
+        { "id": "photo", "type": "image", "label": "Photo" }
+      ]
+    }
+  ]
+}
+{% endschema %}

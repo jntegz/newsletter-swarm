@@ -1,0 +1,112 @@
+{% assign s = section.settings %} {% assign pitch = s.pitch | default: site.description %} {% assign
+newest = posts.first %}
+<section class="news-mast news-mast--{{ s.layout }}" aria-labelledby="{{ section.id }}-title">
+  <div class="news-mast__name">
+    {% if s.show_logo and site.logo %}
+    <div class="news-mast__logo">{{ site.logo | image: '56px' }}</div>
+    {% endif %}
+    <h1 class="news-mast__title" id="{{ section.id }}-title">
+      {{ s.heading | default: site.name }}
+    </h1>
+    {% if pitch %}
+    <p class="news-mast__motto">{{ pitch }}</p>
+    {% endif %}
+  </div>
+  <p class="news-mast__dateline">
+    {% if site.issue_count > 0 %}<span>No. {{ site.issue_count | number }}</span>{% endif %} {% if
+    theme.edition %}<span>{{ theme.edition }}</span>{% endif %} {% if newest %}
+    <span
+      ><time datetime="{{ newest.date | date: 'iso' }}"
+        >{{ newest.date | date: 'long' }}</time
+      ></span
+    >
+    {% endif %} {% if s.show_count and site.subscriber_count %}
+    <span>{{ site.subscriber_count | number }} readers</span>
+    {% endif %}
+  </p>
+  {% if reader.is_subscriber %}
+  <p class="news-mast__welcome">
+    Welcome back. {% if newest %} In this edition:
+    <a href="{{ newest.url }}">{{ newest.title }}</a>. {% else %} The first edition is on its way to
+    you. {% endif %}
+  </p>
+  {% else %}
+  <div class="news-strip{% if s.image %} news-strip--image{% endif %}">
+    <div class="news-strip__promise">
+      <p class="news-strip__lead">
+        {% if s.promise %}{{ s.promise }}{% else %}Every edition, by email.{% endif %}
+      </p>
+      {% if s.privacy_note %}
+      <p class="news-strip__note">{{ s.privacy_note }}</p>
+      {% endif %}
+    </div>
+    <div class="news-strip__form" id="subscribe">{% subscribe_form %}</div>
+    {% if s.image %}
+    <div class="news-strip__image">{{ s.image | image: '(min-width:960px)25vw,100vw' }}</div>
+    {% endif %}
+  </div>
+  {% endif %}
+</section>
+
+{% comment %}<!-- prettier-ignore -->{% endcomment %}
+{% schema %}
+{
+  "name": "Hero",
+  "description": "The first screen: the promise and the signup form.",
+  "limit": 1,
+  "settings": [
+    {
+      "id": "heading",
+      "type": "text",
+      "label": "Heading",
+      "max": 120,
+      "info": "Leave it empty to use the publication’s name."
+    },
+    {
+      "id": "pitch",
+      "type": "textarea",
+      "label": "The line under it",
+      "max": 400,
+      "info": "Leave it empty to use the description."
+    },
+    {
+      "id": "promise",
+      "type": "text",
+      "label": "What and how often",
+      "max": 120,
+      "info": "Shown next to the form. For example: Every Sunday. Free."
+    },
+    {
+      "id": "show_count",
+      "type": "checkbox",
+      "label": "Show how many people read it",
+      "default": true,
+      "info": "Shown once there are at least 100 subscribers."
+    },
+    { "id": "show_logo", "type": "checkbox", "label": "Show the logo", "default": false },
+    {
+      "id": "privacy_note",
+      "type": "text",
+      "label": "Note under the form",
+      "max": 160,
+      "default": "Unsubscribe at any time."
+    },
+    {
+      "id": "layout",
+      "type": "select",
+      "label": "Layout",
+      "options": [
+        { "value": "centred", "label": "Centred masthead" },
+        { "value": "left", "label": "Masthead on the left" }
+      ],
+      "default": "centred"
+    },
+    {
+      "id": "image",
+      "type": "image",
+      "label": "Picture",
+      "info": "Shown beside the form on larger screens."
+    }
+  ]
+}
+{% endschema %}

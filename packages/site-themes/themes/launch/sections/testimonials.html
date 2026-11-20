@@ -1,0 +1,70 @@
+{% assign s = section.settings %} {% if s.items %}
+<section class="lx-quotes" aria-labelledby="{{ section.id }}-title">
+  <div class="lx-head">
+    {% if s.heading %}
+    <h2 class="lx-h2" id="{{ section.id }}-title">{{ s.heading }}</h2>
+    {% else %}
+    <h2 class="sw-sr" id="{{ section.id }}-title">What readers say</h2>
+    {% endif %}
+  </div>
+  <ul class="lx-quotes__list" role="list">
+    {% for item in s.items %}{% if item.quote %}
+    <li>
+      <figure class="lx-quote">
+        <blockquote class="lx-quote__text"><p>{{ item.quote }}</p></blockquote>
+        {% if item.name %}
+        <figcaption class="lx-person">
+          {% if item.photo %}
+          <img
+            class="lx-person__photo"
+            src="{{ item.photo.url }}"
+            alt=""
+            width="44"
+            height="44"
+            loading="lazy"
+            decoding="async"
+          />
+          {% else %}
+          <span class="lx-person__initial" aria-hidden="true"
+            >{{ item.name | truncate: 1, '' }}</span
+          >
+          {% endif %}
+          <span class="lx-person__text">
+            <cite class="lx-person__name">{{ item.name }}</cite>
+            {% if item.role %}<span class="lx-person__role">{{ item.role }}</span>{% endif %}
+          </span>
+        </figcaption>
+        {% endif %}
+      </figure>
+    </li>
+    {% endif %}{% endfor %}
+  </ul>
+</section>
+{% endif %} {% comment %}<!-- prettier-ignore -->{% endcomment %}
+{% schema %}
+{
+  "name": "Testimonials",
+  "description": "What readers say.",
+  "settings": [
+    {
+      "id": "heading",
+      "type": "text",
+      "label": "Heading",
+      "max": 120,
+      "default": "What readers say"
+    },
+    {
+      "id": "items",
+      "type": "list",
+      "label": "Quotes",
+      "max": 9,
+      "fields": [
+        { "id": "quote", "type": "textarea", "label": "Quote", "max": 400 },
+        { "id": "name", "type": "text", "label": "Name", "max": 80 },
+        { "id": "role", "type": "text", "label": "Who they are", "max": 80 },
+        { "id": "photo", "type": "image", "label": "Photo" }
+      ]
+    }
+  ]
+}
+{% endschema %}

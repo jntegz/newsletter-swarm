@@ -1,0 +1,40 @@
+From: DMARC Aggregate Report <dmarcreport@microsoft.com>
+To: <dmarc+sd_0192f8a0c0de7c3a9e2b4f1d6a8b0c11@dmarc.swarm.localhost>
+Subject: Report Domain: news.example.com Submitter: enterprise.protection.outlook.com
+ Report-ID: 8f0b2c4ad9e14f6bb2f7c6b1a3e5d901
+Date: Tue, 28 Oct 2025 06:02:31 +0000
+Message-ID: <8f0b2c4ad9e14f6bb2f7c6b1a3e5d901@microsoft.com>
+Content-Type: multipart/mixed;
+	boundary="_002_8f0b2c4ad9e14f6bb2f7c6b1a3e5d901microsoftcom_"
+MIME-Version: 1.0
+
+--_002_8f0b2c4ad9e14f6bb2f7c6b1a3e5d901microsoftcom_
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+
+This is a DMARC aggregate report from Microsoft Corporation. For Emails rece=
+ived between 2025-10-27 00:00:00 UTC to 2025-10-28 00:00:00 UTC.
+
+--_002_8f0b2c4ad9e14f6bb2f7c6b1a3e5d901microsoftcom_
+Content-Type: application/gzip;
+	name="enterprise.protection.outlook.com!news.example.com!1761523200!1761609600.xml.gz"
+Content-Description: enterprise.protection.outlook.com!news.example.com!1761523200!1761609600.xml.gz
+Content-Disposition: attachment;
+	filename="enterprise.protection.outlook.com!news.example.com!1761523200!1761609600.xml.gz"; size=693
+Content-Transfer-Encoding: base64
+
+H4sIAAAAAAACCt1WS2/bMAy+91cYuc+SnVcbqOpQrLcNO+yyWyBLdCLUekySm+zfD6r8StNu2TDs
+sFNE8hP58RNphNwdVZM9gfPS6NtZkePZHb0iNYCoGH/MjqrRfnP04na2D8FuEDocDvlhnhu3QyXG
+Bfr66eMXvgfFZgNY/hr8TmofmOYwo1dZRjoCtMgxQb0RAw6scWGrIDDBAou+LCPG7baaKaAPOoCz
+TnrIPrehMeaRoCGYsKCYbKhQzPGU7L2S3Blv6pBzowhKgATuyklBr2tclXzBxA0Ui3pVVWW95quq
+YHNYihtcEDRi013BAmwd07uucpaRCnZS02K9KpblvMSYoOTp46DFc3SFb1YxGu2UDJ1mG6pNhSDW
+NJJ/39q2aqTfw0DEKCY11XDwORyZsg2kTrtAQjHxKBV1BKVD5/S2fvbF3+Sy9FvLHNNBaiDI9l4e
+aBEpx0Ny1YZigmqT+L7GjTjgxvU0nTkMQnjTOg5baelykZcLnJfrvFgTNPp7JDetDnS1wASlYx/o
+CsITa1oWejGSINJb42WIQ6VNbGPqmeCiEJZ5T9CoSeJn6y4wCDNp8kVNgobWiBSgg6wlOD959Sdo
+jIVtMNSkqe0mcRI4A9fOKFqZVnPIz5/2FNZf3gMT4JLv/M402hE/o0tYG/ZbB75twtjBC3UuGrik
+IzTAg3GUVVxAvduX88WSoME9IlPJTvTOGHSf1ieTFxm5vCnUOSVuLFAVVSAoGReyGHcEvVQpgvtR
+v2Tq48dx8+H+erPAeLW5xvebTYnxw9sLUP7h+E93+SdLUDPZvLoEKXAquQPmpymyjITvFmht3IE5
+AYKgZ3sK4EYp0IHGNtJpzIdOE/6NNdubEL/yl65Zz9wNs2Pc7v9dsvSov79kb8j0r1eMoP7vCr36
+AboF+C7QCAAA
+
+--_002_8f0b2c4ad9e14f6bb2f7c6b1a3e5d901microsoftcom_--

@@ -1,0 +1,16 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "swarm-newsletter/form",
+  "title": "Swarm form",
+  "category": "widgets",
+  "icon": "email",
+  "description": "A subscribe form from your Swarm publication.",
+  "textdomain": "swarm-newsletter",
+  "attributes": {
+    "formId": { "type": "string", "default": "" },
+    "mode": { "type": "string", "default": "plain" }
+  },
+  "supports": { "html": false },
+  "editorScript": "file:./index.js"
+}

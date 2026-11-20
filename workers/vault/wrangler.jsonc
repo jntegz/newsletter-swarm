@@ -1,0 +1,86 @@
+{
+  "$schema": "../../node_modules/wrangler/config-schema.json",
+  // The vault: the only Worker that holds FIELD_KEYS, and the Member Center, goods and signup link
+  // keys for the workers that face the internet (docs/security.md "The vault"). It has no route,
+  // no workers.dev name and no preview URLs: api, capture, site and jobs reach it only through a
+  // service binding, each pinned to its own named entrypoint (ApiVault, CaptureVault, SiteVault,
+  // JobsVault), so each can call only its own operations. Its fetch answers 404.
+  // Cron every 5 minutes: re-seal stored values (to the row-bound v3 format once
+  // VAULT_WRITE_FORMAT is v3, or onto the current key after a FIELD_KEYS rotation) and prune
+  // vault_audit, vault_mints and vault_rate.
+  // Secrets (FIELD_KEYS, SIGNUP_KEYS, MEMBER_SIGNING_KEYS, MEMBER_VERIFY_KEYS, GOODS_SIGNING_KEYS,
+  // MEMBER_KEYS while v1 links are accepted; STRIPE_SECRET_KEY when payments are on,
+  // DEBOUNCE_API_KEY when email checks are on) go in .dev.vars locally and the installer's secrets
+  // file elsewhere. Deploys after realtime and before every caller: a service binding to a script
+  // that does not exist fails the caller's upload.
+  // Not the production name: a deploy that names no environment makes a separate, harmless
+  // "-local" script, never a production one with these development settings.
+  "name": "swarm-vault-local",
+  "workers_dev": false,
+  "preview_urls": false,
+  "main": "src/index.ts",
+  "compatibility_date": "2026-10-01",
+  "observability": { "enabled": true },
+  "triggers": { "crons": ["*/5 * * * *"] },
+  "vars": {
+    "ENVIRONMENT": "development",
+    // As every other worker locally: v2 from the start, and no v1 link is taken. The vault signs
+    // the Member Center and goods links that capture and site check, so the modes must match
+    // (staging and production render them from state, the same for every worker).
+    "LINK_SIGNING_MODE": "v2",
+    "LINK_LEGACY_CUTOFF": "0",
+    // What callers that still hold FIELD_KEYS can read; v3 only once none do.
+    "VAULT_WRITE_FORMAT": "legacy",
+    "VAULT_LEGACY_OPEN": "on",
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "swarm",
+      "database_id": "local",
+      "migrations_dir": "../../migrations",
+    },
+  ],
+  "env": {
+    "staging": {
+      "name": "swarm-vault-staging",
+      "workers_dev": false,
+      "preview_urls": false,
+      "triggers": { "crons": ["*/5 * * * *"] },
+      "vars": {
+        "ENVIRONMENT": "staging",
+        "LINK_SIGNING_MODE": "v1",
+        "VAULT_WRITE_FORMAT": "legacy",
+        "VAULT_LEGACY_OPEN": "on",
+      },
+      "d1_databases": [
+        {
+          "binding": "DB",
+          "database_name": "swarm-staging",
+          "database_id": "unprovisioned",
+          "migrations_dir": "../../migrations",
+        },
+      ],
+    },
+    "production": {
+      "name": "swarm-vault",
+      "workers_dev": false,
+      "preview_urls": false,
+      "triggers": { "crons": ["*/5 * * * *"] },
+      "vars": {
+        "ENVIRONMENT": "production",
+        "LINK_SIGNING_MODE": "v1",
+        "VAULT_WRITE_FORMAT": "legacy",
+        "VAULT_LEGACY_OPEN": "on",
+      },
+      "d1_databases": [
+        {
+          "binding": "DB",
+          "database_name": "swarm-production",
+          "database_id": "unprovisioned",
+          "migrations_dir": "../../migrations",
+        },
+      ],
+    },
+  },
+}

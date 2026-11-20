@@ -1,0 +1,32 @@
+From: Yahoo DMARC Report <noreply@dmarc.yahoo.com>
+To: dmarc+sd_0192f8a0c0de7c3a9e2b4f1d6a8b0c11@dmarc.swarm.localhost
+Subject: Report Domain: news.example.com Submitter: Yahoo Report-ID: <1761609600.912834>
+MIME-Version: 1.0
+Date: Tue, 28 Oct 2025 04:11:02 +0000
+Content-Type: multipart/mixed; boundary="----=_Part_3471298_1105839442.1761624662"
+
+------=_Part_3471298_1105839442.1761624662
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+
+This is an aggregate report from Yahoo.
+
+------=_Part_3471298_1105839442.1761624662
+Content-Type: application/zip
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename*=UTF-8''yahoo.com!news.example.com!1761523200!1761609599.xml.zip
+
+UEsDBBQAAAAIAAAAXFv1kTOzAAIAAGEGAAA0AAAAeWFob28uY29tIW5ld3MuZXhhbXBsZS5jb20h
+MTc2MTUyMzIwMCExNzYxNjA5NTk5LnhtbK1V247TMBB936+I9gPsJG26rTR4QahvLCDxADxFrjNp
+zCa2sZ29/D1KnRulu1TQp4zPjGfOGR8pcPvU1NEDWie1enOdkPj6ll1BiVjsuLhnV1EEFo22Pm/Q
+84J73mFRBNruc8UbZN95pTXQ8RzS2HBZs6LhVlRYm7fPXZVUggjdAA3ZUNm3lwVLblbJKt6s4phs
+knS9WAKdkqG44B5zy9W+nxNFsMO9VIe7WbpI4xhoQIY8qrFzttkA7c6hGf292zhtrhSMrqV4zk27
+q6WrcCSiGy4VU/joCD7xxtQYpPWJUMWLe9kwCzQEPehMecC6b4AM+9lyy5WXCoGaARWeJZ2gLjgQ
+PEUGLAptB15WP47KnW6twFwali1JuoxJekOSNdAJHyqFbpVniyQGGsIh0Q/EB1633A/qwwakM9pJ
+L7ViSne858isrlNuuHNApyUEfqbsE+MmZiKPZgIdpYEsUHlZSrRuvFYhL9DmpdXNiVeZZ/t2fzQB
+3voqt+ja2k99jzif9e5BHdYovLaM70SB5b5KF8sM6AhPlWFkv4r+MG5jPh9me5q47HSrBJIzKL06
+aHIjPV5EVzx47By7JZs1yRKSxDFJFy/7LftHt1n8gcKf9Nsl3PNx+/UL2X57d/f5w5a8/3RHLm+f
+/3imv/vhHG8KbZBVWGugIb6kSYBO/49fUEsBAhQAFAAAAAgAAABcW/WRM7MAAgAAYQYAADQAAAAA
+AAAAAAAAAAAAAAAAAHlhaG9vLmNvbSFuZXdzLmV4YW1wbGUuY29tITE3NjE1MjMyMDAhMTc2MTYw
+OTU5OS54bWxQSwUGAAAAAAEAAQBiAAAAUgIAAAAA
+------=_Part_3471298_1105839442.1761624662--

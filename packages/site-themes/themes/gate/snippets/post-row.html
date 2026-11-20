@@ -1,0 +1,15 @@
+<article class="gate-row{% if post.image and s.show_images %} gate-row--image{% endif %}">
+  {% if post.image and s.show_images %}
+  <div class="gate-row__image">{{ post.image | image: '120px' }}</div>
+  {% endif %}
+  <div class="gate-row__body">
+    <h3 class="gate-row__title"><a href="{{ post.url }}">{{ post.title }}</a></h3>
+    {% if s.show_excerpt and post.excerpt %}
+    <p class="gate-row__excerpt">{{ post.excerpt | truncatewords: 28 }}</p>
+    {% endif %}
+  </div>
+  <p class="gate-row__meta">
+    <time datetime="{{ post.date | date: 'iso' }}">{{ post.date | date: 'short' }}</time>
+    {% if post.is_paid %}<span class="gate-badge">Paid</span>{% endif %}
+  </p>
+</article>

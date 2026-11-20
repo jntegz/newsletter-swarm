@@ -1,0 +1,17 @@
+<article class="mag-tile{% if post.image and s.show_images %} mag-tile--image{% endif %}">
+  {% if post.image and s.show_images %}
+  <div class="mag-tile__image">{{ post.image | image: '(min-width:960px)50vw,100vw' }}</div>
+  {% endif %}
+  <div class="mag-tile__body">
+    <p class="mag-tile__meta">
+      <time datetime="{{ post.date | date: 'iso' }}">{{ post.date | date: 'long' }}</time>
+      {% if post.is_paid %}<span class="mag-badge">Paid</span>{% endif %}
+    </p>
+    <h3 class="mag-tile__title"><a href="{{ post.url }}">{{ post.title }}</a></h3>
+    {% if s.show_excerpt and post.excerpt %}
+    <p class="mag-tile__excerpt">{{ post.excerpt | truncatewords: 46 }}</p>
+    {% endif %} {% if post.reading_minutes %}
+    <p class="mag-tile__time">{{ post.reading_minutes }} min read</p>
+    {% endif %}
+  </div>
+</article>

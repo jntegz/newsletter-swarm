@@ -1,0 +1,9 @@
+{
+  "$comment": "Template values in the committed wrangler.jsonc staging and production blocks. A deployment that still holds one of them is refused, by the installer (render.ts) and by the manual check (scripts/check-provisioned.mjs). One list, so the two cannot drift. Each entry is a regular expression source.",
+  "patterns": [
+    "unprovisioned",
+    "(^|[^a-z0-9-])swarm\\.example\\b",
+    "(^|[^a-z0-9-])swarm\\.page\\b",
+    "\\b000000000000\\b"
+  ]
+}

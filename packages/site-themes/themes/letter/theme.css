@@ -1,0 +1,657 @@
+/* Letter: personal and warm. One narrow column on paper, the writer's face and a note in their own
+   words at the top, past issues listed by date like a bundle of letters, and readers' notes set
+   in italic on lined paper. Only the tokens are used, so the owner's colours and dark mode apply. */
+
+body:has(.t-letter) .sw-header {
+  background: transparent;
+  border-bottom-color: transparent;
+}
+body:has(.t-letter) .sw-search,
+body:has(.t-letter) .sw-search-link {
+  display: none;
+}
+
+.t-letter {
+  --t-letter-field: color-mix(in srgb, var(--ink) 42%, var(--page));
+  --t-letter-rule: color-mix(in srgb, var(--accent) 22%, transparent);
+  max-width: 40rem;
+  margin-inline: auto;
+  line-height: 1.65;
+}
+.t-letter .t-section + .t-section {
+  margin-top: clamp(56px, 9vw, 96px);
+}
+.t-letter h1,
+.t-letter h2,
+.t-letter h3 {
+  margin: 0;
+  font-weight: 400;
+  letter-spacing: -0.005em;
+  text-wrap: balance;
+}
+.t-letter a {
+  color: var(--ink);
+  text-decoration-color: var(--accent);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.18em;
+}
+.t-letter a:hover {
+  text-decoration-thickness: 2px;
+}
+.t-letter .letter-h2 {
+  margin-bottom: 12px;
+  font-size: var(--step-3);
+  font-style: italic;
+  color: var(--ink);
+}
+
+/* The signup form */
+.t-letter form[data-swarm-subscribe] {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 10px;
+  margin: 0;
+}
+.t-letter form[data-swarm-subscribe] label {
+  display: flex;
+  flex: 1 1 14rem;
+  flex-direction: column;
+  gap: 4px;
+  font-size: var(--step-m1);
+  font-style: italic;
+  color: var(--ink);
+}
+.t-letter form[data-swarm-subscribe] label.sw-consent {
+  flex: 1 1 100%;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 10px;
+  font-style: normal;
+  color: var(--text);
+}
+.t-letter form[data-swarm-subscribe] input[type='email'],
+.t-letter form[data-swarm-subscribe] input[type='text'] {
+  width: 100%;
+  min-height: 50px;
+  padding: 0 14px;
+  font-family: var(--font);
+  font-size: var(--step-0);
+  color: var(--ink);
+  background: var(--page);
+  border: 1px solid var(--t-letter-field);
+  border-radius: var(--r-control);
+}
+.t-letter form[data-swarm-subscribe] input[type='checkbox'] {
+  width: 20px;
+  height: 20px;
+  margin: 3px 0 0;
+  flex: none;
+  accent-color: var(--accent);
+}
+.t-letter form[data-swarm-subscribe] button {
+  min-height: 50px;
+  padding: 0 24px;
+  font-family: var(--font);
+  font-size: var(--step-0);
+  font-weight: 600;
+}
+/* In the dark the button is cream on brown ink, like the paper itself: the accent lightened for
+   the dark page turns a muddy pink. */
+.t-letter--scheme-dark:not(.t-letter--buttons-outline) {
+  --t-letter-button: var(--ink);
+  --t-letter-on-button: var(--page);
+}
+@media (prefers-color-scheme: dark) {
+  .t-letter--scheme-auto:not(.t-letter--buttons-outline) {
+    --t-letter-button: var(--ink);
+    --t-letter-on-button: var(--page);
+  }
+  .t-letter--scheme-auto {
+    --t-letter-paper: color-mix(in srgb, var(--ink) 5%, var(--page));
+  }
+}
+/* Sheets of paper: the page itself in the light, a shade lighter than the page in the dark. */
+.t-letter--scheme-dark {
+  --t-letter-paper: color-mix(in srgb, var(--ink) 5%, var(--page));
+}
+.t-letter:not(.t-letter--buttons-outline) form[data-swarm-subscribe] button,
+.t-letter:not(.t-letter--buttons-outline) .sw-button {
+  color: var(--t-letter-on-button, var(--on-accent));
+  background: var(--t-letter-button, var(--accent));
+}
+
+/* Hero: the note at the top */
+.t-letter .letter-hero {
+  display: flex;
+  flex-direction: column;
+  padding-top: clamp(8px, 3vh, 40px);
+}
+.t-letter .letter-hero__head {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  margin-bottom: 22px;
+}
+.t-letter .letter-hero--centred .letter-hero__head {
+  flex-direction: column;
+  text-align: center;
+}
+.t-letter .letter-hero--centred .letter-hero__note,
+.t-letter .letter-hero--centred .letter-hero__sign {
+  text-align: center;
+}
+.t-letter .letter-hero__photo img {
+  display: block;
+  width: 96px;
+  height: 96px;
+  object-fit: cover;
+  border-radius: 50%;
+  box-shadow:
+    0 0 0 5px var(--page),
+    0 0 0 6px var(--line-strong);
+}
+.t-letter .letter-hero__title {
+  font-size: var(--step-5);
+  line-height: 1.08;
+  color: var(--ink);
+}
+.t-letter .letter-hero__note p {
+  margin: 0 0 0.85em;
+  font-size: var(--step-1);
+  line-height: 1.6;
+  color: var(--text);
+  text-wrap: pretty;
+}
+.t-letter .letter-hero__note > p:first-child::first-line {
+  color: var(--ink);
+}
+.t-letter .letter-hero__sign {
+  margin: 0;
+  font-size: var(--step-1);
+  font-style: italic;
+  color: var(--ink);
+}
+.t-letter .letter-reply {
+  margin-top: 28px;
+  padding: 22px 24px 18px;
+  background: var(--surface-alt);
+  border: 1px solid var(--line);
+  border-top: 2px dashed var(--line-strong);
+  border-radius: 0 0 var(--r-card) var(--r-card);
+}
+.t-letter .letter-reply__promise {
+  margin: 0 0 14px;
+  font-size: var(--step-1);
+  font-style: italic;
+  line-height: 1.35;
+  color: var(--ink);
+}
+.t-letter .letter-reply__note {
+  margin: 12px 0 0;
+  font-size: var(--step-m1);
+  color: var(--text);
+}
+.t-letter--reader .letter-hero__note p {
+  font-size: var(--step-1);
+}
+
+/* Past letters */
+.t-letter .letter-rows {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-bottom: 1px solid var(--line);
+}
+.t-letter .letter-row {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 2px;
+  padding: 20px 0;
+  border-top: 1px solid var(--line);
+}
+.t-letter .letter-row--image {
+  grid-template-columns: minmax(0, 1fr) 104px;
+  column-gap: 20px;
+}
+.t-letter .letter-row--image .letter-row__date {
+  grid-column: 1 / -1;
+}
+.t-letter .letter-row__date {
+  margin: 0;
+  font-size: var(--step-m1);
+  font-style: italic;
+  color: var(--text);
+}
+.t-letter .letter-row__title {
+  font-size: var(--step-2);
+  line-height: 1.25;
+}
+.t-letter .letter-row__title a {
+  color: var(--ink);
+  text-decoration: none;
+}
+.t-letter .letter-row__title a::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+}
+.t-letter .letter-row:hover .letter-row__title a {
+  text-decoration: underline;
+  text-decoration-color: var(--accent);
+}
+.t-letter .letter-row__excerpt {
+  margin: 6px 0 0;
+  color: var(--text);
+}
+.t-letter .letter-row__paid {
+  margin: 6px 0 0;
+  font-size: var(--step-m1);
+  color: var(--accent);
+}
+.t-letter .letter-row__image img {
+  display: block;
+  width: 104px;
+  height: 104px;
+  object-fit: cover;
+  border-radius: var(--r-control);
+}
+.t-letter .letter-latest--compact .letter-row {
+  padding: 12px 0;
+}
+.t-letter .letter-latest--compact .letter-row__title {
+  font-size: var(--step-1);
+}
+.t-letter .letter-more {
+  margin: 16px 0 0;
+  font-style: italic;
+}
+.t-letter .letter-empty {
+  margin: 0;
+  padding: 20px 0;
+  font-style: italic;
+  color: var(--text);
+  border-top: 1px solid var(--line);
+}
+@media (min-width: 1180px) {
+  .t-letter .letter-latest--letters .letter-row,
+  .t-letter .letter-latest--list .letter-row {
+    display: block;
+  }
+  .t-letter .letter-latest--letters .letter-row__date,
+  .t-letter .letter-latest--list .letter-row__date {
+    position: absolute;
+    top: 26px;
+    right: 100%;
+    margin-right: 32px;
+    white-space: nowrap;
+    text-align: right;
+  }
+  .t-letter .letter-latest--letters .letter-row--image .letter-row__body,
+  .t-letter .letter-latest--list .letter-row--image .letter-row__body {
+    margin-right: 124px;
+  }
+  .t-letter .letter-latest--letters .letter-row__image,
+  .t-letter .letter-latest--list .letter-row__image {
+    position: absolute;
+    top: 20px;
+    right: 0;
+  }
+}
+
+/* Cards */
+.t-letter .letter-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr));
+  gap: 28px 24px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.t-letter .letter-card {
+  position: relative;
+}
+.t-letter .letter-card__image img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 3 / 2;
+  object-fit: cover;
+  border-radius: var(--r-control);
+}
+.t-letter .letter-card__date {
+  margin: 10px 0 2px;
+  font-size: var(--step-m1);
+  font-style: italic;
+  color: var(--text);
+}
+.t-letter .letter-card__title {
+  font-size: var(--step-1);
+  line-height: 1.3;
+}
+.t-letter .letter-card__title a {
+  color: var(--ink);
+  text-decoration: none;
+}
+.t-letter .letter-card__title a::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+}
+.t-letter .letter-card__excerpt {
+  margin: 6px 0 0;
+  font-size: var(--step-m1);
+  color: var(--text);
+}
+
+/* Readers' notes: italic on lined paper */
+.t-letter .letter-notes__list {
+  display: grid;
+  gap: 26px;
+  margin-top: 8px;
+}
+/* Lined paper drawn from the type: the line pitch is 1.5em of the note's size, half a line above
+   and below, and each rule sits 0.15em under the baseline (half the line plus about 0.37em for
+   these faces), so the words sit on the rules at every text size. */
+.t-letter .letter-note {
+  --t-letter-line: 1.5em;
+  margin: 0;
+  padding: 0.75em 26px;
+  font-size: var(--step-1);
+  background-color: var(--t-letter-paper, var(--surface));
+  background-image: linear-gradient(
+    to bottom,
+    transparent calc(100% - 1px),
+    var(--t-letter-rule) calc(100% - 1px)
+  );
+  background-size: 100% var(--t-letter-line);
+  background-position: 0 calc(0.52em + 1px);
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--t-letter-rule);
+  border-radius: 3px;
+  box-shadow: 0 14px 28px -22px rgb(30 20 10 / 0.42);
+  transform: rotate(-0.6deg);
+}
+.t-letter .letter-note:nth-child(even) {
+  margin-left: clamp(0px, 4vw, 40px);
+  transform: rotate(0.5deg);
+}
+.t-letter .letter-note__text {
+  margin: 0;
+}
+.t-letter .letter-note__text p {
+  margin: 0;
+  font-style: italic;
+  line-height: var(--t-letter-line);
+  letter-spacing: 0.005em;
+  color: var(--ink);
+}
+.t-letter .letter-note figcaption {
+  height: var(--t-letter-line);
+  margin: 0;
+  padding-top: 0.07em;
+  box-sizing: border-box;
+}
+.t-letter .letter-from {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  font-size: 0.8em;
+  line-height: calc(var(--t-letter-line) / 0.8 - 0.07em / 0.8);
+}
+.t-letter .letter-from__photo {
+  align-self: center;
+}
+.t-letter .letter-from__photo {
+  width: 26px;
+  height: 26px;
+  object-fit: cover;
+  border-radius: 50%;
+}
+.t-letter .letter-from__name {
+  font-style: normal;
+  font-weight: 600;
+  color: var(--ink);
+}
+.t-letter .letter-from__name::before {
+  content: '~ ';
+  font-weight: 400;
+  color: var(--accent);
+}
+.t-letter .letter-from__role {
+  margin-left: 6px;
+  font-size: var(--step-m1);
+  color: var(--text);
+}
+
+/* Featured: one letter on its sheet */
+.t-letter .letter-sheet {
+  padding: clamp(22px, 4vw, 36px);
+  background: var(--t-letter-paper, var(--surface));
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  box-shadow: 0 18px 36px -28px rgb(30 20 10 / 0.45);
+}
+.t-letter .letter-sheet__date {
+  margin: 0 0 10px;
+  font-style: italic;
+  text-align: right;
+  color: var(--text);
+}
+.t-letter .letter-sheet__title {
+  font-size: var(--step-3);
+  line-height: 1.15;
+  color: var(--ink);
+}
+.t-letter .letter-sheet__image img {
+  display: block;
+  width: 100%;
+  height: auto;
+  margin-top: 18px;
+  border-radius: 2px;
+}
+.t-letter .letter-sheet__excerpt {
+  margin: 16px 0 0;
+  font-size: var(--step-1);
+}
+.t-letter .letter-sheet__action {
+  margin: 20px 0 0;
+}
+.t-letter .letter-sheet .sw-button {
+  text-decoration: none;
+}
+
+/* Benefits */
+.t-letter .letter-benefits__list {
+  margin: 0;
+  padding-left: 2.2em;
+  list-style: lower-roman;
+}
+.t-letter .letter-benefits__list li {
+  margin: 0 0 16px;
+  padding-left: 6px;
+}
+.t-letter .letter-benefits__list li::marker {
+  font-style: italic;
+  color: var(--accent);
+}
+.t-letter .letter-benefits__title {
+  font-size: var(--step-1);
+  color: var(--ink);
+}
+.t-letter .letter-benefits__list p {
+  margin: 2px 0 0;
+}
+
+/* Author */
+.t-letter .letter-author__body {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: start;
+  gap: 22px;
+}
+.t-letter .letter-author__body:not(:has(.letter-author__photo)) {
+  grid-template-columns: minmax(0, 1fr);
+}
+.t-letter .letter-author__photo img {
+  display: block;
+  width: 96px;
+  height: 96px;
+  object-fit: cover;
+  border-radius: 50%;
+}
+.t-letter .letter-author__name {
+  margin: 0 0 6px;
+  font-style: italic;
+  color: var(--ink);
+}
+.t-letter .letter-author p {
+  margin: 0 0 0.8em;
+}
+
+/* Questions */
+.t-letter .letter-faq__item {
+  border-top: 1px solid var(--line);
+}
+.t-letter .letter-faq__item:last-child {
+  border-bottom: 1px solid var(--line);
+}
+.t-letter .letter-faq__item summary {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 0;
+  font-size: var(--step-1);
+  color: var(--ink);
+  cursor: pointer;
+  list-style: none;
+}
+.t-letter .letter-faq__item summary::-webkit-details-marker {
+  display: none;
+}
+.t-letter .letter-faq__item summary::after {
+  content: '+';
+  color: var(--accent);
+}
+.t-letter .letter-faq__item[open] summary::after {
+  content: '−';
+}
+.t-letter .letter-faq__answer p {
+  margin: 0 0 14px;
+}
+
+/* Numbers, as one line */
+.t-letter .letter-numbers__list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 40px;
+  margin: 0;
+  padding: 18px 0;
+  border-block: 1px solid var(--line);
+}
+.t-letter .letter-numbers__list div {
+  display: flex;
+  flex-direction: column-reverse;
+}
+.t-letter .letter-numbers__list dd {
+  margin: 0;
+  font-size: var(--step-4);
+  line-height: 1.1;
+  color: var(--ink);
+}
+.t-letter .letter-numbers__list dt {
+  font-style: italic;
+  color: var(--text);
+}
+
+/* Text */
+.t-letter .letter-text--centre {
+  text-align: center;
+}
+.t-letter .letter-text__body p {
+  margin: 0 0 0.9em;
+}
+
+/* Subscribe band: an airmail envelope */
+.t-letter .letter-band {
+  padding: 8px;
+  background: repeating-linear-gradient(
+    135deg,
+    var(--accent) 0 14px,
+    transparent 14px 22px,
+    var(--ink) 22px 36px,
+    transparent 36px 44px
+  );
+  border-radius: calc(var(--r-card) + 4px);
+}
+.t-letter .letter-band__inner {
+  padding: clamp(22px, 5vw, 40px);
+  background: var(--page);
+  border-radius: var(--r-card);
+}
+.t-letter .letter-band__title {
+  font-size: var(--step-3);
+  font-style: italic;
+  color: var(--ink);
+}
+.t-letter .letter-band__text {
+  margin: 6px 0 18px;
+  color: var(--text);
+}
+
+@media (max-width: 719px) {
+  /* The photo above the greeting, so the greeting keeps the whole line: "Hello, I'm Mara." sets
+     on one line from 320px. */
+  .t-letter .letter-hero__head {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+    margin-bottom: 16px;
+  }
+  .t-letter .letter-hero--centred .letter-hero__head {
+    align-items: center;
+  }
+  .t-letter .letter-hero__photo img {
+    width: 60px;
+    height: 60px;
+    box-shadow:
+      0 0 0 4px var(--page),
+      0 0 0 5px var(--line-strong);
+  }
+  .t-letter .letter-hero__photo {
+    margin-left: 5px;
+  }
+  .t-letter .letter-hero__title {
+    font-size: clamp(1.9rem, 1.15rem + 3.7vw, 2.5rem);
+    line-height: 1.1;
+  }
+  /* On a phone the reply card comes straight after the greeting, so it's in the first screen. */
+  .t-letter .letter-reply {
+    order: 1;
+    margin: 0 0 24px;
+  }
+  .t-letter .letter-hero__note {
+    order: 2;
+  }
+  .t-letter .letter-hero__sign {
+    order: 3;
+  }
+  .t-letter .letter-hero__note p {
+    font-size: var(--step-0);
+  }
+  .t-letter form[data-swarm-subscribe] button {
+    flex: 1 1 100%;
+  }
+  .t-letter .letter-note,
+  .t-letter .letter-note:nth-child(even) {
+    margin-left: 0;
+    padding-inline: 18px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .t-letter .letter-note,
+  .t-letter .letter-note:nth-child(even) {
+    transform: none;
+  }
+}

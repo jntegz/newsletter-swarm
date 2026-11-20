@@ -1,0 +1,36 @@
+{
+  // The Setup Worker: a browser wizard that installs Swarm's Workers on a person's own Cloudflare
+  // account, and then stands aside. It holds keys only until the person has saved them.
+  // Secret: SETUP_PASSWORD, at least 12 characters.
+  // Vars: RELEASE_URL (the https:// address a signed release is served from; plain http only from
+  // localhost) and RELEASE_PUBLIC_KEY (PEM), from the Swarm project, not from the release host.
+  // Required: RELEASE_MIN_VERSION (e.g. 0.4.2), the oldest release it may open. Set it to the
+  // release you mean to install, so an older signed one served at RELEASE_URL is refused. Without
+  // it the page opens nothing, unless RELEASE_ACCEPT_ANY_VERSION is "true" (not recommended).
+  // Optional: RELEASE_WITHDRAWN, versions, manifest digests or key ids the project has withdrawn.
+  // The page shows the release's version, manifest digest and signing key id, and installs only
+  // after you approve exactly that release; the install then keeps to it. See docs/releasing.md.
+  "$schema": "../../node_modules/wrangler/config-schema.json",
+  "name": "swarm-setup",
+  // The one Worker meant to answer on its workers.dev address: the person opens it there to
+  // install, then deletes it. Preview URLs stay off.
+  "workers_dev": true,
+  "preview_urls": false,
+  "main": "src/index.ts",
+  "compatibility_date": "2026-10-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "observability": { "enabled": true },
+  // Only the fonts. Everything else is the Worker, which sets its security headers.
+  "assets": { "directory": "public" },
+  "vars": {
+    "RELEASE_URL": "",
+    "RELEASE_PUBLIC_KEY": "",
+    "RELEASE_MIN_VERSION": "",
+    "RELEASE_ACCEPT_ANY_VERSION": "",
+    "RELEASE_WITHDRAWN": "",
+  },
+  "durable_objects": {
+    "bindings": [{ "name": "SETUP", "class_name": "SetupRun" }],
+  },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["SetupRun"] }],
+}

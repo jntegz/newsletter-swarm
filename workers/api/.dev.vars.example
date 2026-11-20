@@ -1,0 +1,55 @@
+# Copy to .dev.vars for local development. Never commit .dev.vars.
+#
+# Signing keys for short-lived cookies: kid:secret, secret at least 32 characters.
+# Generate one with: node -e "console.log('k1:' + require('crypto').randomBytes(32).toString('hex'))"
+AUTH_KEYS=k1:replace-with-64-random-hex-characters-before-using-this-file
+
+# Must match the send, track and events workers.
+UNSUBSCRIBE_KEYS=k1:development-only-unsubscribe-key-replace-before-using-this-file
+
+# FIELD_KEYS is the vault worker's alone (workers/vault/.dev.vars.example).
+# Legacy: signed every link before the per-link keyrings below. Locally (wrangler.jsonc) links are
+# signed with those from the start and no old link is taken, so it only matters on a deployed
+# install, until the installer removes it.
+MEMBER_KEYS=k1:development-only-member-key-replace-before-using-this-file
+
+# Cloudflare's always-pass Turnstile test secret (pairs with the site key in wrangler.jsonc).
+TURNSTILE_SECRET_KEY=1x0000000000000000000000000000000AA
+
+# Optional: Google sign-in. Set both or neither. Redirect URI:
+# http://localhost:5273/api/v1/auth/google/callback
+# GOOGLE_CLIENT_ID=
+# GOOGLE_CLIENT_SECRET=
+
+# Membership levels. wrangler.jsonc sets PAYMENTS=dev (the Stripe fake), which needs nothing here.
+# The webhook verifies every request against STRIPE_WEBHOOK_SECRETS whatever PAYMENTS is, so it
+# answers 400 until a secret is set. To try real Stripe test mode locally, set PAYMENTS=stripe
+# here and fill these in; `stripe listen --forward-connect-to localhost:8787/api/v1/stripe/webhook`
+# prints the whsec_ secret. Connect redirect URI: http://localhost:5273/api/v1/payments/connect/callback
+# PAYMENTS=stripe
+# STRIPE_SECRET_KEY=sk_test_...
+# STRIPE_CONNECT_CLIENT_ID=ca_...
+# STRIPE_WEBHOOK_SECRETS=whsec_...
+# To send through Resend locally: MAIL_ADAPTER=resend, AWS_REGION as the Resend region.
+# RESEND_API_KEY=re_...
+# To send through Mailgun locally: MAIL_ADAPTER=mailgun, MAILGUN_REGION=us or eu.
+# MAILGUN_API_KEY=...
+# To send through Postmark locally: MAIL_ADAPTER=postmark.
+# POSTMARK_SERVER_TOKEN=...
+# POSTMARK_ACCOUNT_TOKEN=...
+# To send through your own mail server locally: MAIL_ADAPTER=smtp, SMTP_HOST, SMTP_PORT, SMTP_DKIM_SELECTOR.
+# SMTP_USERNAME=...
+# SMTP_PASSWORD=...
+
+# Email checks (docs/email-verification.md): the install's DeBounce key. "dev" uses the fake
+# DeBounce (no network, locally only); leave it unset to keep email checks off.
+# DEBOUNCE_API_KEY=dev
+
+# Per-link keyrings (docs/security.md "Keys"): each link family signs with its own. A worker that
+# signs holds *_KEYS; one that only checks an Ed25519 link holds its public keys, *_VERIFY_KEYS.
+# Each value must be the same in every worker that has it. The installer makes real ones; these
+# (and any dev0 key) are refused when deployed.
+CONFIRM_KEYS=k1:development-only-confirm-key-replace-before-using-this-file
+CHECKOUT_VERIFY_KEYS=dev0:-YGRx7VB8oH-rm-98gpl00Fgf4s39_IG4ohbuRIzPUs
+SITE_LINK_SIGNING_KEYS=dev0:MC4CAQAwBQYDK2VwBCIEIGpJ4kkEuU1jdPf-FtW27iScTcHJUXIqq0hUvfg1B8Yk
+SPONSOR_REPORT_SIGNING_KEYS=dev0:MC4CAQAwBQYDK2VwBCIEIBE-WMv1HS5j22zR-asWYjmDNgm9Jk5NIbcmb23RfOJN

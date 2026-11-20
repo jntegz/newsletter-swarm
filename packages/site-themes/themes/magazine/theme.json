@@ -1,0 +1,190 @@
+{
+  "name": "Magazine",
+  "settings": [
+    {
+      "id": "accent",
+      "type": "color",
+      "label": "Accent",
+      "group": "Colour",
+      "default": "#c42d17",
+      "info": "Buttons, links and highlights."
+    },
+    {
+      "id": "page",
+      "type": "color",
+      "label": "Background",
+      "group": "Colour",
+      "default": "#ffffff"
+    },
+    {
+      "id": "ink",
+      "type": "color",
+      "label": "Text",
+      "group": "Colour",
+      "default": "#0d0d0f"
+    },
+    {
+      "id": "scheme",
+      "type": "select",
+      "label": "Light or dark",
+      "group": "Colour",
+      "default": "light",
+      "options": [
+        {
+          "value": "light",
+          "label": "Light"
+        },
+        {
+          "value": "dark",
+          "label": "Dark"
+        },
+        {
+          "value": "auto",
+          "label": "Follow the reader’s device"
+        }
+      ]
+    },
+    {
+      "id": "heading_font",
+      "type": "font",
+      "label": "Headings",
+      "group": "Type",
+      "default": "archivo"
+    },
+    {
+      "id": "body_font",
+      "type": "font",
+      "label": "Text",
+      "group": "Type",
+      "default": "geist"
+    },
+    {
+      "id": "scale",
+      "type": "select",
+      "label": "Text size",
+      "group": "Type",
+      "default": "regular",
+      "options": [
+        {
+          "value": "compact",
+          "label": "Compact"
+        },
+        {
+          "value": "regular",
+          "label": "Regular"
+        },
+        {
+          "value": "large",
+          "label": "Large"
+        }
+      ]
+    },
+    {
+      "id": "corners",
+      "type": "select",
+      "label": "Corners",
+      "group": "Shape",
+      "default": "square",
+      "options": [
+        {
+          "value": "square",
+          "label": "Square"
+        },
+        {
+          "value": "soft",
+          "label": "Soft"
+        },
+        {
+          "value": "round",
+          "label": "Round"
+        }
+      ]
+    },
+    {
+      "id": "width",
+      "type": "select",
+      "label": "Page width",
+      "group": "Shape",
+      "default": "wide",
+      "options": [
+        {
+          "value": "narrow",
+          "label": "Narrow"
+        },
+        {
+          "value": "regular",
+          "label": "Regular"
+        },
+        {
+          "value": "wide",
+          "label": "Wide"
+        }
+      ]
+    },
+    {
+      "id": "buttons",
+      "type": "select",
+      "label": "Buttons",
+      "group": "Shape",
+      "default": "solid",
+      "options": [
+        {
+          "value": "solid",
+          "label": "Solid"
+        },
+        {
+          "value": "pill",
+          "label": "Pill"
+        },
+        {
+          "value": "outline",
+          "label": "Outline"
+        }
+      ]
+    },
+    {
+      "id": "rules",
+      "type": "select",
+      "label": "Rules above sections",
+      "group": "Colour",
+      "default": "ink",
+      "options": [
+        {
+          "value": "ink",
+          "label": "In the text colour"
+        },
+        {
+          "value": "accent",
+          "label": "In the accent colour"
+        }
+      ]
+    }
+  ],
+  "sections": [
+    {
+      "type": "hero",
+      "settings": {
+        "layout": "cover",
+        "show_count": true
+      }
+    },
+    {
+      "type": "featured"
+    },
+    {
+      "type": "latest",
+      "settings": {
+        "style": "mosaic",
+        "count": 7
+      }
+    },
+    {
+      "type": "testimonials",
+      "audience": "visitors"
+    },
+    {
+      "type": "subscribe_band",
+      "audience": "visitors"
+    }
+  ]
+}

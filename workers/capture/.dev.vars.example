@@ -1,0 +1,31 @@
+# Copy to .dev.vars for local development. Never commit .dev.vars.
+# FIELD_KEYS, SIGNUP_KEYS and the member signing key are the vault worker's alone
+# (workers/vault/.dev.vars.example), as are the Stripe and DeBounce keys capture's calls use.
+# Legacy: signed every link before the per-link keyrings below. Locally (wrangler.jsonc) links are
+# signed with those from the start and no old link is taken, so it only matters on a deployed
+# install, until the installer removes it.
+MEMBER_KEYS=k1:development-only-member-key-replace-before-using-this-file
+
+# Cloudflare's always-pass Turnstile test secret (pairs with the site key in wrangler.jsonc).
+# Test keys are refused outside development.
+TURNSTILE_SECRET_KEY=1x0000000000000000000000000000000AA
+
+# Member Center billing. PAYMENTS is "dev" in wrangler.jsonc locally (the Stripe fake, no key).
+# With PAYMENTS=stripe, the platform's secret key (the same one the api and site workers use):
+# STRIPE_SECRET_KEY=sk_test_...
+
+# Email checks at signup (docs/email-verification.md). The same key as the api and jobs workers;
+# "dev" uses the fake DeBounce locally.
+# DEBOUNCE_API_KEY=dev
+
+# Per-link keyrings (docs/security.md "Keys"): each link family signs with its own. A worker that
+# signs holds *_KEYS; one that only checks an Ed25519 link holds its public keys, *_VERIFY_KEYS.
+# Each value must be the same in every worker that has it. The installer makes real ones; these
+# (and any dev0 key) are refused when deployed.
+CONFIRM_KEYS=k1:development-only-confirm-key-replace-before-using-this-file
+CAPTURE_KEYS=k1:development-only-capture-key-replace-before-using-this-file
+FORM_STAMP_KEYS=k1:development-only-form-stamp-key-replace-before-using-this-file
+MEMBER_VERIFY_KEYS=dev0:DsT8V2i1akM8f3JdsIMC5fW9QhKyaBTwfiQyHiffkcs
+ASK_VERIFY_KEYS=dev0:3DDpflvYUL15VLWq8SWpMZfJPYqp4d60DSoLt8ezdnk
+ASK_PAGE_SIGNING_KEYS=dev0:MC4CAQAwBQYDK2VwBCIEIN1QtjcU9C1VIGwkHUTDf-FM9Svvkc6pqGW7Z9bVmiUc
+DSR_EXPORT_VERIFY_KEYS=dev0:AplAivWFCxTOmtTwwCidCdkp__w9jos46qYjnzn7pzY

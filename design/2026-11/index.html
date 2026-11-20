@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Swarm — redesign round, Nov 2026</title>
+<style>
+  :root {
+    --ink: #15171a;
+    --sub: #555b64;
+    --line: #e2e4e8;
+    --ground: #f6f7f8;
+    --link: #0f5fa8;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    font: 15px/1.55 system-ui, -apple-system, "Segoe UI", sans-serif;
+    color: var(--ink);
+    background: #fff;
+    font-variant-numeric: tabular-nums;
+  }
+  ::selection { background: #d6e6f7; color: var(--ink); }
+  a { color: var(--link); text-underline-offset: 3px; }
+  a:focus-visible, button:focus-visible { outline: 2px solid var(--link); outline-offset: 3px; border-radius: 3px; }
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 48px 28px 72px; }
+  header h1 { font-size: 28px; line-height: 1.2; margin: 0 0 10px; letter-spacing: -0.015em; }
+  header p { margin: 0; color: var(--sub); max-width: 68ch; }
+  h2 { font-size: 19px; margin: 56px 0 6px; letter-spacing: -0.01em; }
+  h2 + p { margin-top: 0; color: var(--sub); max-width: 70ch; }
+
+  .directions { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-top: 22px; }
+  .dir { display: flex; flex-direction: column; }
+  .shots { display: grid; gap: 10px; }
+  .shot {
+    position: relative; display: block; aspect-ratio: 16 / 10; border: 1px solid var(--line); border-radius: 8px;
+    overflow: hidden; background: var(--ground);
+  }
+  .shot span {
+    position: absolute; left: 8px; bottom: 8px; padding: 2px 8px; border-radius: 4px;
+    background: rgba(21, 23, 26, .82); color: #fff; font-size: 12px; font-weight: 600;
+  }
+  .shot:hover { border-color: #9aa1aa; }
+  .shot img { width: 100%; height: 100%; object-fit: cover; object-position: top left; display: block; }
+  .dir .dir-h { font-size: 17px; margin: 16px 0 4px; }
+  .dir .idea { margin: 0 0 12px; color: var(--sub); }
+  .facts { margin: 0 0 14px; padding: 0; list-style: none; border-top: 1px solid var(--line); }
+  .facts li { display: grid; grid-template-columns: 82px 1fr; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--line); font-size: 14px; }
+  .facts b { font-weight: 600; color: var(--sub); }
+  .chips { display: flex; gap: 4px; align-items: center; flex-wrap: wrap; }
+  .chips em { font-style: normal; flex-basis: 100%; margin-top: 4px; }
+  .chip { width: 18px; height: 18px; border-radius: 3px; border: 1px solid rgba(0,0,0,.12); display: inline-block; }
+  .links { display: flex; gap: 10px; margin-top: auto; padding-top: 4px; }
+  .btn {
+    display: inline-flex; align-items: center; height: 38px; padding: 0 16px; border-radius: 6px;
+    border: 1px solid #c9cdd3; color: var(--ink); text-decoration: none; font-weight: 600; font-size: 14px;
+  }
+  .btn:hover { border-color: #9aa1aa; }
+  .btn.pri { background: var(--ink); border-color: var(--ink); color: #fff; }
+  .btn.pri:hover { background: #33373d; }
+  .risk { font-size: 14px; color: var(--sub); margin: 0 0 14px; }
+
+  table { width: 100%; border-collapse: collapse; margin-top: 14px; font-size: 14px; }
+  th, td { text-align: left; padding: 9px 12px 9px 0; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { font-weight: 600; color: var(--sub); font-size: 13px; }
+  td:first-child { font-weight: 600; width: 22%; }
+  .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; }
+  .cols ul { margin: 12px 0 0; padding-left: 18px; }
+  .cols li { margin: 6px 0; }
+  footer { margin-top: 64px; padding-top: 18px; border-top: 1px solid var(--line); color: var(--sub); font-size: 13px; }
+
+  @media (max-width: 960px) {
+    .directions { grid-template-columns: 1fr; gap: 40px; }
+    .cols { grid-template-columns: 1fr; gap: 0; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Swarm redesign: three directions</h1>
+    <p>Each direction has its own look and its own layout, with a Home dashboard and the post editor. They share one renamed, grouped menu and the same editor fixes, so you are comparing the presentation, not the features. All numbers are sample data.</p>
+  </header>
+
+  <section class="directions" aria-label="Directions">
+    <article class="dir">
+      <div class="shots"><a class="shot" href="a-line/home.html"><img src="thumbs/a-home.png" alt="Direction A, Home: dark sidebar drawn as a transit line, last send shown as a route"><span>Home</span></a><a class="shot" href="a-line/editor.html"><img src="thumbs/a-editor.png" alt="Direction A, editor: writing column with a three-stop send route on the right"><span>Editor</span></a></div>
+      <h2 class="dir-h">A · Line</h2>
+      <p class="idea">The menu is drawn as a transit line, and you are the yellow stop. Home opens with what needs you and what's next; the last send follows as a route: queued, delivered, opened, clicked.</p>
+      <ul class="facts">
+        <li><b>Layout</b><span>Dark side rail. The editor's send panel is a three-stop route on the right.</span></li>
+        <li><b>Colour</b><span class="chips"><i class="chip" style="background:#14203A"></i><i class="chip" style="background:#FFC83D"></i><i class="chip" style="background:#12724B"></i><i class="chip" style="background:#fff"></i><em>Yellow only means "you are here".</em></span></li>
+        <li><b>Type</b><span>Atkinson Hyperlegible Next, a font designed for legibility</span></li>
+      </ul>
+      <p class="risk">Trade-off: the most familiar layout of the three. It stands out through the line, not the layout.</p>
+      <div class="links"><a class="btn pri" href="a-line/home.html">Home</a><a class="btn" href="a-line/editor.html">Editor</a></div>
+    </article>
+
+    <article class="dir">
+      <div class="shots"><a class="shot" href="b-spines/home.html"><img src="thumbs/b-home.png" alt="Direction B, Home: top navigation and a stack of coloured bands, one per section"><span>Home</span></a><a class="shot" href="b-spines/editor.html"><img src="thumbs/b-editor.png" alt="Direction B, editor: orange Write band with Write, Audience, Settings and Review tabs"><span>Editor</span></a></div>
+      <h2 class="dir-h">B · Spines</h2>
+      <p class="idea">Every section owns a colour, like a paperback series. Home is a stack of coloured bands (Write, Audience, Grow, Earn, Publish), and you learn the map by colour.</p>
+      <ul class="facts">
+        <li><b>Layout</b><span>Top navigation, no sidebar. The editor uses tabs: Write, Audience, Settings, Review &amp; send.</span></li>
+        <li><b>Colour</b><span class="chips"><i class="chip" style="background:#EE6A1F"></i><i class="chip" style="background:#1F7A4C"></i><i class="chip" style="background:#1E4E8C"></i><i class="chip" style="background:#B8174F"></i><i class="chip" style="background:#46505E"></i></span></li>
+        <li><b>Type</b><span>Schibsted Grotesk</span></li>
+      </ul>
+      <p class="risk">Trade-off: the boldest look. Five colours need discipline as more pages get built.</p>
+      <div class="links"><a class="btn pri" href="b-spines/home.html">Home</a><a class="btn" href="b-spines/editor.html">Editor</a></div>
+    </article>
+
+    <article class="dir">
+      <div class="shots"><a class="shot" href="c-flatplan/home.html"><img src="thumbs/c-home.png" alt="Direction C, Home: narrow labelled rail, search-first top bar and a strip of post thumbnails on a week timeline"><span>Home</span></a><a class="shot" href="c-flatplan/editor.html"><img src="thumbs/c-editor.png" alt="Direction C, editor: outline, page and live inbox preview, with a send bar at the bottom"><span>Editor</span></a></div>
+      <h2 class="dir-h">C · Flatplan</h2>
+      <p class="idea">Home opens with your run of posts as page thumbnails on a week timeline: sent, scheduled, draft, and empty weeks. Problems are marked on the post itself.</p>
+      <ul class="facts">
+        <li><b>Layout</b><span>Narrow labelled rail, search-first. The editor has three panes (outline, page, live preview) and a send bar.</span></li>
+        <li><b>Colour</b><span class="chips"><i class="chip" style="background:#E8EBEE"></i><i class="chip" style="background:#fff"></i><i class="chip" style="background:#0077B6"></i><i class="chip" style="background:#C1006A"></i><em>Magenta only for "needs attention".</em></span></li>
+        <li><b>Type</b><span>Archivo, narrow for labels; JetBrains Mono for figures</span></li>
+      </ul>
+      <p class="risk">Trade-off: the densest of the three. It's built for people who send every week.</p>
+      <div class="links"><a class="btn pri" href="c-flatplan/home.html">Home</a><a class="btn" href="c-flatplan/editor.html">Editor</a></div>
+    </article>
+  </section>
+
+  <h2>What all three share</h2>
+  <p>These changes apply whichever direction you pick.</p>
+  <div class="cols">
+    <div>
+      <h3 style="font-size:15px;margin:18px 0 0">Finding your way</h3>
+      <ul>
+        <li>The menu uses plain words, in five groups: Write, Audience, Grow, Earn and Publish.</li>
+        <li>Publications move to a switcher at the top instead of a menu item.</li>
+        <li>Sending &amp; delivery is moved out from under Channel pages.</li>
+        <li>Every page has a title and a breadcrumb, and Ctrl K jumps anywhere.</li>
+        <li>Home puts what needs you (setup steps or a problem) in the first view, then what's next and how the last send did. Growth and revenue come after.</li>
+        <li>The first run is a short path of four steps to the first send.</li>
+      </ul>
+    </div>
+    <div>
+      <h3 style="font-size:15px;margin:18px 0 0">The post editor</h3>
+      <ul>
+        <li>"New post" asks where to start: blank, a template, or a duplicate of the last post.</li>
+        <li>Subject and preview text have visible labels and a live inbox preview.</li>
+        <li>Blocks are added from an Insert button in the toolbar or the + beside the current line, with no dialog per block.</li>
+        <li>Sending always goes Write, then Audience, then Check &amp; send. The send button comes last and says why it's disabled.</li>
+        <li>There is one Preview (email desktop, email mobile, web) with a "View as" free or paid subscriber.</li>
+        <li>Split tests, website visibility and revisions are collapsed under More options.</li>
+      </ul>
+    </div>
+  </div>
+
+  <h2>Renamed menu</h2>
+  <p>These are interface labels only. Database and API names stay as they are until a direction is chosen.</p>
+  <table>
+    <thead><tr><th>Group</th><th>New label</th><th>Was</th></tr></thead>
+    <tbody>
+      <tr><td>—</td><td>Home</td><td>Overview</td></tr>
+      <tr><td>Write</td><td>Posts · Templates</td><td>Dispatches · Templates</td></tr>
+      <tr><td>Audience</td><td>Subscribers · Segments · Signup forms</td><td>Members · Circles · Capture forms</td></tr>
+      <tr><td>Grow</td><td>Automations · Referrals &amp; growth</td><td>Flows · Growth (Champions)</td></tr>
+      <tr><td>Earn</td><td>Paid subscriptions</td><td>Memberships</td></tr>
+      <tr><td>Publish</td><td>Website · Sending &amp; delivery</td><td>Site Studio · (inside Channel pages)</td></tr>
+      <tr><td>Top of shell</td><td>Publication switcher</td><td>Channels</td></tr>
+      <tr><td>In the editor</td><td>Preview text · Paywall break · Send report · Warm-up</td><td>Preheader · Gate · Broadcast results · Reputation Ramp</td></tr>
+    </tbody>
+  </table>
+
+  <footer>
+    Static mockups with sample data; no app code changed. <a href="../index.html">Earlier design rounds</a>
+  </footer>
+</div>
+</body>
+</html>

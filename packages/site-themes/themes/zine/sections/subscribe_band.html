@@ -1,0 +1,34 @@
+{% assign s = section.settings %} {% unless reader.is_subscriber %}
+<section class="zn-band" aria-labelledby="{{ section.id }}-title">
+  <span class="zn-band__shape" aria-hidden="true"></span>
+  <div class="zn-band__text">
+    <h2 class="zn-band__title" id="{{ section.id }}-title">{{ s.heading | default: site.name }}</h2>
+    {% if s.text %}
+    <p class="zn-band__lede">{{ s.text }}</p>
+    {% endif %}
+  </div>
+  <div class="zn-band__form">{% subscribe_form %}</div>
+</section>
+{% endunless %} {% comment %}<!-- prettier-ignore -->{% endcomment %}
+{% schema %}
+{
+  "name": "Subscribe band",
+  "description": "A second chance to subscribe, at the end.",
+  "settings": [
+    {
+      "id": "heading",
+      "type": "text",
+      "label": "Heading",
+      "max": 120,
+      "default": "Get the next one in the post"
+    },
+    {
+      "id": "text",
+      "type": "textarea",
+      "label": "Text",
+      "max": 400,
+      "default": "Free, straight to your inbox. Unsubscribe at any time."
+    }
+  ]
+}
+{% endschema %}

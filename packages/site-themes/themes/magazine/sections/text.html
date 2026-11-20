@@ -1,0 +1,27 @@
+{% assign s = section.settings %} {% if s.heading or s.body %}
+<section class="mag-text mag-text--{{ s.align }}" aria-labelledby="{{ section.id }}-title">
+  {% if s.heading %}
+  <div class="mag-head">
+    <h2 class="mag-head__title" id="{{ section.id }}-title">{{ s.heading }}</h2>
+  </div>
+  {% endif %}
+  <div class="mag-text__body">{{ s.body | paragraphs }}</div>
+</section>
+{% endif %} {% comment %}<!-- prettier-ignore -->{% endcomment %}
+{% schema %}
+{
+  "name": "Text",
+  "description": "A heading and a few paragraphs.",
+  "settings": [
+    { "id": "heading", "type": "text", "label": "Heading", "max": 120 },
+    { "id": "body", "type": "textarea", "label": "Text", "max": 2000 },
+    {
+      "id": "align",
+      "type": "select",
+      "label": "Alignment",
+      "options": [{ "value": "left", "label": "Left" }, { "value": "centre", "label": "Centre" }],
+      "default": "left"
+    }
+  ]
+}
+{% endschema %}

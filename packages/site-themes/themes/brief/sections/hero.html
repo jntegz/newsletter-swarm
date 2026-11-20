@@ -1,0 +1,141 @@
+{% assign s = section.settings %} {% assign newest = posts.first %} {% if reader.is_subscriber %}
+<section class="br-hero br-hero--back" aria-labelledby="{{ section.id }}-title">
+  <h1 class="br-back__title" id="{{ section.id }}-title">Welcome back to {{ site.name }}</h1>
+  {% if newest %}
+  <article class="br-newest">
+    <p class="br-newest__no br-fig">{% render 'no', n: site.issue_count %}</p>
+    <div>
+      <p class="br-newest__label">The latest issue</p>
+      <h2 class="br-newest__title"><a href="{{ newest.url }}">{{ newest.title }}</a></h2>
+      {% if newest.excerpt %}
+      <p class="br-newest__excerpt">{{ newest.excerpt | truncatewords: 40 }}</p>
+      {% endif %}
+      <p class="br-newest__meta br-fig">
+        <time datetime="{{ newest.date | date: 'iso' }}">{{ newest.date | date: 'long' }}</time>
+        {% if newest.reading_minutes %}<span>{{ newest.reading_minutes }} min</span>{% endif %}
+      </p>
+    </div>
+  </article>
+  {% else %}
+  <p class="br-back__text">The first issue is on its way to your inbox.</p>
+  {% endif %} {% if site.plans_url %}{% unless reader.is_paid %}
+  <p class="br-back__plans">
+    <a class="br-link" href="{{ site.plans_url }}">See the paid plans</a>
+  </p>
+  {% endunless %}{% endif %}
+</section>
+{% else %} {% assign heading = s.heading | default: site.name %} {% assign pitch = s.pitch |
+default: site.description %}
+<section class="br-hero br-hero--{{ s.layout }}" aria-labelledby="{{ section.id }}-title">
+  {% if site.issue_count > 0 or newest %}
+  <p class="br-dateline br-fig">
+    {% if site.issue_count > 0 %}<span>{% render 'no', n: site.issue_count %}</span>{% endif %} {%
+    if newest %}<span
+      >Latest
+      <time datetime="{{ newest.date | date: 'iso' }}">{{ newest.date | date: 'long' }}</time></span
+    >{% endif %}
+  </p>
+  {% endif %}
+  <div class="br-hero__main">
+    {% if s.show_logo and site.logo %}
+    <div class="br-hero__logo">{{ site.logo | image: '48px' }}</div>
+    {% endif %}
+    <h1
+      class="br-hero__title{% if heading.size > 24 %} br-hero__title--long{% endif %}"
+      id="{{ section.id }}-title"
+    >
+      {{ heading }}
+    </h1>
+    {% if pitch %}
+    <p class="br-hero__pitch">{{ pitch }}</p>
+    {% endif %} {% if newest %}
+    <p class="br-hero__latest">
+      <span class="br-hero__latest-label">The latest issue</span>
+      <a href="{{ newest.url }}">{{ newest.title }}</a>
+      {% if newest.reading_minutes %}<span class="br-fig">{{ newest.reading_minutes }} min</span>{%
+      endif %}
+    </p>
+    {% endif %}
+  </div>
+  <div class="br-hero__aside" id="subscribe">
+    <p class="br-hero__promise">{{ s.promise | default: 'Get every issue by email.' }}</p>
+    {% subscribe_form %} {% if s.privacy_note %}
+    <p class="br-hero__note">{{ s.privacy_note }}</p>
+    {% endif %} {% if s.show_count and site.subscriber_count or s.image %}
+    <div class="br-proof">
+      {% if s.image %}
+      <div class="br-proof__photo">{{ s.image | image: '44px' }}</div>
+      {% endif %} {% if s.show_count and site.subscriber_count %}
+      <p class="br-proof__text">
+        <span class="br-fig">{{ site.subscriber_count | number }}</span> readers {% if
+        site.issue_count > 0 %}<span class="br-proof__sep">·</span>
+        <span class="br-fig">{{ site.issue_count | number }}</span> {% if site.issue_count == 1
+        %}issue{% else %}issues{% endif %}{% endif %}
+      </p>
+      {% endif %}
+    </div>
+    {% endif %}
+  </div>
+</section>
+{% endif %} {% comment %}<!-- prettier-ignore -->{% endcomment %}
+{% schema %}
+{
+  "name": "Hero",
+  "description": "The first screen: the promise and the signup form.",
+  "limit": 1,
+  "settings": [
+    {
+      "id": "heading",
+      "type": "text",
+      "label": "Heading",
+      "max": 120,
+      "info": "Leave it empty to use the publication’s name."
+    },
+    {
+      "id": "pitch",
+      "type": "textarea",
+      "label": "The line under it",
+      "max": 400,
+      "info": "Leave it empty to use the description."
+    },
+    {
+      "id": "promise",
+      "type": "text",
+      "label": "What and how often",
+      "max": 120,
+      "info": "Shown above the form. For example: Every Sunday. Free."
+    },
+    {
+      "id": "show_count",
+      "type": "checkbox",
+      "label": "Show how many people read it",
+      "default": true,
+      "info": "Shown once there are at least 100 subscribers."
+    },
+    { "id": "show_logo", "type": "checkbox", "label": "Show the logo", "default": false },
+    {
+      "id": "privacy_note",
+      "type": "text",
+      "label": "Note under the form",
+      "max": 160,
+      "default": "Unsubscribe at any time."
+    },
+    {
+      "id": "layout",
+      "type": "select",
+      "label": "Layout",
+      "options": [
+        { "value": "split", "label": "The name on the left, the form on the right" },
+        { "value": "stacked", "label": "The name across, the form beneath" }
+      ],
+      "default": "split"
+    },
+    {
+      "id": "image",
+      "type": "image",
+      "label": "Your photo",
+      "info": "A small photo of you, beside the reader count."
+    }
+  ]
+}
+{% endschema %}

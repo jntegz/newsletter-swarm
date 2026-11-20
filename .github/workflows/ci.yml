@@ -1,0 +1,104 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  ci:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
+
+      # Without setup-node's pnpm store cache, which would need pnpm before it is checked below;
+      # nothing written by another run reaches this one either.
+      - name: Set up Node
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version-file: .node-version
+
+      # Corepack fetches the pnpm that packageManager names into an empty folder; the job fails
+      # unless it is the file the sha512 there names (scripts/ci-pnpm.mjs).
+      - name: Set up pnpm, checked against packageManager
+        run: node scripts/ci-pnpm.mjs
+
+      # What ran, for a later look: the runner image, and Node and pnpm against their pins.
+      - name: Record the toolchain
+        run: |
+          echo "runner image: ${ImageOS:-unknown} ${ImageVersion:-unknown}"
+          echo "node $(node --version): $(sha256sum "$(command -v node)")"
+          echo "pnpm $(pnpm --version), packageManager: $(jq -r .packageManager package.json)"
+          test "v$(cat .node-version)" = "$(node --version)"
+          test "pnpm@$(pnpm --version)" = "$(jq -r '.packageManager | split("+")[0]' package.json)"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Check formatting
+        run: pnpm format:check
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Check product vocabulary
+        run: pnpm check:vocabulary
+
+      - name: No dead exports
+        run: pnpm check:dead-code
+
+      - name: Unit and integration tests
+        run: pnpm test
+
+      - name: OpenAPI contract is up to date
+        run: |
+          pnpm openapi
+          git diff --exit-code -- docs/openapi.json
+
+      - name: Bundle every worker (wrangler deploy --dry-run)
+        run: pnpm check:dry-run
+
+      - name: Build dashboard
+        run: pnpm --filter @swarm/dashboard build
+
+      - name: Audit production dependencies
+        run: pnpm audit --prod --audit-level high
+
+      - name: Software bill of materials (CycloneDX)
+        run: pnpm sbom
+
+      - name: Keep the SBOM with the build
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: sbom
+          path: dist/sbom.cdx.json
+
+  e2e:
+    runs-on: ubuntu-24.04
+    needs: ci
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version-file: .node-version
+      - name: Set up pnpm, checked against packageManager
+        run: node scripts/ci-pnpm.mjs
+      - run: test "pnpm@$(pnpm --version)" = "$(jq -r '.packageManager | split("+")[0]' package.json)"
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter @swarm/dashboard build
+      # Local-only secrets for wrangler dev, from the committed examples.
+      - run: for f in workers/*/.dev.vars.example; do cp "$f" "${f%.example}"; done
+      - run: pnpm db:migrate:local
+      - run: pnpm --filter @swarm/e2e exec playwright install --with-deps chromium
+      - run: pnpm test:e2e

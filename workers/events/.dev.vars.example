@@ -1,0 +1,17 @@
+# Copy to .dev.vars for local development. Never commit .dev.vars.
+# Must match UNSUBSCRIBE_KEYS in the send and track workers.
+UNSUBSCRIBE_KEYS=k1:development-only-unsubscribe-key-replace-before-using-this-file
+# Resend webhooks (MAIL_ADAPTER=resend installs): the signing secret, POST /resend.
+# RESEND_WEBHOOK_SECRET=whsec_...
+# Mailgun webhooks (MAIL_ADAPTER=mailgun installs): the webhook signing key, POST /mailgun.
+# MAILGUN_WEBHOOK_SIGNING_KEY=...
+# Postmark webhooks (MAIL_ADAPTER=postmark installs): the Basic auth password, POST /postmark.
+# POSTMARK_WEBHOOK_SECRET=...
+# A person's own mail server (MAIL_ADAPTER=smtp installs): signs reports to POST /smtp-feedback.
+# SMTP_FEEDBACK_SECRET=whsec_...
+
+# Per-link keyrings (docs/security.md "Keys"): each link family signs with its own. A worker that
+# signs holds *_KEYS; one that only checks an Ed25519 link holds its public keys, *_VERIFY_KEYS.
+# Each value must be the same in every worker that has it. The installer makes real ones; these
+# (and any dev0 key) are refused when deployed.
+BOUNCE_KEYS=k1:development-only-bounce-key-replace-before-using-this-file

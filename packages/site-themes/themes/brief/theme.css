@@ -1,0 +1,1089 @@
+/* Brief: Swiss editorial minimalism for an intelligence briefing. A strict twelve-column grid
+   (its columns can show as hairlines), black rules, one sharp accent, generous white space,
+   numbered issues and figures in the theme's figures font (monospace by default, used for figures
+   and dates only), key figures set large in a ruled band, benefits as numbered points, the
+   archive as a ruled table and the author as a short signed note. Only the tokens are used. */
+
+.t-brief {
+  --t-br-gap: clamp(16px, 2vw, 28px);
+  --t-br-fig: var(--t-figures_font, var(--mono));
+  --t-br-hair: color-mix(in srgb, var(--ink) 16%, var(--page));
+  --t-br-field: color-mix(in srgb, var(--ink) 55%, var(--page));
+  --t-br-grid: color-mix(in srgb, var(--ink) 6%, transparent);
+  position: relative;
+  font-variant-numeric: normal;
+}
+/* The grid itself, as hairlines at the start of each column and at the right edge. */
+.t-brief--grid-lines::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    repeating-linear-gradient(
+      to right,
+      var(--t-br-grid) 0 1px,
+      transparent 1px calc((100% + var(--t-br-gap)) / 12)
+    ),
+    linear-gradient(to left, var(--t-br-grid) 1px, transparent 1px);
+}
+
+/* The site's header and footer, on a black rule. */
+body:has(.t-brief) .sw-header {
+  background: transparent;
+  border-bottom: 1px solid var(--ink);
+}
+body:has(.t-brief) .sw-brand {
+  font-family: var(--font-heading);
+  font-weight: 650;
+  letter-spacing: -0.03em;
+}
+body:has(.t-brief) .sw-header .sw-button {
+  color: var(--ink);
+  background: transparent;
+  box-shadow: inset 0 0 0 1px var(--ink);
+}
+body:has(.t-brief) .sw-search input {
+  background: transparent;
+  border-color: var(--t-br-field);
+}
+body:has(.t-brief) .sw-main {
+  padding-top: 0;
+}
+body:has(.t-brief) .sw-footer {
+  border-top-color: var(--ink);
+}
+
+.t-brief .t-section + .t-section {
+  margin-top: clamp(72px, 9vw, 128px);
+}
+.t-brief .t-section--hero + .t-section {
+  margin-top: clamp(40px, 6vw, 80px);
+}
+.t-brief h1,
+.t-brief h2,
+.t-brief h3 {
+  margin: 0;
+  color: var(--ink);
+  text-wrap: balance;
+}
+.t-brief a {
+  text-underline-offset: 0.2em;
+}
+.t-brief .br-fig {
+  font-family: var(--t-br-fig);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0;
+}
+.t-brief .br-link {
+  display: inline-block;
+  padding: 4px 0;
+  font-weight: 550;
+  color: var(--ink);
+  text-decoration-color: var(--accent);
+  text-decoration-thickness: 2px;
+}
+.t-brief .br-link::after {
+  content: ' →';
+}
+.t-brief .br-link:hover {
+  color: var(--accent);
+}
+.t-brief .br-tag {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 1px 6px;
+  font-family: var(--t-br-fig);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.4;
+  color: var(--ink);
+  vertical-align: 0.12em;
+  border: 1px solid var(--ink);
+  border-radius: var(--r-control);
+}
+
+/* The twelve columns */
+.t-brief .br-hero,
+.t-brief .br-head,
+.t-brief .br-split,
+.t-brief .br-band,
+.t-brief .br-text {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  column-gap: var(--t-br-gap);
+}
+.t-brief .br-head {
+  align-items: baseline;
+  margin-bottom: clamp(18px, 2.4vw, 28px);
+  padding-top: 12px;
+  border-top: 1px solid var(--ink);
+}
+.t-brief .br-head > :first-child {
+  grid-column: 1 / 9;
+}
+.t-brief .br-head > .br-link {
+  grid-column: 9 / -1;
+  justify-self: end;
+}
+.t-brief .br-h2 {
+  font-size: var(--step-3);
+  font-weight: 600;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+}
+.t-brief .br-split {
+  align-items: start;
+  padding-top: 12px;
+  border-top: 1px solid var(--ink);
+}
+.t-brief .br-split__head {
+  grid-column: 1 / 5;
+}
+.t-brief .br-split__body {
+  grid-column: 5 / -1;
+}
+
+/* The signup form */
+.t-brief form[data-swarm-subscribe] {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 10px;
+  margin: 0;
+}
+.t-brief form[data-swarm-subscribe] label {
+  display: flex;
+  flex: 1 1 100%;
+  flex-direction: column;
+  gap: 6px;
+  font-size: var(--step-m1);
+  font-weight: 550;
+  color: var(--ink);
+}
+.t-brief form[data-swarm-subscribe] label.sw-consent {
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 10px;
+  font-weight: 400;
+  color: var(--text);
+}
+.t-brief form[data-swarm-subscribe] input[type='email'],
+.t-brief form[data-swarm-subscribe] input[type='text'] {
+  width: 100%;
+  min-height: 50px;
+  padding: 0 14px;
+  font-size: var(--step-0);
+  color: var(--ink);
+  background: var(--surface);
+  border: 1px solid var(--t-br-field);
+  border-radius: var(--r-control);
+}
+.t-brief form[data-swarm-subscribe] input::placeholder {
+  color: var(--text-sub);
+  opacity: 1;
+}
+.t-brief form[data-swarm-subscribe] input[type='email']:hover,
+.t-brief form[data-swarm-subscribe] input[type='text']:hover {
+  border-color: var(--ink);
+}
+.t-brief form[data-swarm-subscribe] input[type='checkbox'] {
+  width: 20px;
+  height: 20px;
+  margin: 2px 0 0;
+  flex: none;
+  accent-color: var(--accent);
+}
+.t-brief form[data-swarm-subscribe] button {
+  flex: 1 1 100%;
+  min-height: 50px;
+  padding: 0 22px;
+  font-size: var(--step-0);
+  font-weight: 600;
+}
+
+/* Hero */
+.t-brief .br-hero {
+  padding-top: clamp(14px, 2vh, 22px);
+}
+.t-brief .br-hero:not(:has(.br-dateline)):not(.br-hero--back) {
+  padding-top: clamp(32px, 7vh, 88px);
+}
+.t-brief .br-dateline {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: subgrid;
+  margin: 0 0 clamp(32px, 7vh, 88px);
+  padding-bottom: 12px;
+  font-size: var(--step-m1);
+  color: var(--text-sub);
+  border-bottom: 1px solid var(--t-br-hair);
+}
+.t-brief .br-dateline > span:first-child {
+  grid-column: 1 / 9;
+  color: var(--accent);
+}
+.t-brief .br-dateline > span:last-child {
+  grid-column: 9 / -1;
+}
+.t-brief .br-dateline > span:only-child {
+  grid-column: 1 / -1;
+}
+.t-brief .br-hero__main {
+  grid-column: 1 / 8;
+}
+.t-brief .br-hero__logo img {
+  display: block;
+  width: 48px;
+  height: 48px;
+  margin-bottom: 24px;
+  object-fit: cover;
+  border-radius: var(--r-control);
+}
+.t-brief .br-hero__title {
+  font-size: clamp(3rem, 0.9rem + 6.6vw, 8rem);
+  font-weight: 600;
+  line-height: 0.92;
+  letter-spacing: -0.055em;
+  overflow-wrap: anywhere;
+}
+.t-brief .br-hero__title--long {
+  font-size: clamp(2.4rem, 1rem + 3.8vw, 5rem);
+  line-height: 0.98;
+  letter-spacing: -0.045em;
+}
+.t-brief .br-hero__pitch {
+  max-width: 32rem;
+  margin: clamp(20px, 3.4vh, 36px) 0 0;
+  font-size: var(--step-2);
+  line-height: 1.38;
+  letter-spacing: -0.01em;
+  color: var(--text);
+  text-wrap: pretty;
+}
+.t-brief .br-hero__latest {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 16px;
+  max-width: 36rem;
+  margin: clamp(28px, 5vh, 56px) 0 0;
+  padding-top: 12px;
+  font-size: var(--step-0);
+  border-top: 1px solid var(--t-br-hair);
+}
+.t-brief .br-hero__latest-label {
+  flex: 1 1 100%;
+  font-size: var(--step-m1);
+  color: var(--text-sub);
+}
+.t-brief .br-hero__latest a {
+  font-weight: 550;
+  color: var(--ink);
+  text-decoration-color: var(--accent);
+  text-decoration-thickness: 2px;
+}
+.t-brief .br-hero__latest a::after {
+  content: ' →';
+}
+.t-brief .br-hero__latest .br-fig {
+  font-size: var(--step-m1);
+  color: var(--text-sub);
+}
+.t-brief .br-hero__aside {
+  grid-column: 9 / -1;
+  padding-top: 14px;
+  border-top: 3px solid var(--ink);
+}
+.t-brief .br-hero__promise {
+  margin: 0 0 18px;
+  font-family: var(--font-heading);
+  font-size: var(--step-1);
+  font-weight: 600;
+  line-height: 1.25;
+  letter-spacing: -0.015em;
+  color: var(--ink);
+}
+.t-brief .br-hero__note {
+  margin: 10px 0 0;
+  font-size: var(--step-m1);
+  color: var(--text-sub);
+}
+.t-brief .br-proof {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 22px;
+  padding-top: 14px;
+  border-top: 1px solid var(--t-br-hair);
+}
+.t-brief .br-proof__photo img {
+  display: block;
+  width: 44px;
+  height: 44px;
+  object-fit: cover;
+  border-radius: 50%;
+}
+.t-brief .br-proof__text {
+  margin: 0;
+  font-size: var(--step-m1);
+  color: var(--text-sub);
+}
+.t-brief .br-proof__text .br-fig {
+  font-size: var(--step-0);
+  font-weight: 600;
+  color: var(--ink);
+}
+.t-brief .br-proof__sep {
+  margin: 0 4px;
+}
+.t-brief .br-hero--stacked .br-hero__main {
+  grid-column: 1 / -1;
+}
+.t-brief .br-hero--stacked .br-hero__pitch {
+  max-width: none;
+  width: calc(50% - var(--t-br-gap) / 2);
+}
+.t-brief .br-hero--stacked .br-hero__aside {
+  grid-column: 7 / -1;
+  margin-top: clamp(28px, 4vh, 48px);
+}
+@media (min-width: 900px) {
+  .t-brief .br-hero--stacked .br-hero__main {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: var(--t-br-gap);
+  }
+  .t-brief .br-hero--stacked .br-hero__main > * {
+    grid-column: 1 / -1;
+  }
+  .t-brief .br-hero--stacked .br-hero__pitch {
+    grid-column: 1 / 6;
+    width: auto;
+    grid-row: 3;
+    align-self: start;
+    margin-top: clamp(28px, 4vh, 48px);
+  }
+  .t-brief .br-hero--stacked .br-hero__aside {
+    grid-row: 3;
+  }
+}
+
+/* Welcome back */
+.t-brief .br-hero--back {
+  padding-top: clamp(28px, 6vh, 64px);
+}
+.t-brief .br-back__title {
+  grid-column: 1 / 10;
+  font-size: var(--step-5);
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.045em;
+}
+.t-brief .br-back__text,
+.t-brief .br-back__plans {
+  grid-column: 1 / -1;
+  margin: 18px 0 0;
+}
+.t-brief .br-back__text {
+  font-size: var(--step-1);
+  color: var(--text);
+}
+.t-brief .br-newest {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: subgrid;
+  margin-top: clamp(28px, 4vh, 48px);
+  padding-top: 14px;
+  border-top: 1px solid var(--ink);
+}
+.t-brief .br-newest > :first-child {
+  grid-column: 1 / 3;
+}
+.t-brief .br-newest > :last-child {
+  grid-column: 3 / 11;
+}
+.t-brief .br-newest__no {
+  margin: 0;
+  font-size: var(--step-1);
+  color: var(--accent);
+}
+.t-brief .br-newest__label {
+  margin: 0 0 6px;
+  font-size: var(--step-m1);
+  color: var(--text-sub);
+}
+.t-brief .br-newest__title {
+  font-size: var(--step-4);
+  font-weight: 600;
+  line-height: 1.05;
+  letter-spacing: -0.035em;
+}
+.t-brief .br-newest__title a {
+  color: var(--ink);
+  text-decoration-color: var(--accent);
+  text-decoration-thickness: 2px;
+}
+.t-brief .br-newest__excerpt {
+  max-width: 40rem;
+  margin: 14px 0 0;
+  font-size: var(--step-1);
+  line-height: 1.5;
+  color: var(--text);
+}
+.t-brief .br-newest__meta {
+  display: flex;
+  gap: 18px;
+  margin: 14px 0 0;
+  font-size: var(--step-m1);
+  color: var(--text-sub);
+}
+
+/* Numbers: the key figures, large, in a ruled band. */
+.t-brief .br-numbers {
+  border-top: 1px solid var(--ink);
+  border-bottom: 1px solid var(--ink);
+}
+.t-brief .br-numbers__title {
+  padding: 12px 0;
+  border-bottom: 1px solid var(--t-br-hair);
+}
+.t-brief .br-numbers__list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr));
+  margin: 0;
+}
+.t-brief .br-number {
+  display: flex;
+  flex-direction: column-reverse;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: clamp(18px, 2.4vw, 28px) var(--t-br-gap) clamp(20px, 2.6vw, 32px) 0;
+}
+.t-brief .br-number + .br-number {
+  padding-left: var(--t-br-gap);
+  border-left: 1px solid var(--t-br-hair);
+}
+/* At this size a monospaced comma or point takes a whole figure's width ("12 , 431"), so the key
+   figures are set in the heading face with proportional lining figures; small figures keep the
+   figures font. */
+.t-brief .br-number dd {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: clamp(2.6rem, 1.2rem + 3.8vw, 5.2rem);
+  font-weight: 400;
+  font-variant-numeric: lining-nums proportional-nums;
+  line-height: 1;
+  letter-spacing: -0.035em;
+  color: var(--ink);
+}
+.t-brief .br-number dt {
+  font-size: var(--step-m1);
+  color: var(--text-sub);
+}
+
+/* Benefits: numbered points */
+.t-brief .br-points {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.t-brief .br-point {
+  display: grid;
+  grid-template-columns: 4.5rem minmax(0, 1fr);
+  gap: 0 var(--t-br-gap);
+  padding: 4px 0 22px;
+}
+.t-brief .br-point + .br-point {
+  padding-top: 18px;
+  border-top: 1px solid var(--t-br-hair);
+}
+.t-brief .br-point__n {
+  padding-top: 3px;
+  font-size: var(--step-0);
+  color: var(--accent);
+}
+.t-brief .br-point__title {
+  font-size: var(--step-1);
+  font-weight: 600;
+  line-height: 1.25;
+  letter-spacing: -0.015em;
+}
+.t-brief .br-point__text {
+  max-width: 38rem;
+  margin: 6px 0 0;
+  color: var(--text-sub);
+}
+
+/* Latest: the ruled table */
+.t-brief .br-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--step-0);
+}
+.t-brief .br-table th {
+  padding: 0 16px 10px 0;
+  font-size: var(--step-m1);
+  font-weight: 500;
+  text-align: left;
+  color: var(--text-sub);
+  border-bottom: 1px solid var(--ink);
+}
+.t-brief .br-table td {
+  padding: 15px 16px 15px 0;
+  vertical-align: baseline;
+}
+/* One rule per row, drawn by the row: cells of mixed faces round their heights apart, and a rule
+   per cell would step by a pixel between the columns. */
+.t-brief .br-table tbody tr {
+  border-bottom: 1px solid var(--t-br-hair);
+}
+.t-brief .br-table tr > :last-child {
+  padding-right: 0;
+}
+.t-brief .br-table__no {
+  width: 6.5rem;
+}
+.t-brief td.br-table__no {
+  color: var(--accent);
+}
+.t-brief .br-table__date {
+  width: 9.5rem;
+  white-space: nowrap;
+}
+.t-brief .br-table__time {
+  width: 5rem;
+  text-align: right;
+  white-space: nowrap;
+}
+.t-brief td.br-table__date,
+.t-brief td.br-table__time {
+  font-size: var(--step-m1);
+  color: var(--text-sub);
+}
+.t-brief .br-table__title {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.t-brief .br-table__image img {
+  display: block;
+  width: 56px;
+  height: 56px;
+  object-fit: cover;
+  border-radius: var(--r-control);
+}
+.t-brief .br-table__text a {
+  font-weight: 550;
+  color: var(--ink);
+  text-decoration: none;
+}
+.t-brief .br-table__text a:hover {
+  text-decoration: underline;
+  text-decoration-color: var(--accent);
+  text-decoration-thickness: 2px;
+}
+.t-brief .br-table__excerpt {
+  display: block;
+  max-width: 44rem;
+  margin-top: 4px;
+  font-size: var(--step-m1);
+  color: var(--text-sub);
+}
+.t-brief .br-table tbody tr:hover {
+  background: var(--surface-alt);
+}
+.t-brief .br-latest--compact .br-table td {
+  padding-top: 9px;
+  padding-bottom: 9px;
+}
+.t-brief .br-latest--compact .br-table {
+  font-size: var(--step-m1);
+}
+.t-brief .br-empty {
+  margin: 0;
+  padding: 20px 0;
+  color: var(--text-sub);
+  border-bottom: 1px solid var(--t-br-hair);
+}
+
+/* Latest: cards and rows */
+.t-brief .br-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 240px), 1fr));
+  gap: 40px var(--t-br-gap);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.t-brief .br-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  height: 100%;
+  padding-top: 12px;
+  border-top: 2px solid var(--ink);
+}
+.t-brief .br-card__image {
+  order: -1;
+  margin: -12px 0 2px;
+}
+.t-brief .br-card__image img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 3 / 2;
+  object-fit: cover;
+}
+.t-brief .br-card__meta,
+.t-brief .br-card__foot {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  margin: 0;
+  font-size: var(--step-m1);
+  color: var(--text-sub);
+}
+.t-brief .br-card__meta span {
+  color: var(--accent);
+}
+.t-brief .br-card__foot {
+  margin-top: auto;
+}
+.t-brief .br-card__title {
+  font-size: var(--step-1);
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+.t-brief .br-card__title a,
+.t-brief .br-row__title a {
+  color: var(--ink);
+  text-decoration: none;
+}
+.t-brief .br-card__title a::after,
+.t-brief .br-row__title a::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+}
+.t-brief .br-card:hover .br-card__title a,
+.t-brief .br-row:hover .br-row__title a {
+  text-decoration: underline;
+  text-decoration-color: var(--accent);
+  text-decoration-thickness: 2px;
+}
+.t-brief .br-card__excerpt {
+  margin: 0;
+  font-size: var(--step-m1);
+  color: var(--text-sub);
+}
+.t-brief .br-rows {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--ink);
+}
+.t-brief .br-rows > li {
+  border-bottom: 1px solid var(--t-br-hair);
+}
+.t-brief .br-row {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  column-gap: var(--t-br-gap);
+  align-items: start;
+  padding: 22px 0;
+}
+.t-brief .br-row__no {
+  grid-column: 1 / 3;
+  margin: 0;
+  padding-top: 4px;
+  font-size: var(--step-m1);
+  color: var(--accent);
+}
+.t-brief .br-row__body {
+  grid-column: 3 / 10;
+}
+.t-brief .br-row__image {
+  grid-column: 10 / -1;
+}
+.t-brief .br-row__image img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 3 / 2;
+  object-fit: cover;
+}
+.t-brief .br-row__title {
+  font-size: var(--step-2);
+  font-weight: 600;
+  line-height: 1.15;
+  letter-spacing: -0.025em;
+}
+.t-brief .br-row__excerpt {
+  max-width: 40rem;
+  margin: 8px 0 0;
+  color: var(--text-sub);
+}
+.t-brief .br-row__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+  margin: 10px 0 0;
+  font-size: var(--step-m1);
+  color: var(--text-sub);
+}
+
+/* Featured */
+.t-brief .br-feature__meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 14px 0 0;
+  font-size: var(--step-m1);
+  color: var(--text-sub);
+}
+.t-brief .br-feature__title {
+  font-size: var(--step-4);
+  font-weight: 600;
+  line-height: 1.05;
+  letter-spacing: -0.035em;
+}
+.t-brief .br-feature__excerpt {
+  max-width: 40rem;
+  margin: 16px 0 0;
+  font-size: var(--step-1);
+  line-height: 1.55;
+  color: var(--text);
+}
+.t-brief .br-feature__image img {
+  display: block;
+  width: 100%;
+  height: auto;
+  margin-top: 24px;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+}
+.t-brief .br-feature__action {
+  margin: 24px 0 0;
+}
+
+/* Testimonials */
+.t-brief .br-quotes__list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
+  gap: 36px var(--t-br-gap);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.t-brief .br-quote {
+  margin: 0;
+}
+.t-brief .br-quote__text {
+  margin: 0;
+}
+.t-brief .br-quote__text p {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: var(--step-1);
+  font-weight: 450;
+  line-height: 1.4;
+  letter-spacing: -0.015em;
+  color: var(--ink);
+  text-indent: -0.42em;
+  text-wrap: pretty;
+}
+.t-brief .br-quote__text p::before {
+  content: '“';
+}
+.t-brief .br-quote__text p::after {
+  content: '”';
+}
+.t-brief .br-quote__by {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 16px;
+  font-size: var(--step-m1);
+}
+.t-brief .br-quote__photo {
+  width: 32px;
+  height: 32px;
+  object-fit: cover;
+  border-radius: 50%;
+}
+.t-brief .br-quote__name {
+  font-style: normal;
+  font-weight: 600;
+  color: var(--ink);
+}
+.t-brief .br-quote__role {
+  margin-left: 8px;
+  color: var(--text-sub);
+}
+
+/* Author: a short signed note */
+.t-brief .br-byline__bio {
+  max-width: 46rem;
+  color: var(--text);
+}
+.t-brief .br-byline__bio p {
+  margin: 0 0 14px;
+}
+.t-brief .br-byline__sign {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 10px;
+}
+.t-brief .br-byline__photo img {
+  display: block;
+  width: 56px;
+  height: 56px;
+  object-fit: cover;
+  border-radius: 50%;
+}
+.t-brief .br-byline__name {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 20px;
+  margin: 0;
+}
+.t-brief .br-byline__sig {
+  font-family: var(--font-heading);
+  font-size: var(--step-1);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+.t-brief .br-byline__sig::before {
+  content: '';
+  display: inline-block;
+  width: 28px;
+  height: 2px;
+  margin-right: 12px;
+  vertical-align: 0.32em;
+  background: var(--accent);
+}
+
+/* Questions */
+.t-brief .br-faq__item {
+  border-bottom: 1px solid var(--t-br-hair);
+}
+.t-brief .br-faq__item:first-child summary {
+  padding-top: 2px;
+}
+.t-brief .br-faq__item summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  min-height: 56px;
+  padding: 12px 0;
+  font-size: var(--step-1);
+  font-weight: 550;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+  cursor: pointer;
+  list-style: none;
+}
+.t-brief .br-faq__item summary::-webkit-details-marker {
+  display: none;
+}
+.t-brief .br-faq__mark {
+  flex: none;
+  width: 14px;
+  height: 14px;
+  background:
+    linear-gradient(var(--accent), var(--accent)) center / 14px 2px no-repeat,
+    linear-gradient(var(--accent), var(--accent)) center / 2px 14px no-repeat;
+}
+.t-brief .br-faq__item[open] .br-faq__mark {
+  background: linear-gradient(var(--accent), var(--accent)) center / 14px 2px no-repeat;
+}
+.t-brief .br-faq__answer {
+  max-width: 44rem;
+  padding: 0 0 18px;
+  color: var(--text);
+}
+.t-brief .br-faq__answer p {
+  margin: 0 0 10px;
+}
+
+/* Text */
+.t-brief .br-text {
+  align-items: start;
+}
+.t-brief .br-text > .br-h2 {
+  grid-column: 1 / 5;
+}
+.t-brief .br-text__body {
+  grid-column: 5 / 12;
+  font-size: var(--step-1);
+  line-height: 1.55;
+  color: var(--text);
+}
+.t-brief .br-text__body p {
+  margin: 0 0 16px;
+}
+.t-brief .br-text--centre > .br-h2,
+.t-brief .br-text--centre > .br-text__body {
+  grid-column: 3 / 11;
+  text-align: center;
+}
+.t-brief .br-text--centre > .br-h2 {
+  margin-bottom: 16px;
+}
+
+/* Subscribe band */
+.t-brief .br-band {
+  align-items: end;
+  row-gap: 24px;
+  padding: clamp(28px, 4vw, 48px) clamp(20px, 3vw, 40px);
+  background: var(--surface-alt);
+  border-top: 4px solid var(--accent);
+}
+.t-brief .br-band__text {
+  grid-column: 1 / 7;
+}
+.t-brief .br-band__form {
+  grid-column: 7 / -1;
+}
+.t-brief .br-band__title {
+  font-size: var(--step-4);
+  font-weight: 600;
+  line-height: 1.05;
+  letter-spacing: -0.035em;
+}
+.t-brief .br-band__lede {
+  max-width: 30rem;
+  margin: 12px 0 0;
+  color: var(--text-sub);
+}
+.t-brief .br-band form[data-swarm-subscribe] label {
+  flex: 1 1 14rem;
+}
+.t-brief .br-band form[data-swarm-subscribe] label.sw-consent {
+  flex-basis: 100%;
+}
+.t-brief .br-band form[data-swarm-subscribe] button {
+  flex: 0 0 auto;
+}
+.t-brief .br-band form[data-swarm-subscribe] .sw-consent ~ button {
+  flex: 1 1 100%;
+}
+
+@media (max-width: 899px) {
+  .t-brief .br-hero__main {
+    grid-column: 1 / -1;
+  }
+  .t-brief .br-hero__aside,
+  .t-brief .br-hero--stacked .br-hero__aside {
+    grid-column: 1 / -1;
+    margin-top: 28px;
+  }
+  .t-brief .br-hero--stacked .br-hero__pitch {
+    width: auto;
+  }
+  .t-brief .br-split__head,
+  .t-brief .br-split__body,
+  .t-brief .br-text > .br-h2,
+  .t-brief .br-text__body,
+  .t-brief .br-text--centre > *,
+  .t-brief .br-band__text,
+  .t-brief .br-band__form,
+  .t-brief .br-back__title {
+    grid-column: 1 / -1;
+  }
+  .t-brief .br-split__head,
+  .t-brief .br-text > .br-h2 {
+    margin-bottom: 18px;
+  }
+}
+@media (max-width: 719px) {
+  .t-brief .br-dateline {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2px 18px;
+    margin-bottom: 20px;
+    padding-bottom: 8px;
+  }
+  .t-brief .br-hero__pitch {
+    margin-top: 14px;
+    font-size: var(--step-1);
+  }
+  .t-brief .br-hero__aside,
+  .t-brief .br-hero--stacked .br-hero__aside {
+    margin-top: 20px;
+    padding-top: 12px;
+  }
+  .t-brief .br-hero__promise {
+    margin-bottom: 12px;
+  }
+  .t-brief .br-hero__latest {
+    display: none;
+  }
+  .t-brief .br-head {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 4px 16px;
+  }
+  .t-brief .br-newest__excerpt {
+    font-size: var(--step-0);
+  }
+  .t-brief .br-table__time {
+    display: none;
+  }
+  .t-brief .br-table__no {
+    width: 3.2rem;
+  }
+  .t-brief .br-table__date {
+    width: auto;
+  }
+  .t-brief .br-table__image {
+    display: none;
+  }
+  .t-brief .br-number + .br-number {
+    padding-left: 0;
+    border-left: 0;
+    border-top: 1px solid var(--t-br-hair);
+  }
+  /* On a phone each figure is a ruled line: the figure, then its label beside it. */
+  .t-brief .br-number {
+    flex-direction: row-reverse;
+    align-items: baseline;
+    gap: 16px;
+    padding: 14px 0 12px;
+  }
+  .t-brief .br-number dd {
+    min-width: 4.6ch;
+    font-size: clamp(2.1rem, 1.4rem + 3vw, 2.6rem);
+  }
+  .t-brief .br-row__no,
+  .t-brief .br-row__body,
+  .t-brief .br-row__image {
+    grid-column: 1 / -1;
+  }
+  .t-brief .br-row__image {
+    display: none;
+  }
+  .t-brief .br-newest > :first-child,
+  .t-brief .br-newest > :last-child {
+    grid-column: 1 / -1;
+  }
+  .t-brief .br-newest__no {
+    margin-bottom: 6px;
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .t-brief .br-table tbody tr {
+    transition: background-color 0.15s;
+  }
+}

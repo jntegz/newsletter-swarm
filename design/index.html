@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Swarm — Indigo design system</title>
+<style>
+  :root{--ink:#0f0f12;--sub:#6b6b76;--purple:#6c4cf1;--purple-deep:#5636e8;--lav:#efeafe;--lav-line:#e6dffb;--line:#ececf2}
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{
+    font-family:-apple-system,'Segoe UI',system-ui,'Helvetica Neue',sans-serif;color:var(--ink);line-height:1.55;padding:52px 24px;min-height:100vh;
+    background:
+      radial-gradient(1100px 520px at 8% -8%, #f2edff 0%, rgba(242,237,255,0) 60%),
+      radial-gradient(900px 480px at 104% 6%, #f7f1ff 0%, rgba(247,241,255,0) 55%),
+      #fff;
+  }
+  .wrap{max-width:1000px;margin:0 auto}
+  .kicker{display:inline-flex;align-items:center;gap:9px;background:#fff;border:1px solid var(--lav-line);border-radius:999px;padding:7px 16px;font-size:13px;color:var(--sub);box-shadow:0 6px 18px -12px rgba(60,40,140,.25)}
+  .kicker b{background:var(--lav);color:var(--purple-deep);border-radius:999px;padding:2px 9px;font-size:12px;font-weight:700}
+  h1{font-size:44px;letter-spacing:-0.035em;margin:18px 0 8px}
+  h1 span{color:var(--purple)}
+  .lede{font-size:16.5px;color:var(--sub);max-width:68ch}
+  .meta{font-size:12.5px;color:var(--sub);border-top:2px solid var(--ink);border-bottom:1px solid var(--line);padding:10px 0;margin:20px 0 30px}
+  .chosen{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .card{background:#fff;border:1px solid #efedf6;border-radius:22px;padding:26px;box-shadow:0 32px 64px -40px rgba(60,40,140,.35)}
+  .card .tag{font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--purple);font-weight:700}
+  .card h2{font-size:22px;letter-spacing:-0.025em;margin:6px 0 6px}
+  .card p{font-size:13.5px;color:var(--sub)}
+  .btns{display:flex;gap:10px;margin-top:16px}
+  .btn{font-size:13.5px;font-weight:600;padding:10px 20px;border-radius:999px;text-decoration:none;border:1px solid #e7e5ee;color:var(--ink);background:#fff}
+  .btn.pri{background:var(--purple);border-color:var(--purple);color:#fff;box-shadow:0 14px 30px -14px rgba(92,60,232,.6)}
+  .btn:hover{transform:translateY(-1px)}
+  .palette{display:flex;gap:8px;margin-top:16px;flex-wrap:wrap}
+  .sw{width:40px;height:40px;border-radius:11px;border:1px solid rgba(0,0,0,.07)}
+  .notes{margin-top:30px;font-size:13.5px;color:var(--sub);max-width:80ch}
+  .notes h2{font-size:16px;color:var(--ink);margin:18px 0 6px}
+  .notes ul{padding-left:20px}
+  .notes li{margin:5px 0}
+  .notes a{color:var(--purple-deep)}
+  .arch{display:flex;gap:14px;flex-wrap:wrap;margin-top:8px}
+  .arch a{font-size:12.5px;color:var(--sub);border-bottom:1px solid var(--line);text-decoration:none;padding-bottom:1px}
+  .arch a:hover{color:var(--purple)}
+  @media(max-width:760px){.chosen{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <span class="kicker"><b>Locked</b> Direction: Indigo · Product: Swarm</span>
+  <h1>Swarm — <span>Indigo</span></h1>
+  <p class="lede">The chosen visual system. White canvas with lavender light, one committed indigo, soft rounded cards, and data shown like a friendly instrument panel. These two files are the canonical reference for P0.</p>
+  <p class="meta">Design system v1 · 2026-10-26 · Mockups use system font stacks for portability (production faces specified in DESIGN.md)</p>
+
+  <div class="chosen">
+    <div class="card">
+      <span class="tag">Marketing · Persuade</span>
+      <h2>Landing page</h2>
+      <p>Centered hero, plus-sign grid decoration, three-card dashboard preview (donut, line chart with tooltip, top flows), soft feature bento, lavender CTA band.</p>
+      <div class="btns"><a class="btn pri" href="v2-landing.html">Open landing →</a></div>
+      <div class="palette">
+        <span class="sw" style="background:#ffffff"></span><span class="sw" style="background:#6c4cf1"></span><span class="sw" style="background:#efeafe"></span><span class="sw" style="background:#0f0f12"></span><span class="sw" style="background:#e6dffb"></span>
+      </div>
+    </div>
+    <div class="card">
+      <span class="tag">Product · Operate</span>
+      <h2>Dashboard</h2>
+      <p>Rounded app shell, lavender active nav, KPI cards with delta pills, campaign line chart with tooltip, audience donut, flows progress, dispatch table.</p>
+      <div class="btns"><a class="btn pri" href="v2-dashboard.html">Open dashboard →</a></div>
+      <div class="palette">
+        <span class="sw" style="background:#fbfbfd"></span><span class="sw" style="background:#6c4cf1"></span><span class="sw" style="background:#e9f5ee"></span><span class="sw" style="background:#ffe9e2"></span><span class="sw" style="background:#c9bfef"></span>
+      </div>
+    </div>
+  </div>
+
+  <div class="notes">
+    <h2>Standing decisions</h2>
+    <ul>
+      <li><b>Product name:</b> Swarm (final working name — run trademark/domain clearance before public launch).</li>
+      <li><b>Design system:</b> Indigo. Tokens, components, and rules are documented in <a href="../DESIGN.md">DESIGN.md</a>; product truth in <a href="../PRODUCT.md">PRODUCT.md</a>.</li>
+      <li><b>Production fonts:</b> Geist (UI/display) + Geist Mono (code/data), self-hosted woff2 — the mockups use system stacks only for portability.</li>
+      <li><b>Archived explorations:</b> Rose and Sage remain for reference only — they use the same Swarm name but are not part of the chosen system.</li>
+    </ul>
+    <div class="arch">
+      <a href="v1-landing.html">archive · Rose landing</a>
+      <a href="v1-dashboard.html">archive · Rose dashboard</a>
+      <a href="v3-landing.html">archive · Sage landing</a>
+      <a href="v3-dashboard.html">archive · Sage dashboard</a>
+    </div>
+    <h2>Redesign round, Nov 2026</h2>
+    <ul><li><a href="2026-11/index.html">Three new directions (Line, Spines, Flatplan)</a>: a Home dashboard and the post editor for each, with a plain-word menu. <b>Direction A, Line, was chosen and is implemented in the dashboard</b> (<a href="2026-11/a-line/home.html">Home</a>, <a href="2026-11/a-line/editor.html">editor</a>); its system is documented in <a href="../DESIGN.md">DESIGN.md</a>. The marketing site keeps Indigo until it is redesigned.</li></ul>
+    <h2>Next step</h2>
+    <ul><li>P0 scaffold: monorepo, D1 migrations, QuickPass auth + Turnstile, first SES test send — all styled with the Indigo tokens in DESIGN.md.</li></ul>
+  </div>
+</div>
+</body>
+</html>

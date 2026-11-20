@@ -1,0 +1,55 @@
+{% assign s = section.settings %}
+<section class="mag-latest mag-latest--{{ s.style }}" aria-labelledby="{{ section.id }}-title">
+  <div class="mag-head">
+    {% if s.heading %}
+    <h2 class="mag-head__title" id="{{ section.id }}-title">{{ s.heading }}</h2>
+    {% else %}
+    <h2 class="sw-sr" id="{{ section.id }}-title">Latest issues</h2>
+    {% endif %} {% if posts %}<a class="mag-head__link" href="{{ site.archive_url }}">The archive</a
+    >{% endif %}
+  </div>
+  {% if posts %}
+  <ul class="mag-grid" role="list">
+    {% for post in posts limit: s.count %} {% if s.style == 'mosaic' and post.url == featured.url
+    %}{% else %}
+    <li>{% render 'tile', post: post, s: s %}</li>
+    {% endif %} {% endfor %}
+  </ul>
+  {% else %}
+  <p class="mag-empty">The first issue is on its way.</p>
+  {% endif %}
+</section>
+
+{% comment %}<!-- prettier-ignore -->{% endcomment %}
+{% schema %}
+{
+  "name": "Latest issues",
+  "description": "The newest issues.",
+  "settings": [
+    { "id": "heading", "type": "text", "label": "Heading", "max": 120, "default": "Latest stories" },
+    {
+      "id": "count",
+      "type": "range",
+      "label": "How many",
+      "min": 1,
+      "max": 12,
+      "step": 1,
+      "default": 7
+    },
+    {
+      "id": "style",
+      "type": "select",
+      "label": "Style",
+      "options": [
+        { "value": "mosaic", "label": "Mosaic (leaves out the featured issue)" },
+        { "value": "cards", "label": "Cards" },
+        { "value": "list", "label": "List" },
+        { "value": "compact", "label": "Compact" }
+      ],
+      "default": "mosaic"
+    },
+    { "id": "show_images", "type": "checkbox", "label": "Show images", "default": true },
+    { "id": "show_excerpt", "type": "checkbox", "label": "Show summaries", "default": true }
+  ]
+}
+{% endschema %}

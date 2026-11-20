@@ -1,0 +1,47 @@
+{% assign s = section.settings %} {% if s.name or s.bio %}
+<section class="news-author" aria-labelledby="{{ section.id }}-title">
+  {% if s.heading %}
+  <h2 class="news-h2" id="{{ section.id }}-title">{{ s.heading }}</h2>
+  {% else %}
+  <h2 class="news-h2" id="{{ section.id }}-title">{{ s.name }}</h2>
+  {% endif %}
+  <div class="news-author__body">
+    {% if s.photo %}
+    <div class="news-author__photo">{{ s.photo | image: '160px' }}</div>
+    {% endif %}
+    <div class="news-author__text">
+      {% if s.heading and s.name %}
+      <p class="news-author__name">By {{ s.name }}</p>
+      {% endif %} {{ s.bio | paragraphs }} {% if s.link_url and s.link_label %}
+      <p><a href="{{ s.link_url }}">{{ s.link_label }}</a></p>
+      {% endif %}
+    </div>
+  </div>
+</section>
+{% endif %} {% comment %}<!-- prettier-ignore -->{% endcomment %}
+{% schema %}
+{
+  "name": "Author",
+  "description": "Who writes it.",
+  "settings": [
+    {
+      "id": "heading",
+      "type": "text",
+      "label": "Heading",
+      "max": 120,
+      "default": "From the editor"
+    },
+    { "id": "name", "type": "text", "label": "Name", "max": 80 },
+    { "id": "bio", "type": "textarea", "label": "About", "max": 800 },
+    { "id": "photo", "type": "image", "label": "Photo" },
+    {
+      "id": "link_label",
+      "type": "text",
+      "label": "Link text",
+      "max": 40,
+      "default": "More about me"
+    },
+    { "id": "link_url", "type": "url", "label": "Link", "default": "/about" }
+  ]
+}
+{% endschema %}

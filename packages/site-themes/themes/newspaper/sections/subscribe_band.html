@@ -1,0 +1,53 @@
+{% assign s = section.settings %} {% unless reader.is_subscriber %}
+<section class="news-coupon" aria-labelledby="{{ section.id }}-title">
+  <svg
+    class="news-coupon__cut"
+    viewBox="0 0 24 24"
+    width="22"
+    height="22"
+    aria-hidden="true"
+    focusable="false"
+  >
+    <circle cx="6" cy="6" r="3" fill="none" stroke="currentColor" stroke-width="1.6" />
+    <circle cx="6" cy="18" r="3" fill="none" stroke="currentColor" stroke-width="1.6" />
+    <path
+      d="M8.5 7.5 20 17M8.5 16.5 20 7"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="1.6"
+      stroke-linecap="round"
+    />
+  </svg>
+  <div class="news-coupon__text">
+    <h2 class="news-coupon__title" id="{{ section.id }}-title">
+      {{ s.heading | default: site.name }}
+    </h2>
+    {% if s.text %}
+    <p>{{ s.text }}</p>
+    {% endif %}
+  </div>
+  <div class="news-coupon__form">{% subscribe_form %}</div>
+</section>
+{% endunless %} {% comment %}<!-- prettier-ignore -->{% endcomment %}
+{% schema %}
+{
+  "name": "Subscribe band",
+  "description": "A second chance to subscribe, at the end.",
+  "settings": [
+    {
+      "id": "heading",
+      "type": "text",
+      "label": "Heading",
+      "max": 120,
+      "default": "Have it delivered"
+    },
+    {
+      "id": "text",
+      "type": "textarea",
+      "label": "Text",
+      "max": 400,
+      "default": "Every new edition, by email, the morning it comes out."
+    }
+  ]
+}
+{% endschema %}

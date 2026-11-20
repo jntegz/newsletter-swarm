@@ -1,0 +1,55 @@
+{% assign s = section.settings %} {% if s.items %}
+<section class="lx-benefits" aria-labelledby="{{ section.id }}-title">
+  <div class="lx-head">
+    {% if s.heading %}
+    <h2 class="lx-h2" id="{{ section.id }}-title">{{ s.heading }}</h2>
+    {% else %}
+    <h2 class="sw-sr" id="{{ section.id }}-title">What you get</h2>
+    {% endif %}
+  </div>
+  <ul class="lx-benefits__list" role="list">
+    {% for item in s.items %}
+    <li class="lx-benefit">
+      <span class="lx-benefit__check" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="18" height="18" focusable="false">
+          <path
+            d="m5 12.5 4.5 4.5L19 7.5"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.6"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+        </svg>
+      </span>
+      <div>
+        {% if item.title %}
+        <h3 class="lx-benefit__title">{{ item.title }}</h3>
+        {% endif %} {% if item.text %}
+        <p class="lx-benefit__text">{{ item.text }}</p>
+        {% endif %}
+      </div>
+    </li>
+    {% endfor %}
+  </ul>
+</section>
+{% endif %} {% comment %}<!-- prettier-ignore -->{% endcomment %}
+{% schema %}
+{
+  "name": "Benefits",
+  "description": "What subscribers get, as a short list.",
+  "settings": [
+    { "id": "heading", "type": "text", "label": "Heading", "max": 120, "default": "What you get" },
+    {
+      "id": "items",
+      "type": "list",
+      "label": "Benefits",
+      "max": 8,
+      "fields": [
+        { "id": "title", "type": "text", "label": "Title", "max": 80 },
+        { "id": "text", "type": "textarea", "label": "Text", "max": 300 }
+      ]
+    }
+  ]
+}
+{% endschema %}

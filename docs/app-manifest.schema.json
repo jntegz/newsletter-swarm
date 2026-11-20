@@ -1,0 +1,196 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "maxLength": 2000
+    },
+    "manifestVersion": {
+      "type": "number",
+      "const": 1
+    },
+    "listing": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 80
+        },
+        "slug": {
+          "type": "string",
+          "pattern": "^[a-z0-9](?:[a-z0-9-]{0,48}[a-z0-9])$"
+        },
+        "tagline": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 120
+        },
+        "description": {
+          "default": "",
+          "type": "string",
+          "maxLength": 5000
+        },
+        "categories": {
+          "minItems": 1,
+          "maxItems": 3,
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "analytics",
+              "flows",
+              "commerce",
+              "content",
+              "crm",
+              "design",
+              "growth",
+              "import_export",
+              "productivity",
+              "social",
+              "other"
+            ]
+          }
+        },
+        "websiteUrl": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2000
+        },
+        "supportUrl": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2000
+        },
+        "privacyUrl": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2000
+        },
+        "installUrl": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2000
+        }
+      },
+      "required": [
+        "name",
+        "tagline",
+        "categories",
+        "websiteUrl",
+        "supportUrl",
+        "privacyUrl",
+        "installUrl"
+      ],
+      "additionalProperties": false,
+      "description": "What the directory shows. Icons and screenshots are added from Media."
+    },
+    "oauth": {
+      "type": "object",
+      "properties": {
+        "clientType": {
+          "type": "string",
+          "enum": [
+            "public",
+            "confidential"
+          ]
+        },
+        "redirectUris": {
+          "minItems": 1,
+          "maxItems": 10,
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000
+          }
+        },
+        "scopes": {
+          "minItems": 1,
+          "maxItems": 24,
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "channels:read",
+              "members:read",
+              "members:write",
+              "dispatches:read",
+              "dispatches:write",
+              "broadcasts:read",
+              "circles:read",
+              "circles:write",
+              "fields:read",
+              "fields:write",
+              "levels:read",
+              "forms:read",
+              "flows:read",
+              "flows:write",
+              "webhooks:read",
+              "webhooks:write",
+              "sends:read",
+              "sends:write",
+              "imports:read",
+              "imports:write",
+              "audit:read",
+              "rosters:read",
+              "rosters:write",
+              "goods:read"
+            ]
+          }
+        }
+      },
+      "required": [
+        "clientType",
+        "redirectUris",
+        "scopes"
+      ],
+      "additionalProperties": false
+    },
+    "webhooks": {
+      "default": {
+        "events": []
+      },
+      "type": "object",
+      "properties": {
+        "events": {
+          "maxItems": 17,
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "member.created",
+              "member.confirmed",
+              "member.updated",
+              "member.unsubscribed",
+              "member.deleted",
+              "good.purchased",
+              "good.refunded",
+              "level.purchased",
+              "level.canceled",
+              "dispatch.scheduled",
+              "dispatch.sent",
+              "broadcast.completed",
+              "ask.response",
+              "flow.completed",
+              "capture_form.submitted",
+              "roster.subscribed",
+              "roster.unsubscribed"
+            ]
+          }
+        }
+      },
+      "required": [
+        "events"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "manifestVersion",
+    "listing",
+    "oauth"
+  ],
+  "additionalProperties": false
+}

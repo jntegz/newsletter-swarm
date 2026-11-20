@@ -1,0 +1,50 @@
+{% assign s = section.settings %} {% if s.items %}
+<section class="nt-quotes" aria-labelledby="{{ section.id }}-title">
+  <div class="nt-head">
+    {% if s.heading %}
+    <h2 class="nt-h2" id="{{ section.id }}-title">{{ s.heading }}</h2>
+    {% else %}
+    <h2 class="sw-sr" id="{{ section.id }}-title">What readers say</h2>
+    {% endif %}
+  </div>
+  <ul class="nt-quotes__list" role="list">
+    {% for item in s.items %}{% if item.quote %}
+    <li>
+      <figure class="nt-quote">
+        <blockquote class="nt-quote__text"><p>{{ item.quote }}</p></blockquote>
+        {% if item.name %}
+        <figcaption>{% render 'person', item: item %}</figcaption>
+        {% endif %}
+      </figure>
+    </li>
+    {% endif %}{% endfor %}
+  </ul>
+</section>
+{% endif %} {% comment %}<!-- prettier-ignore -->{% endcomment %}
+{% schema %}
+{
+  "name": "Testimonials",
+  "description": "What readers say, set large.",
+  "settings": [
+    {
+      "id": "heading",
+      "type": "text",
+      "label": "Heading",
+      "max": 120,
+      "default": "What readers say"
+    },
+    {
+      "id": "items",
+      "type": "list",
+      "label": "Quotes",
+      "max": 9,
+      "fields": [
+        { "id": "quote", "type": "textarea", "label": "Quote", "max": 400 },
+        { "id": "name", "type": "text", "label": "Name", "max": 80 },
+        { "id": "role", "type": "text", "label": "Who they are", "max": 80 },
+        { "id": "photo", "type": "image", "label": "Photo" }
+      ]
+    }
+  ]
+}
+{% endschema %}

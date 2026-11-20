@@ -1,0 +1,25 @@
+{
+  "name": "@swarm/site-themes",
+  "private": true,
+  "license": "AGPL-3.0-only",
+  "type": "module",
+  "version": "0.0.0",
+  "exports": {
+    ".": "./src/index.ts",
+    "./themes": "./themes/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "build:themes": "node scripts/build-themes.mjs",
+    "gallery": "../installer/node_modules/.bin/tsx scripts/gallery.ts"
+  },
+  "dependencies": {
+    "@swarm/domain": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  }
+}

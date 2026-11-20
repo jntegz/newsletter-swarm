@@ -1,0 +1,55 @@
+{
+  "$schema": "../../node_modules/wrangler/config-schema.json",
+  // Branded links, the open pixel and unsubscribe pages. TRACK_KEYS and UNSUBSCRIBE_KEYS are
+  // secrets shared with the send worker (.dev.vars locally).
+  // Not the production name: a deploy that names no environment makes a separate, harmless
+  // "-local" script, never a production one with these development settings.
+  "name": "swarm-track-local",
+  // No provider default hostname and no preview URLs: a worker answers only on the routes
+  // the installer gives it (docs/deployment.md, "Public surface"). Stated here, in each
+  // environment too, so nothing rests on a platform default.
+  "workers_dev": false,
+  "preview_urls": false,
+  "main": "src/index.ts",
+  "compatibility_date": "2026-10-01",
+  "observability": { "enabled": true },
+  "vars": { "ENVIRONMENT": "development" },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "swarm",
+      "database_id": "local",
+      "migrations_dir": "../../migrations",
+    },
+  ],
+  "env": {
+    "staging": {
+      "name": "swarm-track-staging",
+      "workers_dev": false,
+      "preview_urls": false,
+      "vars": { "ENVIRONMENT": "staging" },
+      "d1_databases": [
+        {
+          "binding": "DB",
+          "database_name": "swarm-staging",
+          "database_id": "unprovisioned",
+          "migrations_dir": "../../migrations",
+        },
+      ],
+    },
+    "production": {
+      "name": "swarm-track",
+      "workers_dev": false,
+      "preview_urls": false,
+      "vars": { "ENVIRONMENT": "production" },
+      "d1_databases": [
+        {
+          "binding": "DB",
+          "database_name": "swarm-production",
+          "database_id": "unprovisioned",
+          "migrations_dir": "../../migrations",
+        },
+      ],
+    },
+  },
+}

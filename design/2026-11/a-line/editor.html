@@ -1,0 +1,1067 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Notes on the popup economy · Posts · Field Notes · Swarm</title>
+<style>
+  @font-face { font-family: "Atkinson Next"; src: url(../fonts/atkinson-hyperlegible-next-latin-wght-normal.woff2) format("woff2"); font-weight: 200 800; font-display: swap; }
+  @font-face { font-family: "Atkinson Next"; src: url(../fonts/atkinson-hyperlegible-next-latin-wght-italic.woff2) format("woff2"); font-weight: 200 800; font-style: italic; font-display: swap; }
+  @font-face { font-family: "Atkinson Mono"; src: url(../fonts/atkinson-hyperlegible-mono-latin-wght-normal.woff2) format("woff2"); font-weight: 200 800; font-display: swap; }
+
+  :root {
+    --rail: #14203A; --rail-2: #1D2B4B; --rail-text: #D5DCEA; --rail-muted: #9AA6BF; --track: #33446A;
+    --panel: #F4F6F9; --line: #E2E6EC; --border: #CBD2DC; --ink: #111827; --ink-2: #4B5568; --ph: #687082;
+    --green: #12724B; --yellow: #FFC83D; --navy-hover: #22325A;
+    --danger: #B42318; --danger-bg: #FEF0EE; --warn: #8A5300; --warn-bg: #FFF5DB;
+    --shadow: 0 1px 2px rgba(17,24,39,.06), 0 8px 24px -12px rgba(17,24,39,.18);
+    --sans: "Atkinson Next", system-ui, sans-serif;
+    --mono: "Atkinson Mono", ui-monospace, monospace;
+  }
+  *, *::before, *::after { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; scrollbar-color: var(--border) transparent; }
+  body {
+    margin: 0; font: 400 .9375rem/1.5 var(--sans); color: var(--ink); background: #fff;
+    font-variant-numeric: tabular-nums; caret-color: #14203A; accent-color: #14203A;
+    display: grid; grid-template-columns: 240px minmax(0, 1fr); min-height: 100vh;
+  }
+  ::selection { background: #FFE7A3; color: #111827; }
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; border: 2px solid transparent; background-clip: padding-box; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::placeholder { color: var(--ph); opacity: 1; }
+  h1, h2, h3, p { margin: 0; }
+  a { color: #14203A; text-underline-offset: 3px; text-decoration-thickness: 1px; }
+  :focus-visible { outline: 2px solid #14203A; outline-offset: 2px; }
+  .rail :focus-visible { outline-color: var(--yellow); }
+  .i { width: 18px; height: 18px; flex: none; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .muted { color: var(--ink-2); }
+  [hidden] { display: none !important; }
+
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 36px; padding: 0 14px;
+    border: 1px solid var(--border); border-radius: 8px; background: #fff; color: var(--ink);
+    font: 600 .9375rem/1 var(--sans); text-decoration: none; cursor: pointer; white-space: nowrap;
+    transition: background-color .15s, border-color .15s, color .15s;
+  }
+  .btn:hover { background: var(--panel); border-color: #B5BECB; }
+  .btn-primary { background: var(--rail); border-color: var(--rail); color: #fff; }
+  .btn-primary:hover { background: var(--navy-hover); border-color: var(--navy-hover); }
+  .btn:disabled { background: #EEF1F5; border-color: #EEF1F5; color: var(--ink-2); cursor: not-allowed; }
+  .btn-sm { height: 30px; padding: 0 10px; font-size: .8125rem; gap: 6px; }
+  .icon-btn { display: inline-grid; place-items: center; width: 36px; height: 36px; border: 0; border-radius: 8px; background: transparent; color: var(--ink-2); cursor: pointer; transition: background-color .15s, color .15s; }
+  .icon-btn:hover { background: var(--panel); color: var(--ink); }
+  .linkish { border: 0; background: none; padding: 0; font: inherit; font-weight: 600; color: #14203A; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+  input[type="text"], input[type="email"], input[type="url"], input[type="datetime-local"], select {
+    width: 100%; height: 38px; padding: 0 10px; border: 1px solid var(--border); border-radius: 8px; background: #fff;
+    font: inherit; color: var(--ink); transition: border-color .15s;
+  }
+  input:hover, select:hover { border-color: #9EA8B7; }
+  input:focus-visible, select:focus-visible { outline: 2px solid #14203A; outline-offset: 0; border-color: #14203A; }
+  select { padding-right: 32px; appearance: none; background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%234B5568' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6.5 9.5l5.5 5.5 5.5-5.5'/%3E%3C/svg%3E") no-repeat right 8px center / 16px; cursor: pointer; }
+
+  /* Rail */
+  .rail { background: var(--rail); color: var(--rail-text); position: sticky; top: 0; height: 100vh; display: flex; flex-direction: column; z-index: 30; }
+  .rail-head { display: flex; align-items: center; gap: 8px; height: 60px; padding: 0 20px; flex: none; }
+  .logo { display: inline-flex; align-items: center; gap: 9px; color: #fff; font-weight: 700; font-size: 1.0625rem; letter-spacing: -.01em; text-decoration: none; }
+  .logo svg { width: 24px; height: 24px; }
+  .rail-menu { display: none; margin-left: auto; color: var(--rail-text); }
+  .rail-menu:hover { background: var(--rail-2); color: #fff; }
+  .rail-body { flex: 1; display: flex; flex-direction: column; padding: 2px 12px 12px; overflow-y: auto; scrollbar-color: var(--track) transparent; }
+  .pub { position: relative; margin-bottom: 18px; }
+  .pub-btn { width: 100%; display: flex; align-items: center; gap: 8px; padding: 7px 10px; border: 1px solid var(--track); border-radius: 8px; background: transparent; color: #fff; font: 600 .9375rem/1.3 var(--sans); text-align: left; cursor: pointer; transition: background-color .15s; }
+  .pub-btn:hover, .pub-btn[aria-expanded="true"] { background: var(--rail-2); }
+  .pub-btn small { display: block; color: var(--rail-muted); font-weight: 400; font-size: .8125rem; }
+  .pub-btn .i { margin-left: auto; color: var(--rail-muted); }
+  .line { --lx: 13px; list-style: none; margin: 0; padding: 0; position: relative; }
+  .line::before { content: ""; position: absolute; left: calc(var(--lx) - 1px); top: 16px; bottom: 16px; width: 2px; background: var(--track); border-radius: 1px; }
+  .line ul { list-style: none; margin: 0; padding: 0; }
+  .line li { position: relative; }
+  .stn + .stn { margin-top: 6px; }
+  .stn-label { display: flex; align-items: center; min-height: 32px; margin-left: 30px; color: var(--rail-muted); font-size: .8125rem; font-weight: 650; }
+  .stn-label::before, .line a[aria-current="page"]::before { content: ""; position: absolute; left: calc(var(--lx) - 7px); top: 9px; width: 14px; height: 14px; border-radius: 50%; border: 2px solid var(--rail-text); background: var(--rail); }
+  .line a { display: flex; align-items: center; min-height: 32px; border-radius: 6px; color: var(--rail-text); text-decoration: none; transition: background-color .15s, color .15s; }
+  .line a:hover { background: rgba(255,255,255,.06); color: #fff; }
+  a.stn-label { margin-left: 22px; padding: 0 10px 0 8px; font-size: .9375rem; font-weight: 600; color: var(--rail-text); }
+  .items a { margin-left: 30px; padding: 0 10px 0 12px; }
+  .items a::before { content: ""; position: absolute; left: calc(var(--lx) + 1px); top: 15px; width: 9px; height: 2px; background: var(--track); }
+  .line a[aria-current="page"] { background: var(--rail-2); color: #fff; font-weight: 600; }
+  .line a[aria-current="page"]::before { border: 0; background: var(--yellow); box-shadow: 0 0 0 3px var(--rail); width: 14px; height: 14px; top: 9px; left: calc(var(--lx) - 7px); }
+  .line a[aria-current="page"]::after { content: ""; position: absolute; left: calc(var(--lx) - 2.5px); top: 13.5px; width: 5px; height: 5px; border-radius: 50%; background: #14203A; }
+  .rail-foot { margin-top: auto; padding-top: 18px; }
+  .rail-foot > a { display: flex; align-items: center; gap: 10px; min-height: 36px; padding: 0 10px; border-radius: 6px; color: var(--rail-text); text-decoration: none; transition: background-color .15s, color .15s; }
+  .rail-foot > a:hover { background: rgba(255,255,255,.06); color: #fff; }
+  .rail-foot > a .i { color: var(--rail-muted); }
+  .me { display: flex; align-items: center; gap: 10px; margin-top: 8px; padding: 12px 10px 2px; border-top: 1px solid var(--track); }
+  .avatar { display: grid; place-items: center; width: 32px; height: 32px; border-radius: 50%; background: #2C3C63; color: #fff; font-size: .8125rem; font-weight: 700; }
+  .me b { display: block; color: #fff; font-weight: 600; line-height: 1.25; }
+  .me small { color: var(--rail-muted); font-size: .8125rem; }
+  .menu { position: absolute; z-index: 40; min-width: 240px; padding: 6px; background: #fff; border: 1px solid var(--line); border-radius: 10px; box-shadow: var(--shadow); color: var(--ink); }
+  .menu a { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 6px; color: var(--ink); text-decoration: none; }
+  .menu a:hover, .menu a:focus-visible { background: var(--panel); }
+  .menu a:focus-visible, .ins-menu button:focus-visible { outline-offset: -2px; }
+  .menu a .i { color: var(--ink-2); }
+  .menu small { display: block; color: var(--ink-2); font-size: .8125rem; line-height: 1.35; }
+  .menu hr { border: 0; border-top: 1px solid var(--line); margin: 6px 0; }
+  .menu .check { margin-left: auto; color: var(--green); }
+  .pub .menu { left: 0; right: 0; top: calc(100% + 6px); }
+
+  /* Top bar */
+  .work { min-width: 0; display: flex; flex-direction: column; }
+  .topbar { position: sticky; top: 0; z-index: 20; background: #fff; border-bottom: 1px solid var(--line); }
+  .topbar-in { min-height: 56px; padding: 0 24px; display: flex; align-items: center; gap: 10px 16px; }
+  .crumbs { display: flex; align-items: center; gap: 8px; min-width: 0; color: var(--ink-2); white-space: nowrap; }
+  .crumbs a { color: var(--ink-2); text-decoration: none; }
+  .crumbs a:hover { color: var(--ink); text-decoration: underline; }
+  .crumbs [aria-current] { color: var(--ink); font-weight: 600; overflow: hidden; text-overflow: ellipsis; }
+  .crumbs .sep { color: var(--border); }
+  .status { display: flex; align-items: center; gap: 10px; white-space: nowrap; font-size: .8125rem; color: var(--ink-2); }
+  .pill { padding: 2px 8px; border: 1px solid var(--border); border-radius: 999px; color: var(--ink); font-weight: 600; }
+  .pill.sched { border-color: #A9D3C0; color: var(--green); }
+  .tb-right { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+  .seg { display: inline-flex; margin: 0; padding: 3px; border: 1px solid var(--line); border-radius: 8px; background: var(--panel); min-inline-size: 0; }
+  .seg input { position: absolute; opacity: 0; pointer-events: none; }
+  .seg label { display: inline-flex; align-items: center; gap: 6px; height: 30px; padding: 0 8px; border-radius: 6px; color: var(--ink-2); font-size: .8125rem; cursor: pointer; white-space: nowrap; transition: background-color .15s, color .15s; }
+  .seg label .i { width: 16px; height: 16px; }
+  .seg label:hover { color: var(--ink); }
+  .seg input:checked + label { background: #fff; color: var(--ink); font-weight: 600; box-shadow: 0 0 0 1px var(--border); }
+  .seg input:focus-visible + label { outline: 2px solid #14203A; outline-offset: 2px; }
+  .viewas { display: flex; align-items: center; gap: 8px; font-size: .8125rem; color: var(--ink-2); white-space: nowrap; }
+  .viewas select { width: 150px; height: 34px; font-size: .8125rem; }
+  .tb-tag { font-size: .8125rem; color: var(--ink-2); padding: 2px 8px; border: 1px solid var(--line); border-radius: 999px; white-space: nowrap; }
+
+  /* Editor layout */
+  .ed { display: grid; grid-template-columns: minmax(0, 1fr) 360px; align-items: start; flex: 1; }
+  .centre { min-width: 0; }
+  .write { max-width: 744px; margin: 0 auto; padding: 28px 32px 96px 64px; }
+  .write h1 { font-size: 1.625rem; line-height: 1.2; font-weight: 600; letter-spacing: -.01em; }
+  .write .sub { margin-top: 4px; color: var(--ink-2); font-size: .8125rem; }
+  .fields { margin-top: 22px; display: grid; gap: 16px; }
+  .field-top { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px; }
+  .field-top label, .lab { font-weight: 600; font-size: .9375rem; }
+  .count { font-size: .8125rem; color: var(--ink-2); }
+  .help { margin-top: 6px; font-size: .8125rem; color: var(--ink-2); }
+  .inbox { display: grid; grid-template-columns: 36px minmax(0, 1fr) auto; gap: 2px 12px; padding: 12px 14px; background: var(--panel); border-radius: 10px; }
+  .inbox .av { grid-row: 1 / 4; width: 36px; height: 36px; border-radius: 50%; background: #14203A; color: #fff; display: grid; place-items: center; font-size: .8125rem; font-weight: 700; }
+  .inbox .from { font-weight: 700; }
+  .inbox time { font-size: .8125rem; color: var(--ink-2); }
+  .inbox .subj, .inbox .pre { grid-column: 2 / 4; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .inbox .subj { font-weight: 700; }
+  .inbox .pre { color: var(--ink-2); }
+
+  .toolbar { position: sticky; top: 56px; z-index: 10; margin-top: 28px; background: #fff; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+  .tools { display: flex; align-items: center; gap: 2px; padding: 6px 0; flex-wrap: wrap; }
+  .tools select { width: 128px; height: 32px; margin-right: 6px; font-size: .8125rem; }
+  .tools .sepv { width: 1px; height: 20px; background: var(--line); margin: 0 6px; }
+  .tb { display: inline-grid; place-items: center; width: 32px; height: 32px; border: 0; border-radius: 6px; background: transparent; color: var(--ink-2); cursor: pointer; transition: background-color .15s, color .15s; }
+  .tb:hover { background: var(--panel); color: var(--ink); }
+  .tb[aria-pressed="true"] { background: #E6EAF0; color: var(--ink); }
+  .tb-text { display: inline-flex; align-items: center; gap: 6px; width: auto; margin-left: auto; padding: 0 10px 0 7px; border: 1px solid var(--border); font: 600 .8125rem/1 var(--sans); color: var(--ink); }
+  .tb-text .i { width: 16px; height: 16px; }
+  .tb-text[aria-expanded="true"] { background: var(--rail); border-color: var(--rail); color: #fff; }
+  .linkbar { display: flex; gap: 8px; align-items: center; padding: 0 0 8px; }
+  .linkbar input { height: 32px; font-size: .8125rem; }
+
+  .body-wrap { position: relative; margin-top: 24px; }
+  .body { font-size: 1.0625rem; line-height: 1.65; outline: none; min-height: 320px; }
+  .body > * { margin: 0 0 1em; }
+  .body h2 { font-size: 1.375rem; line-height: 1.3; font-weight: 650; margin: 1.5em 0 .5em; letter-spacing: -.005em; }
+  .body h3 { font-size: 1.125rem; font-weight: 650; margin: 1.3em 0 .4em; }
+  .body blockquote { margin: 1.4em 0; padding: 2px 0 2px 22px; border-left: 1px solid var(--ink); font-size: 1.25rem; line-height: 1.45; font-style: italic; }
+  .body ul, .body ol { padding-left: 1.4em; }
+  .body li { margin: .3em 0; }
+  .body hr { border: 0; border-top: 1px solid var(--border); margin: 2em 0; }
+  .body p.ph::before { content: attr(data-ph); color: var(--ph); position: absolute; pointer-events: none; }
+  .blk { margin: 1.4em 0; user-select: none; }
+  .blk-btn { text-align: center; }
+  .blk-btn span { display: inline-block; padding: 10px 18px; border-radius: 8px; background: #14203A; color: #fff; font-weight: 600; font-size: .9375rem; }
+  .blk-ph { display: flex; align-items: center; gap: 12px; padding: 16px; border: 1px dashed var(--border); border-radius: 10px; background: var(--panel); color: var(--ink-2); font-size: .9375rem; }
+  .blk-ph b { color: var(--ink); font-weight: 600; display: block; }
+  .paywall { margin: 2em 0; }
+  .pw-line { display: flex; align-items: center; gap: 12px; color: #14203A; font-weight: 650; font-size: .9375rem; }
+  .pw-line::before, .pw-line::after { content: ""; flex: 1; height: 2px; background: #14203A; }
+  .pw-line span { display: inline-flex; align-items: center; gap: 8px; padding: 4px 12px; border: 2px solid #14203A; border-radius: 999px; }
+  .paywall p { margin-top: 8px; text-align: center; color: var(--ink-2); font-size: .8125rem; }
+  .ins { position: absolute; left: -42px; top: 0; width: 30px; height: 30px; display: grid; place-items: center; border: 1px solid var(--border); border-radius: 50%; background: #fff; color: var(--ink-2); cursor: pointer; transition: background-color .15s, color .15s, top .15s; }
+  .ins:hover, .ins[aria-expanded="true"] { background: var(--rail); border-color: var(--rail); color: #fff; }
+  .ins-menu { left: -42px; width: 300px; display: grid; grid-template-columns: 1fr 1fr; gap: 2px; }
+  .ins-menu p { grid-column: 1 / -1; padding: 6px 10px 4px; font-size: .8125rem; color: var(--ink-2); }
+  .ins-menu button { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border: 0; border-radius: 6px; background: none; font: inherit; color: var(--ink); text-align: left; cursor: pointer; }
+  .ins-menu button .i { color: var(--ink-2); }
+  .ins-menu button:hover, .ins-menu button:focus-visible { background: var(--panel); }
+
+  /* Preview */
+  .preview { padding: 28px 24px 96px; background: var(--panel); min-height: calc(100vh - 57px); }
+  .pv-note { max-width: 640px; margin: 0 auto 12px; font-size: .8125rem; color: var(--ink-2); display: flex; justify-content: space-between; gap: 12px; }
+  .frame { margin: 0 auto; background: #fff; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+  .frame.desk { max-width: 640px; }
+  .frame.mob { max-width: 375px; border-radius: 22px; }
+  .frame.web { max-width: 860px; }
+  .mail-head { padding: 14px 20px; border-bottom: 1px solid var(--line); font-size: .8125rem; color: var(--ink-2); display: grid; gap: 2px; }
+  .mail-head b { color: var(--ink); font-weight: 600; }
+  .mail-head .s { color: var(--ink); font-size: 1.0625rem; font-weight: 700; margin-top: 4px; }
+  .mail-head .pt { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .mail-body { padding: 28px 36px 8px; font-size: 1rem; line-height: 1.65; }
+  .mob .mail-body { padding: 22px 20px 8px; font-size: .9375rem; }
+  .mail-body .mast { font-weight: 700; font-size: .9375rem; padding-bottom: 14px; margin-bottom: 22px; border-bottom: 1px solid var(--line); }
+  .mail-body h1 { font-size: 1.625rem; line-height: 1.2; margin-bottom: 18px; }
+  .mail-body h2 { font-size: 1.25rem; margin: 1.4em 0 .4em; }
+  .mail-body p, .mail-body ul, .mail-body ol { margin: 0 0 1em; }
+  .mail-body blockquote { margin: 1.3em 0; padding-left: 18px; border-left: 1px solid var(--ink); font-style: italic; font-size: 1.125rem; }
+  .mail-body .blk-btn span { font-size: .9375rem; }
+  .upgrade { margin: 1.6em 0; padding: 20px; background: var(--panel); border-radius: 10px; text-align: center; }
+  .upgrade b { display: block; font-size: 1.0625rem; margin-bottom: 4px; }
+  .upgrade p { color: var(--ink-2); margin: 0 0 12px; font-size: .9375rem; }
+  .upgrade span { display: inline-block; padding: 9px 16px; border-radius: 8px; background: #14203A; color: #fff; font-weight: 600; font-size: .9375rem; }
+  .mail-foot { margin: 8px 36px 0; padding: 18px 0 26px; border-top: 1px solid var(--line); font-size: .8125rem; color: var(--ink-2); text-align: center; }
+  .mob .mail-foot { margin: 8px 20px 0; }
+  .web-head { display: flex; justify-content: space-between; align-items: center; padding: 16px 32px; border-bottom: 1px solid var(--line); font-size: .9375rem; }
+  .web-head b { font-size: 1.0625rem; }
+  .web-head nav { display: flex; gap: 18px; color: var(--ink-2); }
+  .web .mail-body { max-width: 680px; margin: 0 auto; padding: 36px 32px 24px; font-size: 1.0625rem; }
+  .web .url { font-size: .8125rem; color: var(--ink-2); margin-bottom: 8px; }
+
+  /* Send route panel */
+  .panel { position: sticky; top: 56px; height: calc(100vh - 56px); overflow-y: auto; background: var(--panel); border-left: 1px solid var(--line); padding: 22px 22px 72px; }
+  .panel > h2 { font-size: 1.0625rem; font-weight: 650; }
+  .panel > .lead { margin-top: 2px; font-size: .8125rem; color: var(--ink-2); }
+  .steps { list-style: none; margin: 18px 0 0; padding: 0; }
+  .step { position: relative; padding-bottom: 8px; }
+  .step::before { content: ""; position: absolute; left: 9px; top: 22px; bottom: -14px; width: 3px; background: var(--border); border-radius: 2px; }
+  .step:last-child::before { display: none; }
+  .step.done::before { background: var(--green); }
+  .step-h { position: relative; width: 100%; display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: start; gap: 0 8px; padding: 8px 6px 8px 34px; border: 0; border-radius: 8px; background: none; font: inherit; color: var(--ink); text-align: left; cursor: pointer; transition: background-color .15s; }
+  .step-h:hover { background: #EAEEF3; }
+  .step-h .t { font-weight: 650; font-size: 1.0625rem; line-height: 1.3; }
+  .step-h .sum { grid-column: 1; font-size: .8125rem; color: var(--ink-2); margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .step-h > .i { grid-row: 1 / 3; grid-column: 2; align-self: center; color: var(--ink-2); transition: transform .15s; }
+  .step-h[aria-expanded="true"] > .i { transform: rotate(180deg); }
+  .smk { position: absolute; left: 0; top: 9px; width: 21px; height: 21px; border-radius: 50%; border: 3px solid var(--border); background: var(--panel); display: grid; place-items: center; z-index: 1; }
+  .done .smk { background: var(--green); border-color: var(--green); color: #fff; }
+  .smk .i { width: 13px; height: 13px; stroke-width: 3; display: none; }
+  .done .smk .i { display: block; }
+  .now .smk { background: var(--yellow); border-color: var(--yellow); box-shadow: 0 0 0 3px var(--panel); }
+  .now .smk::after { content: ""; width: 7px; height: 7px; border-radius: 50%; background: #14203A; }
+  .step-b { padding: 6px 0 14px 34px; }
+  .group { border: 0; margin: 0 0 14px; padding: 0; min-inline-size: 0; }
+  .group legend, .glabel { padding: 0; margin-bottom: 6px; font-weight: 600; font-size: .9375rem; }
+  .opt { display: flex; align-items: flex-start; gap: 10px; padding: 7px 0; cursor: pointer; }
+  .opt input { margin: 3px 0 0; width: 16px; height: 16px; flex: none; }
+  .opt span { flex: 1; }
+  .opt small, .opt .n { font-size: .8125rem; color: var(--ink-2); }
+  .opt .n { flex: none; margin-left: auto; padding-left: 8px; }
+  .opt small { display: block; }
+  .segs { margin: 2px 0 4px 26px; padding-left: 12px; border-left: 1px solid var(--border); }
+  .segs .opt, .leave .opt { padding: 5px 0; }
+  .goes { padding: 10px 12px; border-radius: 8px; background: #fff; border: 1px solid var(--line); margin-bottom: 16px; }
+  .goes b { font-weight: 700; }
+  .goes small { display: block; color: var(--ink-2); font-size: .8125rem; }
+  .from-row { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px; }
+  .from-row a { font-size: .8125rem; }
+  .tz { margin-top: 6px; font-size: .8125rem; color: var(--ink-2); }
+  .checks { list-style: none; margin: 0 0 18px; padding: 0; display: grid; gap: 6px; }
+  .checks li { display: flex; gap: 8px; align-items: flex-start; font-size: .8125rem; line-height: 1.45; }
+  .checks li .i { width: 16px; height: 16px; margin-top: 1px; }
+  .checks .pass .i { color: var(--green); stroke-width: 2.5; }
+  .checks .block, .checks .warn { padding: 8px 10px; border-radius: 8px; }
+  .checks .block { background: var(--danger-bg); color: var(--danger); font-weight: 600; }
+  .checks .warn { background: var(--warn-bg); color: var(--warn); }
+  .checks .warn .linkish { color: var(--warn); font-size: .8125rem; }
+  .test { margin-bottom: 18px; }
+  .test-row { display: flex; gap: 8px; }
+  .test-row input { height: 34px; font-size: .8125rem; }
+  .test-row .btn { height: 34px; }
+  .test p { margin-top: 6px; font-size: .8125rem; color: var(--green); }
+  .sendbox { padding-top: 16px; border-top: 1px solid var(--border); }
+  .sendbox .btn-primary { width: 100%; height: 42px; }
+  .why { margin-top: 8px; font-size: .8125rem; color: var(--ink-2); }
+  .confirm { margin-top: 12px; padding: 14px; background: #fff; border: 1px solid var(--border); border-radius: 10px; }
+  .confirm p { font-weight: 600; margin-bottom: 12px; }
+  .confirm div { display: flex; gap: 8px; }
+  .sent { display: flex; gap: 10px; align-items: flex-start; padding: 12px 14px; background: #fff; border: 1px solid #A9D3C0; border-radius: 10px; }
+  .sent .i { color: var(--green); margin-top: 2px; stroke-width: 2.5; }
+  .more-opts { margin-top: 18px; border-top: 1px solid var(--border); }
+  .more-opts summary { display: flex; align-items: center; justify-content: space-between; padding: 14px 6px 6px; font-weight: 650; cursor: pointer; list-style: none; border-radius: 6px; }
+  .more-opts summary::-webkit-details-marker { display: none; }
+  .more-opts summary .i { transition: transform .15s; color: var(--ink-2); }
+  .more-opts[open] summary .i { transform: rotate(180deg); }
+  .mo { padding: 12px 6px 4px; }
+  .mo + .mo { border-top: 1px solid var(--line); }
+  .mo h3 { font-size: .9375rem; font-weight: 600; margin-bottom: 6px; }
+  .mo .addr { margin-top: 8px; font-size: .8125rem; color: var(--ink-2); overflow-wrap: anywhere; }
+  .revs { list-style: none; margin: 0 0 8px; padding: 0; font-size: .8125rem; }
+  .revs li { display: flex; justify-content: space-between; gap: 8px; padding: 4px 0; }
+  .revs span { color: var(--ink-2); }
+  .switch { display: flex; gap: 10px; align-items: center; cursor: pointer; font-size: .8125rem; }
+  .switch input { appearance: none; width: 32px; height: 18px; margin: 0; border-radius: 999px; background: var(--border); position: relative; cursor: pointer; transition: background-color .15s; flex: none; }
+  .switch input::after { content: ""; position: absolute; top: 2px; left: 2px; width: 14px; height: 14px; border-radius: 50%; background: #fff; transition: transform .15s; }
+  .switch input:checked { background: #14203A; }
+  .switch input:checked::after { transform: translateX(14px); }
+
+  .nextbar { display: none; }
+  .cmd { width: min(560px, calc(100vw - 32px)); margin: 12vh auto auto; padding: 0; border: 1px solid var(--line); border-radius: 10px; box-shadow: var(--shadow); color: var(--ink); }
+  .cmd::backdrop { background: rgba(17,24,39,.32); }
+  .cmd-in { display: flex; align-items: center; gap: 10px; padding: 0 14px; border-bottom: 1px solid var(--line); color: var(--ink-2); }
+  .cmd-in input { flex: 1; height: 50px; border: 0; padding: 0; font-size: 1.0625rem; outline: none; }
+  .cmd-list { max-height: 360px; overflow-y: auto; padding: 6px; }
+  .cmd-list h3 { font-size: .8125rem; font-weight: 600; color: var(--ink-2); padding: 10px 10px 4px; }
+  .cmd-list a { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 6px; color: var(--ink); text-decoration: none; }
+  .cmd-list a .i { color: var(--ink-2); }
+  .cmd-list a:hover, .cmd-list a:focus { background: var(--panel); outline: none; }
+  .cmd-list a:focus-visible { box-shadow: inset 0 0 0 2px #14203A; }
+  .cmd-empty { padding: 18px 10px; color: var(--ink-2); }
+  kbd { font: 600 .75rem/1 var(--sans); color: var(--ink-2); background: var(--panel); border: 1px solid var(--line); border-radius: 5px; padding: 4px 6px; }
+  .switcher { position: fixed; right: 16px; bottom: 16px; z-index: 50; display: flex; align-items: center; gap: 10px; padding: 6px 12px; background: #fff; border: 1px solid var(--line); border-radius: 999px; box-shadow: var(--shadow); font-size: .8125rem; color: var(--ink-2); }
+  .switcher b { color: var(--ink); font-weight: 650; }
+  .switcher a { color: var(--ink-2); text-decoration: none; }
+  .switcher a:hover { color: var(--ink); text-decoration: underline; }
+  .switcher a[aria-current] { color: var(--ink); font-weight: 600; }
+
+  @media (max-width: 1280px) {
+    .seg label .lt { display: none; }
+    .seg label { padding: 0 9px; }
+  }
+  @media (max-width: 1100px) {
+    .ed { grid-template-columns: minmax(0, 1fr) 320px; }
+    .write { padding-left: 56px; padding-right: 24px; }
+  }
+  @media (max-width: 860px) {
+    body { display: block; padding-bottom: 72px; }
+    .rail { position: sticky; height: auto; }
+    .rail-head { height: 56px; padding: 0 8px 0 16px; }
+    .rail-menu { display: inline-grid; }
+    .rail-body { display: none; position: fixed; top: 56px; left: 0; right: 0; bottom: 0; background: var(--rail); padding: 12px 16px 20px; border-top: 1px solid var(--track); }
+    .rail.open .rail-body { display: flex; }
+    .topbar { position: static; }
+    .topbar-in { flex-wrap: wrap; padding: 10px 16px; }
+    .crumbs { flex: 1 1 100%; }
+    .tb-right { margin-left: 0; flex: 1; justify-content: space-between; }
+    .tb-search { display: none; }
+    .viewas select { width: 140px; }
+    .ed { display: block; }
+    .write { padding: 22px 16px 40px; }
+    .toolbar { top: 56px; }
+    .body-wrap { padding-left: 40px; }
+    .ins { left: 0; }
+    .ins-menu { left: 0; width: min(300px, calc(100vw - 32px)); }
+    .preview { padding: 16px 12px 40px; min-height: 0; }
+    .mail-body { padding: 22px 20px 8px; }
+    .mail-foot { margin: 8px 20px 0; }
+    .web-head { padding: 14px 18px; }
+    .web-head nav { display: none; }
+    .web .mail-body { padding: 24px 18px; }
+    .panel { position: static; height: auto; border-left: 0; border-top: 1px solid var(--line); padding: 22px 16px 28px; }
+    .nextbar { display: flex; align-items: center; gap: 12px; position: fixed; left: 0; right: 0; bottom: 0; z-index: 25; padding: 10px 16px; background: #fff; border-top: 1px solid var(--line); }
+    .nextbar p { flex: 1; min-width: 0; font-size: .8125rem; color: var(--ink-2); line-height: 1.3; }
+    .nextbar p b { display: block; color: var(--ink); font-size: .9375rem; }
+    .switcher { position: static; margin: 20px 16px; justify-content: center; flex-wrap: wrap; box-shadow: none; border-radius: 10px; }
+  }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
+  <symbol id="i-chev" viewBox="0 0 24 24"><path d="M6.5 9.5l5.5 5.5 5.5-5.5"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.4-4.4"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="i-bold" viewBox="0 0 24 24"><path d="M7 5h6a3.5 3.5 0 0 1 0 7H7zM7 12h7.5a3.5 3.5 0 0 1 0 7H7z"/></symbol>
+  <symbol id="i-italic" viewBox="0 0 24 24"><path d="M10.5 5H18M6 19h7.5M14.5 5l-5 14"/></symbol>
+  <symbol id="i-link" viewBox="0 0 24 24"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></symbol>
+  <symbol id="i-ul" viewBox="0 0 24 24"><path d="M9.5 6.5H20M9.5 12H20M9.5 17.5H20M4.5 6.5h.01M4.5 12h.01M4.5 17.5h.01"/></symbol>
+  <symbol id="i-ol" viewBox="0 0 24 24"><path d="M10.5 6.5H20M10.5 12H20M10.5 17.5H20M4 4.8l1.5-.8v5M4 14.3c.3-.6.9-1 1.6-1 .9 0 1.5.6 1.5 1.3 0 1.4-3 2.2-3 4h3"/></symbol>
+  <symbol id="i-quote" viewBox="0 0 24 24"><path d="M9 11H5.5V7.5A1.5 1.5 0 0 1 7 6h.5A1.5 1.5 0 0 1 9 7.5V12c0 2.6-1.4 4.6-4 5.5M19 11h-3.5V7.5A1.5 1.5 0 0 1 17 6h.5A1.5 1.5 0 0 1 19 7.5V12c0 2.6-1.4 4.6-4 5.5"/></symbol>
+  <symbol id="i-hr" viewBox="0 0 24 24"><path d="M4 12h16M9 6.5h6M9 17.5h6"/></symbol>
+  <symbol id="i-undo" viewBox="0 0 24 24"><path d="M9 14L4.5 9.5 9 5"/><path d="M4.5 9.5H15a5 5 0 0 1 0 10h-3"/></symbol>
+  <symbol id="i-redo" viewBox="0 0 24 24"><path d="M15 14l4.5-4.5L15 5"/><path d="M19.5 9.5H9a5 5 0 0 0 0 10h3"/></symbol>
+  <symbol id="i-help" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.6 9.4a2.5 2.5 0 0 1 4.9.8c0 1.7-2.5 2.1-2.5 3.8M12 17.2h.01"/></symbol>
+  <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
+  <symbol id="i-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+  <symbol id="i-mail" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3.5 6.5l8.5 6.5 8.5-6.5"/></symbol>
+  <symbol id="i-desktop" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M9 20h6M12 16v4"/></symbol>
+  <symbol id="i-phone" viewBox="0 0 24 24"><rect x="7" y="3" width="10" height="18" rx="2"/><path d="M11 17.5h2"/></symbol>
+  <symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.7 3.8 5.7 3.8 9s-1.3 6.3-3.8 9c-2.5-2.7-3.8-5.7-3.8-9S9.5 5.7 12 3z"/></symbol>
+  <symbol id="i-pen" viewBox="0 0 24 24"><path d="M4 20h4L19 9a2.8 2.8 0 0 0-4-4L4 16z"/><path d="M13.5 6.5l4 4"/></symbol>
+  <symbol id="i-sliders" viewBox="0 0 24 24"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></symbol>
+  <symbol id="i-heading" viewBox="0 0 24 24"><path d="M6 5v14M18 5v14M6 12h12"/></symbol>
+  <symbol id="i-image" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="1.8"/><path d="M21 15.5l-5-5-9 9.5"/></symbol>
+  <symbol id="i-button" viewBox="0 0 24 24"><rect x="3" y="7.5" width="18" height="9" rx="4.5"/><path d="M8.5 12h7"/></symbol>
+  <symbol id="i-card" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M7 10h6M7 14h10"/></symbol>
+  <symbol id="i-file" viewBox="0 0 24 24"><path d="M14 3.5H7.5a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2h9a2 2 0 0 0 2-2V8z"/><path d="M14 3.5V8h4.5"/></symbol>
+  <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></symbol>
+  <symbol id="i-block" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7.5v5.5M12 16.5h.01"/></symbol>
+  <symbol id="i-alert" viewBox="0 0 24 24"><path d="M10.3 4.6L3.1 17.5A2 2 0 0 0 4.8 20.5h14.4a2 2 0 0 0 1.7-3L13.7 4.6a2 2 0 0 0-3.4 0z"/><path d="M12 9.5v4M12 17h.01"/></symbol>
+  <symbol id="i-doc" viewBox="0 0 24 24"><path d="M14 3.5H7.5a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2h9a2 2 0 0 0 2-2V8z"/><path d="M14 3.5V8h4.5M9 13h6M9 16.5h4"/></symbol>
+  <symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8.5" r="3.5"/><path d="M3 19.5c.6-3.2 3-5 6-5s5.4 1.8 6 5M16 5.2a3.5 3.5 0 0 1 0 6.6M18 14.8c1.6.7 2.6 2.4 3 4.7"/></symbol>
+  <symbol id="i-send" viewBox="0 0 24 24"><path d="M20.5 3.5L10 14M20.5 3.5l-6.5 17-4-6.5-6.5-4z"/></symbol>
+  <symbol id="i-upload" viewBox="0 0 24 24"><path d="M12 15V4.5M7.5 9L12 4.5 16.5 9M4.5 15v3.5a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2V15"/></symbol>
+  <symbol id="i-filter" viewBox="0 0 24 24"><path d="M4 5.5h16l-6.2 7.3v5.7l-3.6 1.8v-7.5z"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></symbol>
+</svg>
+
+<aside class="rail" id="rail">
+  <div class="rail-head">
+    <a class="logo" href="home.html">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12h19" stroke="#1C8C5E" stroke-width="3" stroke-linecap="round"/><circle cx="12" cy="12" r="4.6" fill="#14203A" stroke="#fff" stroke-width="2.6"/></svg>
+      Swarm
+    </a>
+    <button class="icon-btn rail-menu" id="railToggle" aria-expanded="false" aria-controls="railBody" aria-label="Open navigation"><svg class="i"><use href="#i-menu"/></svg></button>
+  </div>
+  <div class="rail-body" id="railBody">
+    <div class="pub">
+      <button class="pub-btn" data-menu="pubMenu" aria-expanded="false" aria-haspopup="true">
+        <span>Field Notes<small>fieldnotes.example</small></span>
+        <svg class="i"><use href="#i-chev"/></svg>
+      </button>
+      <div class="menu" id="pubMenu" hidden>
+        <a href="#" aria-current="true"><span>Field Notes<small>fieldnotes.example</small></span><svg class="i check"><use href="#i-check"/></svg></a>
+        <a href="#"><span>Morning Ledger<small>morningledger.example</small></span></a>
+        <hr>
+        <a href="#"><svg class="i"><use href="#i-plus"/></svg>New publication</a>
+        <a href="#"><svg class="i"><use href="#i-sliders"/></svg>Manage publications</a>
+      </div>
+    </div>
+    <nav aria-label="Main">
+      <ol class="line">
+        <li class="stn"><a class="stn-label" href="home.html">Home</a></li>
+        <li class="stn"><span class="stn-label">Write</span>
+          <ul class="items"><li><a href="editor.html" aria-current="page">Posts</a></li><li><a href="#">Templates</a></li></ul></li>
+        <li class="stn"><span class="stn-label">Audience</span>
+          <ul class="items"><li><a href="#">Subscribers</a></li><li><a href="#">Segments</a></li><li><a href="#">Signup forms</a></li></ul></li>
+        <li class="stn"><span class="stn-label">Grow</span>
+          <ul class="items"><li><a href="#">Automations</a></li><li><a href="#">Referrals &amp; growth</a></li></ul></li>
+        <li class="stn"><span class="stn-label">Earn</span>
+          <ul class="items"><li><a href="#">Paid subscriptions</a></li></ul></li>
+        <li class="stn"><span class="stn-label">Publish</span>
+          <ul class="items"><li><a href="#">Website</a></li><li><a href="#">Sending &amp; delivery</a></li></ul></li>
+      </ol>
+    </nav>
+    <div class="rail-foot">
+      <a href="#"><svg class="i"><use href="#i-sliders"/></svg>Settings</a>
+      <div class="me"><span class="avatar" aria-hidden="true">ML</span><div><b>Mara Lind</b><small>Owner</small></div></div>
+    </div>
+  </div>
+</aside>
+
+<div class="work">
+  <header class="topbar">
+    <div class="topbar-in">
+      <nav class="crumbs" aria-label="Breadcrumb"><a href="#">Field Notes</a><span class="sep" aria-hidden="true">/</span><a href="#">Posts</a><span class="sep" aria-hidden="true">/</span><span aria-current="page">Notes on the popup economy</span></nav>
+      <div class="status"><span class="pill" id="pill">Draft</span><span id="save" aria-live="polite">Saved 12:04</span></div>
+      <div class="tb-right">
+        <fieldset class="seg" id="pvSeg">
+          <legend class="sr">Preview</legend>
+          <input type="radio" name="pv" id="pv-edit" value="edit" checked><label for="pv-edit" title="Edit"><svg class="i"><use href="#i-pen"/></svg><span class="lt">Edit</span></label>
+          <input type="radio" name="pv" id="pv-desk" value="desk"><label for="pv-desk" title="Email · desktop"><svg class="i"><use href="#i-desktop"/></svg><span class="lt">Email · desktop</span></label>
+          <input type="radio" name="pv" id="pv-mob" value="mob"><label for="pv-mob" title="Email · mobile"><svg class="i"><use href="#i-phone"/></svg><span class="lt">Email · mobile</span></label>
+          <input type="radio" name="pv" id="pv-web" value="web"><label for="pv-web" title="Web"><svg class="i"><use href="#i-globe"/></svg><span class="lt">Web</span></label>
+        </fieldset>
+        <label class="viewas">View as <select id="viewAs"><option value="free">Free subscriber</option><option value="paid">Paid subscriber</option></select></label>
+        <button class="icon-btn tb-search" id="searchBtn" aria-label="Search or jump to (Ctrl K)" title="Search or jump to (Ctrl K)"><svg class="i"><use href="#i-search"/></svg></button>
+      </div>
+    </div>
+  </header>
+
+  <div class="ed">
+    <div class="centre">
+      <div class="write" id="write">
+        <h1>Notes on the popup economy</h1>
+        <p class="sub">Post #44 · <span class="tb-tag">Sample data</span></p>
+        <div class="fields">
+          <div>
+            <div class="field-top"><label for="subject">Subject</label><span class="count" id="subjCount">26 / 200</span></div>
+            <input type="text" id="subject" maxlength="200" value="Notes on the popup economy" autocomplete="off">
+          </div>
+          <div>
+            <div class="field-top"><label for="preview">Preview text</label><span class="count" id="prevCount">0 / 150</span></div>
+            <input type="text" id="preview" maxlength="150" placeholder="Shown after the subject in most inboxes" aria-describedby="prevHelp" autocomplete="off">
+            <p class="help" id="prevHelp">Leave it empty and inboxes show the post’s first line. 40 to 90 characters reads well on a phone.</p>
+          </div>
+          <div>
+            <p class="lab" id="inboxLab" style="margin-bottom:6px">Inbox preview</p>
+            <div class="inbox" role="group" aria-labelledby="inboxLab">
+              <span class="av" aria-hidden="true">FN</span>
+              <span class="from">Field Notes</span><time>06:00</time>
+              <span class="subj" id="ibSubj">Notes on the popup economy</span>
+              <span class="pre" id="ibPre"></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="toolbar" role="toolbar" aria-label="Formatting">
+          <div class="tools">
+            <select id="blockType" aria-label="Text style"><option value="p">Paragraph</option><option value="h2">Heading</option><option value="h3">Subheading</option></select>
+            <button class="tb" data-cmd="bold" aria-label="Bold" title="Bold (Ctrl B)" aria-pressed="false"><svg class="i"><use href="#i-bold"/></svg></button>
+            <button class="tb" data-cmd="italic" aria-label="Italic" title="Italic (Ctrl I)" aria-pressed="false"><svg class="i"><use href="#i-italic"/></svg></button>
+            <button class="tb" id="linkBtn" aria-label="Link" title="Link"><svg class="i"><use href="#i-link"/></svg></button>
+            <span class="sepv" aria-hidden="true"></span>
+            <button class="tb" data-cmd="insertUnorderedList" aria-label="Bulleted list" title="Bulleted list" aria-pressed="false"><svg class="i"><use href="#i-ul"/></svg></button>
+            <button class="tb" data-cmd="insertOrderedList" aria-label="Numbered list" title="Numbered list" aria-pressed="false"><svg class="i"><use href="#i-ol"/></svg></button>
+            <button class="tb" data-cmd="quote" aria-label="Quote" title="Quote"><svg class="i"><use href="#i-quote"/></svg></button>
+            <button class="tb" data-cmd="divider" aria-label="Divider" title="Divider"><svg class="i"><use href="#i-hr"/></svg></button>
+            <span class="sepv" aria-hidden="true"></span>
+            <button class="tb" data-cmd="undo" aria-label="Undo" title="Undo (Ctrl Z)"><svg class="i"><use href="#i-undo"/></svg></button>
+            <button class="tb" data-cmd="redo" aria-label="Redo" title="Redo (Ctrl Y)"><svg class="i"><use href="#i-redo"/></svg></button>
+            <button class="tb tb-text" id="insTool" title="Insert a block" aria-haspopup="true" aria-controls="insMenu" aria-expanded="false"><svg class="i"><use href="#i-plus"/></svg>Insert</button>
+          </div>
+          <form class="linkbar" id="linkBar" hidden>
+            <label class="sr" for="linkUrl">Link address</label>
+            <input type="url" id="linkUrl" placeholder="https://" required>
+            <button class="btn btn-sm btn-primary" type="submit">Add link</button>
+            <button class="btn btn-sm" type="button" id="linkCancel">Cancel</button>
+          </form>
+        </div>
+
+        <div class="body-wrap" id="bodyWrap">
+          <button class="ins" id="insBtn" aria-label="Insert a block" title="Insert a block" aria-expanded="false" aria-controls="insMenu"><svg class="i"><use href="#i-plus"/></svg></button>
+          <div class="menu ins-menu" id="insMenu" hidden role="menu" aria-label="Insert a block">
+            <p>Insert</p>
+            <button role="menuitem" data-ins="heading"><svg class="i"><use href="#i-heading"/></svg>Heading</button>
+            <button role="menuitem" data-ins="image"><svg class="i"><use href="#i-image"/></svg>Image</button>
+            <button role="menuitem" data-ins="button"><svg class="i"><use href="#i-button"/></svg>Button</button>
+            <button role="menuitem" data-ins="quote"><svg class="i"><use href="#i-quote"/></svg>Quote</button>
+            <button role="menuitem" data-ins="divider"><svg class="i"><use href="#i-hr"/></svg>Divider</button>
+            <button role="menuitem" data-ins="card"><svg class="i"><use href="#i-card"/></svg>Link card</button>
+            <button role="menuitem" data-ins="file"><svg class="i"><use href="#i-file"/></svg>File</button>
+            <button role="menuitem" data-ins="paywall"><svg class="i"><use href="#i-lock"/></svg>Paywall break</button>
+          </div>
+          <div class="body" id="body" contenteditable="true" role="textbox" aria-multiline="true" aria-label="Post body" spellcheck="true">
+            <p>On a lot of small sites now, a reader meets three popups before reading a single sentence. The first asks about cookies, the second offers ten percent off something they have not seen yet, and the third, usually the newsletter box, slides up from the corner just as they find the opening line. By the time the page is clear, the reason they came has gone cold. Most of them close the tab, and the writer never learns why.</p>
+            <h2>What a popup costs</h2>
+            <p>Every interruption spends a small amount of the reader’s attention, and attention is the only thing a small publication really has to trade. The cost does not show up in a dashboard. A signup form reports its conversions and nothing else, so it always looks as if it is working. What it cannot report is the reader who left before the second paragraph, or the one who stayed but read with one eye on the close button. In <a href="#">last spring’s reader survey</a>, the most common complaint was not the price or how often the issues arrive. It was the boxes.</p>
+            <p>None of this means a publication should stop asking. It means the ask should come at a moment that makes sense to the reader. A prompt at the top of a post asks for trust before anything has been offered. The same prompt at the end of a good essay reads like an invitation, and the people who accept it tend to stay. Our own numbers moved more from <a href="#">moving the form to the footer</a> than from any change of wording we tried, and we tried a lot of wording.</p>
+            <blockquote>Ask once, at the end, when the reader has had something worth staying for.</blockquote>
+            <p>That sentence has been taped above my desk since the summer. It is not a rule so much as a test: if a prompt would still make sense to someone who has just finished reading, it can stay. If it only makes sense to someone who has just arrived, it is asking too early. The full set of notes, with the sites we looked at and what each one asked for, is on the website.</p>
+            <div class="blk blk-btn" contenteditable="false" data-block="button"><span>Read the full notes on the website</span></div>
+            <div class="blk paywall" contenteditable="false" data-block="paywall">
+              <div class="pw-line"><span><svg class="i"><use href="#i-lock"/></svg>Paywall break</span></div>
+              <p>Paid subscribers read on below this line. Free subscribers see a prompt to upgrade.</p>
+            </div>
+            <p>For paid subscribers, here is the part that is harder to say. Some of the popups we counted belong to publications we admire, and a few belong to us. The newsletter box on our own archive pages still opens after fifteen seconds, which is roughly the time it takes to read a first paragraph and decide whether to keep going. We are turning it off this week and watching what happens to signups from the archive. If they fall, we will say so here, with the numbers.</p>
+            <p>There is a version of this argument that ends with no asking at all, and I do not believe it. Readers who like a publication want to be told how to keep reading it. The trouble is only ever timing and volume: one clear question at the right moment, instead of three at the wrong one.</p>
+            <h2>A better ask</h2>
+            <ul>
+              <li>Put the signup form after the post, where a reader who finished has a reason to want more.</li>
+              <li>Ask for one thing at a time: an email address, not an address, a name and a survey.</li>
+              <li>Say plainly what they will get and how often, so the yes is an informed one.</li>
+            </ul>
+            <p>None of these ideas is new. What is new is how many small sites have taken on the habits of very large ones, where a popup is a rounding error on a big number. At our size every reader is a person we might keep for years, and the first thing they see should be the writing. Next week: what happened to the archive signups, and a short note on the welcome email, which is the <a href="#">other place we ask too early</a>.</p>
+            <p><br></p>
+          </div>
+        </div>
+      </div>
+      <div class="preview" id="previewPane" hidden aria-live="polite"></div>
+    </div>
+
+    <aside class="panel" id="panel" aria-labelledby="routeH">
+      <h2 id="routeH">Send</h2>
+      <p class="lead">Three stops, in order. The send button comes last.</p>
+      <ol class="steps">
+        <li class="step done" id="st1">
+          <button class="step-h" aria-expanded="false" aria-controls="st1b"><span class="smk"><svg class="i"><use href="#i-check"/></svg></span><span class="t">Write</span><span class="sum" id="st1sum">642 words · paywall break placed</span><svg class="i"><use href="#i-chev"/></svg></button>
+          <div class="step-b" id="st1b" hidden>
+            <p class="muted" style="font-size:.8125rem">Keep editing on the left; this summary follows along. Subject and preview text are checked in the last step.</p>
+          </div>
+        </li>
+        <li class="step now" id="st2">
+          <button class="step-h" aria-expanded="true" aria-controls="st2b"><span class="smk"></span><span class="t">Who gets it</span><span class="sum" id="st2sum">Not chosen yet</span><svg class="i"><use href="#i-chev"/></svg></button>
+          <div class="step-b" id="st2b">
+            <fieldset class="group">
+              <legend>Audience</legend>
+              <label class="opt"><input type="radio" name="aud" value="all"><span>Everyone</span><span class="n">12,731</span></label>
+              <label class="opt"><input type="radio" name="aud" value="some"><span>Only some segments</span></label>
+              <div class="segs" id="segs" hidden>
+                <label class="opt"><input type="checkbox" name="seg" value="418"><span>Paid subscribers</span><span class="n">418</span></label>
+                <label class="opt"><input type="checkbox" name="seg" value="8904"><span>Opened in the last 90 days</span><span class="n">8,904</span></label>
+                <label class="opt"><input type="checkbox" name="seg" value="1212"><span>New this month</span><span class="n">1,212</span></label>
+                <label class="opt"><input type="checkbox" name="seg" value="12313"><span>Free subscribers</span><span class="n">12,313</span></label>
+              </div>
+            </fieldset>
+            <fieldset class="group leave">
+              <legend>Leave out</legend>
+              <label class="opt"><input type="checkbox" name="leave" value="37"><span>Bounced in the last 30 days</span><span class="n">37</span></label>
+              <label class="opt"><input type="checkbox" name="leave" value="0"><span>Unsubscribed from weekly</span><span class="n">0</span></label>
+            </fieldset>
+            <p class="goes" id="goes" aria-live="polite">Choose an audience to see who it goes to.</p>
+            <button class="btn btn-sm" type="button" id="toStep3" hidden style="margin:-4px 0 16px">Continue to Check &amp; send</button>
+            <div class="from-row"><label class="glabel" for="from" style="margin:0">From</label><a href="#">Manage senders</a></div>
+            <select id="from" aria-describedby="fromAddr">
+              <option value="mara@mail.fieldnotes.example">Mara at Field Notes</option>
+              <option value="hello@mail.fieldnotes.example">Field Notes</option>
+            </select>
+            <p class="help" id="fromAddr">mara@mail.fieldnotes.example</p>
+          </div>
+        </li>
+        <li class="step" id="st3">
+          <button class="step-h" aria-expanded="false" aria-controls="st3b"><span class="smk"><svg class="i"><use href="#i-check"/></svg></span><span class="t">Check &amp; send</span><span class="sum" id="st3sum">Waiting on who gets it</span><svg class="i"><use href="#i-chev"/></svg></button>
+          <div class="step-b" id="st3b" hidden>
+            <fieldset class="group">
+              <legend>When</legend>
+              <label class="opt"><input type="radio" name="when" value="now" checked><span>Send now</span></label>
+              <label class="opt"><input type="radio" name="when" value="later"><span>Schedule</span></label>
+              <div id="schedBox" hidden style="margin:4px 0 0 26px">
+                <label class="sr" for="schedAt">Send date and time</label>
+                <input type="datetime-local" id="schedAt" value="2025-11-07T06:00">
+                <p class="tz">Your time zone: Europe/Prague</p>
+              </div>
+            </fieldset>
+            <p class="glabel">Checks</p>
+            <ul class="checks" id="checks" aria-live="polite"></ul>
+            <div class="test">
+              <label class="glabel" for="testTo" style="display:block">Send a test</label>
+              <form class="test-row" id="testForm"><input type="email" id="testTo" value="mara@fieldnotes.example" required><button class="btn btn-sm" type="submit">Send test</button></form>
+              <p id="testMsg" aria-live="polite"></p>
+            </div>
+            <div class="sendbox" id="sendbox">
+              <button class="btn btn-primary" id="sendBtn" disabled aria-describedby="why"><svg class="i"><use href="#i-send"/></svg><span id="sendLabel">Send</span></button>
+              <p class="why" id="why">Choose who gets this post first.</p>
+              <div class="confirm" id="confirm" hidden role="group" aria-labelledby="confirmQ">
+                <p id="confirmQ"></p>
+                <div><button class="btn btn-primary btn-sm" id="confirmYes">Confirm</button><button class="btn btn-sm" id="confirmNo">Cancel</button></div>
+              </div>
+              <div class="sent" id="sent" hidden><svg class="i"><use href="#i-check"/></svg><p id="sentMsg"></p></div>
+            </div>
+          </div>
+        </li>
+      </ol>
+
+      <details class="more-opts">
+        <summary>More options<svg class="i"><use href="#i-chev"/></svg></summary>
+        <div class="mo">
+          <h3>Split test</h3>
+          <label class="switch"><input type="checkbox" role="switch" id="split"><span>Test two subject lines on 20% first</span></label>
+          <p class="muted" id="splitState" style="font-size:.8125rem;margin-top:4px">Off</p>
+        </div>
+        <div class="mo">
+          <label class="glabel" for="webVis" style="display:block">Who can read it on the website</label>
+          <select id="webVis"><option>Everyone</option><option>Subscribers only</option><option selected>Paid subscribers only</option><option>Hidden</option></select>
+          <p class="addr">Web address: fieldnotes.example/p/notes-on-the-popup-economy</p>
+        </div>
+        <div class="mo">
+          <h3>Revisions</h3>
+          <ul class="revs">
+            <li>Today, 12:04 <span>Mara Lind</span></li>
+            <li>Today, 10:12 <span>Mara Lind</span></li>
+            <li>Yesterday, 17:48 <span>Mara Lind</span></li>
+          </ul>
+          <button class="btn btn-sm" type="button">Compare</button>
+        </div>
+      </details>
+    </aside>
+  </div>
+
+  <nav class="switcher" aria-label="Mockup switcher"><b>Design A · Line</b><a href="home.html">Home</a><a href="editor.html" aria-current="page">Editor</a><a href="../index.html">All designs</a></nav>
+</div>
+
+<div class="nextbar" id="nextbar">
+  <p>Next<b id="nextName">Who gets it</b></p>
+  <button class="btn btn-primary" id="nextBtn">Choose who gets it</button>
+</div>
+
+<dialog class="cmd" id="cmd" aria-label="Command menu">
+  <div class="cmd-in"><svg class="i"><use href="#i-search"/></svg><input id="cmdInput" type="text" placeholder="Search or jump to…" aria-label="Search or jump to" autocomplete="off"><kbd>Esc</kbd></div>
+  <div class="cmd-list" id="cmdList">
+    <div class="cmd-group"><h3>Jump to</h3>
+      <a href="editor.html"><svg class="i"><use href="#i-doc"/></svg>Posts</a>
+      <a href="#"><svg class="i"><use href="#i-users"/></svg>Subscribers</a>
+      <a href="#"><svg class="i"><use href="#i-send"/></svg>Sending &amp; delivery</a>
+      <a href="#"><svg class="i"><use href="#i-sliders"/></svg>Settings</a></div>
+    <div class="cmd-group"><h3>Create</h3>
+      <a href="editor.html"><svg class="i"><use href="#i-plus"/></svg>New post</a>
+      <a href="#"><svg class="i"><use href="#i-upload"/></svg>Import subscribers</a>
+      <a href="#"><svg class="i"><use href="#i-filter"/></svg>New segment</a></div>
+    <div class="cmd-group"><h3>Recent</h3>
+      <a href="#"><svg class="i"><use href="#i-clock"/></svg>#42 The slow web, revisited</a>
+      <a href="editor.html"><svg class="i"><use href="#i-clock"/></svg>Notes on the popup economy</a></div>
+    <p class="cmd-empty" id="cmdEmpty" hidden>Nothing matches. Try a page name, like “Subscribers”.</p>
+  </div>
+</dialog>
+
+<script>
+(() => {
+  const $ = (s, r = document) => r.querySelector(s);
+  const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+  const fmt = n => n.toLocaleString('en-US');
+  const ALL = 12731;
+
+  const closeMenus = except => $$('[data-menu]').forEach(b => {
+    if (b === except) return;
+    b.setAttribute('aria-expanded', 'false');
+    $('#' + b.dataset.menu).hidden = true;
+  });
+  $$('[data-menu]').forEach(b => b.addEventListener('click', e => {
+    e.stopPropagation();
+    const m = $('#' + b.dataset.menu), open = m.hidden;
+    closeMenus(b);
+    m.hidden = !open;
+    b.setAttribute('aria-expanded', String(open));
+    if (open) m.querySelector('a')?.focus();
+  }));
+  document.addEventListener('click', e => {
+    if (!e.target.closest('.menu')) closeMenus();
+    if (!e.target.closest('#insMenu, #insBtn, #insTool')) closeIns();
+  });
+
+  const rail = $('#rail'), railBtn = $('#railToggle');
+  const toggleRail = force => {
+    const open = force ?? !rail.classList.contains('open');
+    rail.classList.toggle('open', open);
+    railBtn.setAttribute('aria-expanded', String(open));
+    railBtn.setAttribute('aria-label', open ? 'Close navigation' : 'Open navigation');
+    railBtn.querySelector('use').setAttribute('href', open ? '#i-close' : '#i-menu');
+  };
+  railBtn.addEventListener('click', () => toggleRail());
+
+  const cmd = $('#cmd'), cmdInput = $('#cmdInput');
+  const filterCmd = () => {
+    const q = cmdInput.value.trim().toLowerCase();
+    let any = false;
+    $$('.cmd-group').forEach(g => {
+      let n = 0;
+      $$('a', g).forEach(a => { const hit = a.textContent.toLowerCase().includes(q); a.hidden = !hit; if (hit) n++; });
+      g.hidden = !n; any = any || n > 0;
+    });
+    $('#cmdEmpty').hidden = any;
+  };
+  const openCmd = () => { if (cmd.open) return; closeMenus(); cmd.showModal(); cmdInput.value = ''; filterCmd(); cmdInput.focus(); };
+  $('#searchBtn').addEventListener('click', openCmd);
+  cmdInput.addEventListener('input', filterCmd);
+  cmd.addEventListener('click', e => { if (e.target === cmd) cmd.close(); });
+
+  document.addEventListener('keydown', e => {
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); cmd.open ? cmd.close() : openCmd(); return; }
+    if (cmd.open && (e.key === 'ArrowDown' || e.key === 'ArrowUp')) {
+      e.preventDefault();
+      const items = $$('#cmdList a').filter(a => !a.hidden && !a.closest('[hidden]'));
+      const i = items.indexOf(document.activeElement);
+      (e.key === 'ArrowDown' ? items[i + 1] || items[0] : items[i - 1] || items[items.length - 1])?.focus();
+    }
+    if (cmd.open && e.key === 'Enter' && document.activeElement === cmdInput) {
+      const first = $$('#cmdList a').find(a => !a.hidden && !a.closest('[hidden]'));
+      if (first) { e.preventDefault(); first.click(); }
+    }
+    if (e.key === 'Escape' && !cmd.open) {
+      const open = $$('[data-menu]').find(b => b.getAttribute('aria-expanded') === 'true');
+      if (open) { closeMenus(); open.focus(); }
+      if (!$('#insMenu').hidden) { closeIns(); body.focus(); }
+      if (rail.classList.contains('open')) toggleRail(false);
+    }
+  });
+
+  const body = $('#body'), subject = $('#subject'), preview = $('#preview');
+
+  let saveT;
+  const markDirty = () => {
+    $('#save').textContent = 'Saving…';
+    clearTimeout(saveT);
+    saveT = setTimeout(() => {
+      $('#save').textContent = 'Saved ' + new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+    }, 700);
+  };
+
+  const firstLine = () => (body.querySelector('p')?.textContent || '').trim();
+  const words = () => {
+    const c = body.cloneNode(true);
+    $$('[contenteditable="false"]', c).forEach(n => n.remove());
+    return (c.textContent.match(/\S+/g) || []).length;
+  };
+  const linkCount = () => $$('a[href]', body).length + $$('[data-block="button"]', body).length;
+  const hasPaywall = () => !!body.querySelector('[data-block="paywall"]');
+
+  const syncFields = () => {
+    $('#subjCount').textContent = `${subject.value.length} / 200`;
+    $('#prevCount').textContent = `${preview.value.length} / 150`;
+    $('#ibSubj').textContent = subject.value || '(no subject)';
+    $('#ibPre').textContent = preview.value || firstLine();
+    $('#st1sum').textContent = `${fmt(words())} words · ${hasPaywall() ? 'paywall break placed' : 'no paywall break'}`;
+  };
+  [subject, preview].forEach(el => el.addEventListener('input', () => { syncFields(); markDirty(); update(); }));
+  body.addEventListener('input', () => { syncFields(); markDirty(); update(); placeIns(); });
+
+  /* Toolbar */
+  let saved = null;
+  const saveRange = () => {
+    const s = getSelection();
+    if (s.rangeCount && body.contains(s.anchorNode)) saved = s.getRangeAt(0).cloneRange();
+  };
+  const restore = () => {
+    body.focus();
+    if (saved) { const s = getSelection(); s.removeAllRanges(); s.addRange(saved); }
+  };
+  $$('.tb').forEach(b => b.addEventListener('mousedown', e => e.preventDefault()));
+  $$('.tb[data-cmd]').forEach(b => b.addEventListener('click', () => {
+    restore();
+    const c = b.dataset.cmd;
+    if (c === 'quote') document.execCommand('formatBlock', false, curBlock?.tagName === 'BLOCKQUOTE' ? 'p' : 'blockquote');
+    else if (c === 'divider') document.execCommand('insertHTML', false, '<hr><p><br></p>');
+    else document.execCommand(c, false, null);
+    syncFields(); markDirty(); update(); reflect();
+  }));
+  $('#blockType').addEventListener('change', e => { restore(); document.execCommand('formatBlock', false, e.target.value); markDirty(); });
+  const linkBar = $('#linkBar');
+  $('#linkBtn').addEventListener('click', () => { saveRange(); linkBar.hidden = false; $('#linkUrl').value = ''; $('#linkUrl').focus(); });
+  $('#linkCancel').addEventListener('click', () => { linkBar.hidden = true; restore(); });
+  linkBar.addEventListener('submit', e => {
+    e.preventDefault();
+    const url = $('#linkUrl').value.trim();
+    linkBar.hidden = true;
+    restore();
+    if (getSelection().isCollapsed) document.execCommand('insertHTML', false, `<a href="${url.replace(/"/g, '')}">${url.replace(/</g, '&lt;')}</a>`);
+    else document.execCommand('createLink', false, url);
+    syncFields(); markDirty(); update();
+  });
+  const reflect = () => {
+    $$('.tb[aria-pressed]').forEach(b => { try { b.setAttribute('aria-pressed', String(document.queryCommandState(b.dataset.cmd))); } catch {} });
+    const t = curBlock?.tagName.toLowerCase();
+    $('#blockType').value = t === 'h2' || t === 'h3' ? t : 'p';
+  };
+
+  /* Block inserter */
+  const insBtn = $('#insBtn'), insMenu = $('#insMenu');
+  let curBlock = body.querySelector('p');
+  const blockOf = node => {
+    while (node && node.parentNode !== body) node = node.parentNode;
+    return node && node.nodeType === 1 ? node : null;
+  };
+  const placeIns = () => {
+    if (!curBlock || !body.contains(curBlock)) curBlock = body.querySelector('p') || body.lastElementChild;
+    insBtn.style.top = (curBlock.offsetTop + (curBlock.offsetHeight > 40 ? 0 : (curBlock.offsetHeight - 30) / 2)) + 'px';
+    insMenu.style.top = (parseFloat(insBtn.style.top) + 36) + 'px';
+    $$('.ph', body).forEach(p => { p.classList.remove('ph'); p.removeAttribute('data-ph'); });
+    if (curBlock.tagName === 'P' && !curBlock.textContent.trim() && document.activeElement === body) {
+      curBlock.classList.add('ph'); curBlock.dataset.ph = 'Type, or press / for blocks';
+    }
+  };
+  document.addEventListener('selectionchange', () => {
+    const s = getSelection();
+    if (!s.rangeCount || !body.contains(s.anchorNode)) return;
+    saveRange();
+    const b = blockOf(s.anchorNode);
+    if (b) { curBlock = b; placeIns(); reflect(); }
+  });
+  body.addEventListener('blur', () => $$('.ph', body).forEach(p => p.classList.remove('ph')));
+  const insTool = $('#insTool');
+  const openIns = () => {
+    insMenu.hidden = false;
+    [insBtn, insTool].forEach(b => b.setAttribute('aria-expanded', 'true'));
+    insMenu.querySelector('button').focus({ preventScroll: true });
+    insMenu.scrollIntoView({ block: 'nearest', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+  };
+  const closeIns = () => { insMenu.hidden = true; [insBtn, insTool].forEach(b => b.setAttribute('aria-expanded', 'false')); };
+  insTool.addEventListener('click', () => {
+    if (!insMenu.hidden) return closeIns();
+    const sel = getSelection();
+    if (!(saved && sel.rangeCount && body.contains(sel.anchorNode))) curBlock = body.querySelector('p');
+    placeIns();
+    openIns();
+  });
+  insBtn.addEventListener('click', () => insMenu.hidden ? openIns() : closeIns());
+  insMenu.addEventListener('keydown', e => {
+    const items = $$('button', insMenu), i = items.indexOf(document.activeElement);
+    const step = { ArrowDown: 2, ArrowUp: -2, ArrowRight: 1, ArrowLeft: -1 }[e.key];
+    if (step) { e.preventDefault(); items[(i + step + items.length) % items.length].focus(); }
+  });
+  body.addEventListener('keydown', e => {
+    if (e.key === '/' && curBlock?.tagName === 'P' && !curBlock.textContent.trim()) { e.preventDefault(); openIns(); }
+  });
+  const ph = (icon, title, text) => `<div class="blk blk-ph" contenteditable="false" data-block="${icon}"><svg class="i"><use href="#i-${icon}"/></svg><span><b>${title}</b>${text}</span></div>`;
+  const BLOCKS = {
+    heading: '<h2>New heading</h2>',
+    image: ph('image', 'Image', 'Drop a file here or paste an image link.'),
+    button: '<div class="blk blk-btn" contenteditable="false" data-block="button"><span>Button text</span></div>',
+    quote: '<blockquote>A line worth pulling out.</blockquote>',
+    divider: '<hr>',
+    card: ph('card', 'Link card', 'Paste a link to show its title and image.'),
+    file: ph('file', 'File', 'Attach a PDF or document, up to 20 MB.'),
+    paywall: '<div class="blk paywall" contenteditable="false" data-block="paywall"><div class="pw-line"><span><svg class="i"><use href="#i-lock"/></svg>Paywall break</span></div><p>Paid subscribers read on below this line. Free subscribers see a prompt to upgrade.</p></div>'
+  };
+  $$('[data-ins]', insMenu).forEach(b => b.addEventListener('click', () => {
+    const type = b.dataset.ins;
+    if (type === 'paywall') body.querySelector('[data-block="paywall"]')?.remove();
+    const t = document.createElement('template');
+    t.innerHTML = BLOCKS[type];
+    const node = t.content.firstElementChild;
+    const anchor = curBlock && body.contains(curBlock) ? curBlock : body.lastElementChild;
+    const empty = anchor.tagName === 'P' && !anchor.textContent.trim();
+    anchor.after(node);
+    if (empty) anchor.remove();
+    let caretEl = node;
+    if (node.getAttribute('contenteditable') === 'false' || type === 'divider') {
+      caretEl = node.nextElementSibling?.tagName === 'P' && !node.nextElementSibling.textContent.trim() ? node.nextElementSibling : null;
+      if (!caretEl) { caretEl = document.createElement('p'); caretEl.innerHTML = '<br>'; node.after(caretEl); }
+    }
+    closeIns();
+    body.focus();
+    const r = document.createRange();
+    r.selectNodeContents(caretEl);
+    r.collapse(type !== 'heading' && type !== 'quote');
+    const s = getSelection(); s.removeAllRanges(); s.addRange(r);
+    curBlock = caretEl;
+    syncFields(); markDirty(); update(); placeIns();
+  }));
+
+  /* Audience and send route */
+  const steps = [$('#st1'), $('#st2'), $('#st3')];
+  let sentState = null;
+  const audience = () => {
+    const mode = $('input[name="aud"]:checked')?.value;
+    const segs = $$('input[name="seg"]:checked').map(c => +c.value);
+    const leave = $$('input[name="leave"]:checked').reduce((a, c) => a + +c.value, 0);
+    if (!mode) return { ok: false, why: 'Choose who gets this post first.', sum: 'Not chosen yet' };
+    if (mode === 'all') return { ok: true, n: ALL - leave, approx: false, sum: `Everyone · ${fmt(ALL - leave)}` };
+    if (!segs.length) return { ok: false, why: 'Tick at least one segment first.', sum: 'Pick at least one segment' };
+    let n;
+    if (segs.includes(418) && segs.includes(12313)) n = ALL;
+    else if (segs.length === 1) n = segs[0];
+    else n = Math.round(ALL * (1 - segs.reduce((p, s) => p * (1 - s / ALL), 1)));
+    n -= Math.round(leave * n / ALL);
+    const approx = segs.length > 1 && n !== ALL - leave;
+    return { ok: true, n, approx, sum: `${segs.length} segment${segs.length > 1 ? 's' : ''} · ${approx ? 'about ' : ''}${fmt(n)}` };
+  };
+  const when = () => {
+    const later = $('input[name="when"]:checked').value === 'later';
+    const d = new Date($('#schedAt').value);
+    const label = isNaN(d) ? 'the chosen time' : `${d.toLocaleDateString('en-GB', { weekday: 'short' })} ${d.getDate()} ${d.toLocaleDateString('en-GB', { month: 'short' })}, ${d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}`;
+    return { later, label };
+  };
+  const ICON = { block: 'i-block', warn: 'i-alert', pass: 'i-check' };
+  function update() {
+    const a = audience(), w = when();
+    $('#segs').hidden = $('input[name="aud"]:checked')?.value !== 'some';
+    $('#goes').innerHTML = a.ok
+      ? `Goes to <b>${a.approx ? 'about ' : ''}${fmt(a.n)}</b> subscribers${a.approx ? '<small>Counted once, even when someone is in more than one segment.</small>' : ''}`
+      : (a.sum === 'Not chosen yet' ? 'Choose an audience to see who it goes to.' : 'Tick a segment to see who it goes to.');
+    $('#st2sum').textContent = a.sum;
+    $('#toStep3').hidden = !(a.ok && $('input[name="aud"]:checked')?.value === 'some');
+
+    const checks = [];
+    if (!a.ok) checks.push(['block', 'Choose who gets this post']);
+    if (!preview.value.trim()) checks.push(['warn', 'Preview text is empty. Inboxes will show the first line instead. <button class="linkish" type="button" id="addPrev">Add preview text</button>']);
+    checks.push(['pass', 'Sender domain verified'], ['pass', 'Unsubscribe link included'], ['pass', `Links checked (${linkCount()} links, all reachable)`]);
+    if (hasPaywall()) checks.push(['pass', 'Paywall break placed — paid subscribers get the full post']);
+    else checks.push(['warn', 'No paywall break. Everyone reads the full post.']);
+    $('#checks').innerHTML = checks.map(([k, t]) => `<li class="${k}"><svg class="i"><use href="#${ICON[k]}"/></svg><span>${t}</span></li>`).join('');
+    $('#addPrev')?.addEventListener('click', () => { setMode('edit'); preview.focus(); preview.scrollIntoView({ block: 'center', behavior: 'smooth' }); });
+
+    const warns = checks.filter(c => c[0] === 'warn').length;
+    const sendBtn = $('#sendBtn');
+    sendBtn.disabled = !a.ok || !!sentState;
+    $('#sendLabel').textContent = !a.ok ? 'Send' : w.later ? `Schedule for ${w.label}` : `Send to ${fmt(a.n)} subscribers`;
+    $('#why').textContent = !a.ok ? a.why : warns ? `Ready. ${warns} warning${warns > 1 ? 's' : ''} above won’t stop the send.` : 'Ready. Everything above passed.';
+    $('#why').hidden = !!sentState;
+    sendBtn.hidden = !!sentState;
+    if (!a.ok) $('#confirm').hidden = true;
+
+    steps[1].classList.toggle('done', a.ok);
+    steps[1].classList.toggle('now', !a.ok);
+    steps[2].classList.toggle('now', a.ok && !sentState);
+    steps[2].classList.toggle('done', !!sentState);
+    $('#st3sum').textContent = sentState ? (sentState === 'now' ? 'Sending' : `Scheduled for ${w.label}`) : !a.ok ? 'Waiting on who gets it' : warns ? `Ready · ${warns} warning${warns > 1 ? 's' : ''}` : 'Ready';
+    $('#nextName').textContent = sentState ? 'Done' : a.ok ? 'Check & send' : 'Who gets it';
+    $('#nextBtn').textContent = sentState ? 'View status' : a.ok ? $('#sendLabel').textContent : 'Choose who gets it';
+  }
+  $$('input[name="aud"], input[name="seg"], input[name="leave"], input[name="when"]').forEach(i => i.addEventListener('change', () => {
+    $('#schedBox').hidden = $('input[name="when"]:checked').value !== 'later';
+    $('#confirm').hidden = true;
+    update();
+    if (i.name === 'aud' && i.value === 'all' && audience().ok) advance();
+  }));
+  $('#schedAt').addEventListener('input', update);
+  const openStep = (i, toggle) => steps.forEach((st, j) => {
+    const h = $('.step-h', st);
+    const open = j === i && !(toggle && h.getAttribute('aria-expanded') === 'true');
+    h.setAttribute('aria-expanded', String(open));
+    $('#' + h.getAttribute('aria-controls')).hidden = !open;
+  });
+  steps.forEach((st, i) => $('.step-h', st).addEventListener('click', () => openStep(i, true)));
+  const advance = () => { openStep(2); $('.step-h', steps[2]).focus({ preventScroll: true }); steps[2].scrollIntoView({ block: 'nearest' }); };
+  $('#toStep3').addEventListener('click', advance);
+
+  $('#sendBtn').addEventListener('click', () => {
+    const a = audience(), w = when();
+    $('#confirmQ').textContent = w.later
+      ? `Schedule for ${w.label} to ${fmt(a.n)} subscribers? You can change it until then.`
+      : `Send now to ${fmt(a.n)} subscribers? This can’t be undone.`;
+    $('#confirm').hidden = false;
+    $('#confirmYes').focus();
+  });
+  $('#confirmNo').addEventListener('click', () => { $('#confirm').hidden = true; $('#sendBtn').focus(); });
+  $('#confirmYes').addEventListener('click', () => {
+    const w = when();
+    sentState = w.later ? 'later' : 'now';
+    $('#confirm').hidden = true;
+    $('#sent').hidden = false;
+    $('#sentMsg').innerHTML = w.later ? `Scheduled for ${w.label}. <a href="#">Change the schedule</a>` : 'Sending… <a href="#">view the send report</a>';
+    $('#pill').textContent = w.later ? 'Scheduled' : 'Sending';
+    $('#pill').classList.add('sched');
+    $$('#panel input, #panel select').forEach(el => { if (!el.closest('.more-opts, .test')) el.disabled = true; });
+    update();
+    $('#sentMsg a').focus();
+  });
+  $('#testForm').addEventListener('submit', e => {
+    e.preventDefault();
+    const btn = $('#testForm button');
+    btn.disabled = true; btn.textContent = 'Sending…';
+    setTimeout(() => {
+      btn.disabled = false; btn.textContent = 'Send test';
+      $('#testMsg').textContent = `Test sent to ${$('#testTo').value}. It shows the free subscriber version.`;
+    }, 800);
+  });
+  $('#split').addEventListener('change', e => { $('#splitState').textContent = e.target.checked ? 'On. Add a second subject line before sending.' : 'Off'; });
+
+  /* Preview */
+  const pane = $('#previewPane'), write = $('#write');
+  const renderPreview = mode => {
+    const paid = $('#viewAs').value === 'paid';
+    const c = body.cloneNode(true);
+    $$('[contenteditable]', c).forEach(n => n.removeAttribute('contenteditable'));
+    $$('.ph', c).forEach(n => n.classList.remove('ph'));
+    $$('p', c).forEach(p => { if (!p.textContent.trim()) p.remove(); });
+    const wall = c.querySelector('[data-block="paywall"]');
+    if (wall) {
+      if (paid) wall.remove();
+      else {
+        while (wall.nextSibling) wall.nextSibling.remove();
+        wall.outerHTML = '<div class="upgrade"><b>The rest of this post is for paid subscribers</b><p>Upgrade to read on, and to get every post in full.</p><span>Upgrade to paid</span></div>';
+      }
+    }
+    const content = `<div class="mast">Field Notes</div><h1>${$('h1').textContent}</h1>${c.innerHTML}`;
+    const foot = `<div class="mail-foot">You’re getting this because you subscribed to Field Notes. <a href="#">Unsubscribe</a> · <a href="#">Manage preferences</a><br>Field Notes, Vinohradská 12, Prague</div>`;
+    const head = `<div class="mail-head"><span><b>${$('#from').selectedOptions[0].text}</b> &lt;${$('#from').value}&gt;</span><span>To: ${paid ? 'a paid subscriber' : 'a free subscriber'}</span><span class="s">${(subject.value || '(no subject)').replace(/</g, '&lt;')}</span><span class="pt">${(preview.value || firstLine()).replace(/</g, '&lt;')}</span></div>`;
+    const who = paid ? 'paid subscriber' : 'free subscriber';
+    if (mode === 'web') {
+      pane.innerHTML = `<p class="pv-note"><span>Web · as a ${who}</span><span>fieldnotes.example/p/notes-on-the-popup-economy</span></p><div class="frame web"><div class="web-head"><b>Field Notes</b><nav><span>Archive</span><span>About</span><span>Subscribe</span></nav></div><div class="mail-body">${content.replace('<div class="mast">Field Notes</div>', '<p class="url">Post #44 · 4 min read</p>')}</div></div>`;
+    } else {
+      pane.innerHTML = `<p class="pv-note"><span>Email · ${mode === 'mob' ? 'mobile' : 'desktop'} · as a ${who}</span><span>Links are not clickable in preview</span></p><div class="frame ${mode}">${head}<div class="mail-body">${content}</div>${foot}</div>`;
+    }
+  };
+  const setMode = mode => {
+    $('#pv-' + mode).checked = true;
+    const edit = mode === 'edit';
+    write.hidden = !edit;
+    pane.hidden = edit;
+    if (!edit) renderPreview(mode);
+  };
+  $$('input[name="pv"]').forEach(r => r.addEventListener('change', () => setMode(r.value)));
+  $('#viewAs').addEventListener('change', () => { const m = $('input[name="pv"]:checked').value; if (m !== 'edit') renderPreview(m); });
+  $('#from').addEventListener('change', () => { $('#fromAddr').textContent = $('#from').value; const m = $('input[name="pv"]:checked').value; if (m !== 'edit') renderPreview(m); });
+
+  $('#nextBtn').addEventListener('click', () => {
+    const a = audience();
+    const i = a.ok ? 2 : 1;
+    openStep(i);
+    const target = a.ok ? $('#sendbox') : steps[1];
+    target.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' });
+    setTimeout(() => (a.ok ? $('#sendBtn').hidden ? $('#sentMsg a') : $('#sendBtn') : $('input[name="aud"]'))?.focus({ preventScroll: true }), 350);
+  });
+
+  syncFields();
+  update();
+  placeIns();
+  if (document.fonts) document.fonts.ready.then(placeIns);
+  addEventListener('resize', placeIns);
+})();
+</script>
+</body>
+</html>

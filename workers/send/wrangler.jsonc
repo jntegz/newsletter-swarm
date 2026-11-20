@@ -1,0 +1,179 @@
+{
+  "$schema": "../../node_modules/wrangler/config-schema.json",
+  // Broadcast pipeline: queue consumers and the minute cron. Secrets (TRACK_KEYS, UNSUBSCRIBE_KEYS, BOUNCE_KEYS,
+  // MEMBER_SIGNING_KEYS, ASK_SIGNING_KEYS, AWS credentials) go in .dev.vars locally and `wrangler secret put` elsewhere.
+  // Not the production name: a deploy that names no environment makes a separate, harmless
+  // "-local" script, never a production one with these development settings.
+  "name": "swarm-send-local",
+  // No provider default hostname and no preview URLs: a worker answers only on the routes
+  // the installer gives it (docs/deployment.md, "Public surface"). Stated here, in each
+  // environment too, so nothing rests on a platform default.
+  "workers_dev": false,
+  "preview_urls": false,
+  "main": "src/index.ts",
+  "compatibility_date": "2026-10-01",
+  "observability": { "enabled": true },
+  "triggers": { "crons": ["* * * * *"] },
+  "vars": {
+    "ENVIRONMENT": "development",
+    // Links are signed per family (docs/security.md "Keys"). Locally there are no old links to
+    // keep: v2 from the start, and no v1 link is taken.
+    "LINK_SIGNING_MODE": "v2",
+    "LINK_LEGACY_CUTOFF": "0",
+    "MEDIA_ORIGIN": "http://localhost:8792",
+    "TRACK_ORIGIN": "http://localhost:8790",
+    "CAPTURE_ORIGIN": "http://localhost:8791",
+    "PLATFORM_MAIL_DOMAIN": "mail.swarm.localhost",
+    "UNSUBSCRIBE_MAIL_DOMAIN": "unsubscribe.swarm.localhost",
+    "PLATFORM_SITE_DOMAIN": "site.localhost",
+    "SITE_SCHEME": "http",
+    "MAIL_ADAPTER": "dev",
+    "AWS_REGION": "us-east-1",
+    "DNS_RESOLVER": "dev",
+    "LINK_HOSTNAMES": "dev",
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "swarm",
+      "database_id": "local",
+      "migrations_dir": "../../migrations",
+    },
+  ],
+  "kv_namespaces": [{ "binding": "CACHE", "id": "local" }],
+  "r2_buckets": [{ "binding": "DEV_MAILBOX", "bucket_name": "swarm-dev-mailbox" }],
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "SEND_MONITOR",
+        "class_name": "SendMonitor",
+        "script_name": "swarm-realtime-local",
+      },
+      { "name": "SEND_PACER", "class_name": "SendPacer", "script_name": "swarm-realtime-local" },
+    ],
+  },
+  "queues": {
+    "producers": [{ "binding": "SEND_QUEUE", "queue": "swarm-send" }],
+    "consumers": [
+      {
+        "queue": "swarm-send",
+        "max_batch_size": 10,
+        "max_batch_timeout": 1,
+        "max_retries": 8,
+        "dead_letter_queue": "swarm-send-dlq",
+      },
+    ],
+  },
+  "env": {
+    "staging": {
+      "name": "swarm-send-staging",
+      "workers_dev": false,
+      "preview_urls": false,
+      "triggers": { "crons": ["* * * * *"] },
+      "vars": {
+        "ENVIRONMENT": "staging",
+        // The installer sets both: v1 until the cutover, then v2 and its time.
+        "LINK_SIGNING_MODE": "v1",
+        "MEDIA_ORIGIN": "https://media.staging.swarm.example",
+        "TRACK_ORIGIN": "https://link.staging.swarm.example",
+        "CAPTURE_ORIGIN": "https://forms.staging.swarm.example",
+        "PLATFORM_MAIL_DOMAIN": "mail.staging.swarm.example",
+        "UNSUBSCRIBE_MAIL_DOMAIN": "unsubscribe.staging.swarm.example",
+        "PLATFORM_SITE_DOMAIN": "staging.site.swarm.example",
+        "SITE_SCHEME": "https",
+        "MAIL_ADAPTER": "ses",
+        "AWS_REGION": "eu-west-1",
+        "SES_CONFIGURATION_SET": "swarm-staging-broadcasts",
+        "SES_EVENT_TOPIC_ARN": "arn:aws:sns:eu-west-1:000000000000:swarm-staging-ses-events",
+        "DNS_RESOLVER": "doh",
+        "LINK_HOSTNAMES": "cloudflare",
+      },
+      "d1_databases": [
+        {
+          "binding": "DB",
+          "database_name": "swarm-staging",
+          "database_id": "unprovisioned",
+          "migrations_dir": "../../migrations",
+        },
+      ],
+      "kv_namespaces": [{ "binding": "CACHE", "id": "unprovisioned" }],
+      "durable_objects": {
+        "bindings": [
+          {
+            "name": "SEND_MONITOR",
+            "class_name": "SendMonitor",
+            "script_name": "swarm-realtime-staging",
+          },
+          {
+            "name": "SEND_PACER",
+            "class_name": "SendPacer",
+            "script_name": "swarm-realtime-staging",
+          },
+        ],
+      },
+      "queues": {
+        "producers": [{ "binding": "SEND_QUEUE", "queue": "swarm-staging-send" }],
+        "consumers": [
+          {
+            "queue": "swarm-staging-send",
+            "max_batch_size": 10,
+            "max_batch_timeout": 1,
+            "max_retries": 8,
+            "dead_letter_queue": "swarm-staging-send-dlq",
+          },
+        ],
+      },
+    },
+    "production": {
+      "name": "swarm-send",
+      "workers_dev": false,
+      "preview_urls": false,
+      "triggers": { "crons": ["* * * * *"] },
+      "vars": {
+        "ENVIRONMENT": "production",
+        // The installer sets both: v1 until the cutover, then v2 and its time.
+        "LINK_SIGNING_MODE": "v1",
+        "MEDIA_ORIGIN": "https://media.swarm.example",
+        "TRACK_ORIGIN": "https://link.swarm.example",
+        "CAPTURE_ORIGIN": "https://forms.swarm.example",
+        "PLATFORM_MAIL_DOMAIN": "mail.swarm.example",
+        "UNSUBSCRIBE_MAIL_DOMAIN": "unsubscribe.swarm.example",
+        "PLATFORM_SITE_DOMAIN": "site.swarm.example",
+        "SITE_SCHEME": "https",
+        "MAIL_ADAPTER": "ses",
+        "AWS_REGION": "eu-west-1",
+        "SES_CONFIGURATION_SET": "swarm-production-broadcasts",
+        "SES_EVENT_TOPIC_ARN": "arn:aws:sns:eu-west-1:000000000000:swarm-production-ses-events",
+        "DNS_RESOLVER": "doh",
+        "LINK_HOSTNAMES": "cloudflare",
+      },
+      "d1_databases": [
+        {
+          "binding": "DB",
+          "database_name": "swarm-production",
+          "database_id": "unprovisioned",
+          "migrations_dir": "../../migrations",
+        },
+      ],
+      "kv_namespaces": [{ "binding": "CACHE", "id": "unprovisioned" }],
+      "durable_objects": {
+        "bindings": [
+          { "name": "SEND_MONITOR", "class_name": "SendMonitor", "script_name": "swarm-realtime" },
+          { "name": "SEND_PACER", "class_name": "SendPacer", "script_name": "swarm-realtime" },
+        ],
+      },
+      "queues": {
+        "producers": [{ "binding": "SEND_QUEUE", "queue": "swarm-production-send" }],
+        "consumers": [
+          {
+            "queue": "swarm-production-send",
+            "max_batch_size": 10,
+            "max_batch_timeout": 1,
+            "max_retries": 8,
+            "dead_letter_queue": "swarm-production-send-dlq",
+          },
+        ],
+      },
+    },
+  },
+}

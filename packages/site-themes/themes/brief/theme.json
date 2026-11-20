@@ -1,0 +1,210 @@
+{
+  "name": "Brief",
+  "settings": [
+    {
+      "id": "accent",
+      "type": "color",
+      "label": "Accent",
+      "group": "Colour",
+      "default": "#007f4c",
+      "info": "Buttons, links and highlights."
+    },
+    {
+      "id": "page",
+      "type": "color",
+      "label": "Background",
+      "group": "Colour",
+      "default": "#fbfbf8"
+    },
+    {
+      "id": "ink",
+      "type": "color",
+      "label": "Text",
+      "group": "Colour",
+      "default": "#0e0e10"
+    },
+    {
+      "id": "scheme",
+      "type": "select",
+      "label": "Light or dark",
+      "group": "Colour",
+      "default": "light",
+      "options": [
+        {
+          "value": "light",
+          "label": "Light"
+        },
+        {
+          "value": "dark",
+          "label": "Dark"
+        },
+        {
+          "value": "auto",
+          "label": "Follow the reader’s device"
+        }
+      ]
+    },
+    {
+      "id": "heading_font",
+      "type": "font",
+      "label": "Headings",
+      "group": "Type",
+      "default": "grotesk"
+    },
+    {
+      "id": "body_font",
+      "type": "font",
+      "label": "Text",
+      "group": "Type",
+      "default": "inter"
+    },
+    {
+      "id": "scale",
+      "type": "select",
+      "label": "Text size",
+      "group": "Type",
+      "default": "regular",
+      "options": [
+        {
+          "value": "compact",
+          "label": "Compact"
+        },
+        {
+          "value": "regular",
+          "label": "Regular"
+        },
+        {
+          "value": "large",
+          "label": "Large"
+        }
+      ]
+    },
+    {
+      "id": "corners",
+      "type": "select",
+      "label": "Corners",
+      "group": "Shape",
+      "default": "square",
+      "options": [
+        {
+          "value": "square",
+          "label": "Square"
+        },
+        {
+          "value": "soft",
+          "label": "Soft"
+        },
+        {
+          "value": "round",
+          "label": "Round"
+        }
+      ]
+    },
+    {
+      "id": "width",
+      "type": "select",
+      "label": "Page width",
+      "group": "Shape",
+      "default": "wide",
+      "options": [
+        {
+          "value": "narrow",
+          "label": "Narrow"
+        },
+        {
+          "value": "regular",
+          "label": "Regular"
+        },
+        {
+          "value": "wide",
+          "label": "Wide"
+        }
+      ]
+    },
+    {
+      "id": "buttons",
+      "type": "select",
+      "label": "Buttons",
+      "group": "Shape",
+      "default": "solid",
+      "options": [
+        {
+          "value": "solid",
+          "label": "Solid"
+        },
+        {
+          "value": "pill",
+          "label": "Pill"
+        },
+        {
+          "value": "outline",
+          "label": "Outline"
+        }
+      ]
+    },
+    {
+      "id": "figures_font",
+      "type": "font",
+      "label": "Figures and dates",
+      "group": "Type",
+      "default": "mono",
+      "info": "Issue numbers, dates and key figures. Monospace keeps them in line."
+    },
+    {
+      "id": "grid",
+      "type": "select",
+      "label": "The grid",
+      "group": "Shape",
+      "default": "lines",
+      "options": [
+        {
+          "value": "lines",
+          "label": "Show its columns as hairlines"
+        },
+        {
+          "value": "plain",
+          "label": "Keep it hidden"
+        }
+      ]
+    }
+  ],
+  "sections": [
+    {
+      "type": "hero",
+      "settings": {
+        "layout": "split",
+        "show_count": true
+      }
+    },
+    {
+      "type": "numbers",
+      "audience": "visitors"
+    },
+    {
+      "type": "latest",
+      "settings": {
+        "style": "table",
+        "count": 8
+      }
+    },
+    {
+      "type": "benefits",
+      "audience": "visitors"
+    },
+    {
+      "type": "testimonials",
+      "audience": "visitors"
+    },
+    {
+      "type": "author"
+    },
+    {
+      "type": "faq",
+      "audience": "visitors"
+    },
+    {
+      "type": "subscribe_band",
+      "audience": "visitors"
+    }
+  ]
+}

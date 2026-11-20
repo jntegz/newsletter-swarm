@@ -1,0 +1,44 @@
+{% assign s = section.settings %} {% if s.items %}
+<section class="zn-benefits" aria-labelledby="{{ section.id }}-title">
+  <div class="zn-head">
+    {% if s.heading %}
+    <h2 class="zn-h2" id="{{ section.id }}-title">{{ s.heading }}</h2>
+    {% else %}
+    <h2 class="sw-sr" id="{{ section.id }}-title">What you get</h2>
+    {% endif %}
+  </div>
+  <ol class="zn-benefits__list" role="list">
+    {% for item in s.items %}
+    <li class="zn-benefit">
+      <span class="zn-benefit__n" aria-hidden="true">{{ forloop.index }}</span>
+      <div>
+        {% if item.title %}
+        <h3 class="zn-benefit__title">{{ item.title }}</h3>
+        {% endif %} {% if item.text %}
+        <p class="zn-benefit__text">{{ item.text }}</p>
+        {% endif %}
+      </div>
+    </li>
+    {% endfor %}
+  </ol>
+</section>
+{% endif %} {% comment %}<!-- prettier-ignore -->{% endcomment %}
+{% schema %}
+{
+  "name": "Benefits",
+  "description": "What subscribers get, numbered.",
+  "settings": [
+    { "id": "heading", "type": "text", "label": "Heading", "max": 120, "default": "What you get" },
+    {
+      "id": "items",
+      "type": "list",
+      "label": "Benefits",
+      "max": 8,
+      "fields": [
+        { "id": "title", "type": "text", "label": "Title", "max": 80 },
+        { "id": "text", "type": "textarea", "label": "Text", "max": 300 }
+      ]
+    }
+  ]
+}
+{% endschema %}

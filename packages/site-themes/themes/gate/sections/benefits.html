@@ -1,0 +1,51 @@
+{% assign s = section.settings %} {% if s.items %}
+<section class="gate-benefits" aria-labelledby="{{ section.id }}-title">
+  {% if s.heading %}
+  <h2 class="gate-head__title" id="{{ section.id }}-title">{{ s.heading }}</h2>
+  {% else %}
+  <h2 class="sw-sr" id="{{ section.id }}-title">What you get</h2>
+  {% endif %}
+  <ul class="gate-benefits__list" role="list">
+    {% for item in s.items %}
+    <li class="gate-benefit">
+      <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" focusable="false">
+        <path
+          d="m5 12.5 4.5 4.5L19 7.5"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2.2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+      </svg>
+      <div>
+        {% if item.title %}
+        <h3 class="gate-benefit__title">{{ item.title }}</h3>
+        {% endif %} {% if item.text %}
+        <p class="gate-benefit__text">{{ item.text }}</p>
+        {% endif %}
+      </div>
+    </li>
+    {% endfor %}
+  </ul>
+</section>
+{% endif %} {% comment %}<!-- prettier-ignore -->{% endcomment %}
+{% schema %}
+{
+  "name": "Benefits",
+  "description": "What subscribers get, as a short list.",
+  "settings": [
+    { "id": "heading", "type": "text", "label": "Heading", "max": 120, "default": "What you get" },
+    {
+      "id": "items",
+      "type": "list",
+      "label": "Benefits",
+      "max": 8,
+      "fields": [
+        { "id": "title", "type": "text", "label": "Title", "max": 80 },
+        { "id": "text", "type": "textarea", "label": "Text", "max": 300 }
+      ]
+    }
+  ]
+}
+{% endschema %}

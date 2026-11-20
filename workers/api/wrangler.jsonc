@@ -1,0 +1,316 @@
+{
+  "$schema": "../../node_modules/wrangler/config-schema.json",
+  // Not the production name: a deploy that names no environment makes a separate, harmless
+  // "-local" script, never a production one with these development settings.
+  "name": "swarm-api-local",
+  // No provider default hostname and no preview URLs: a worker answers only on the routes
+  // the installer gives it (docs/deployment.md, "Public surface"). Stated here, in each
+  // environment too, so nothing rests on a platform default.
+  "workers_dev": false,
+  "preview_urls": false,
+  "main": "src/index.ts",
+  "compatibility_date": "2026-10-01",
+  "observability": { "enabled": true },
+
+  // Local development. Secrets (AUTH_KEYS, TURNSTILE_SECRET_KEY, Google) go in .dev.vars;
+  // see .dev.vars.example. Real resource ids for staging and production are written by
+  // `node scripts/provision.mjs <env>`.
+  "vars": {
+    "ENVIRONMENT": "development",
+    // Links are signed per family (docs/security.md "Keys"). Locally there are no old links to
+    // keep: v2 from the start, and no v1 link is taken.
+    "LINK_SIGNING_MODE": "v2",
+    "LINK_LEGACY_CUTOFF": "0",
+    "APP_ORIGIN": "http://localhost:5273",
+    "MEDIA_ORIGIN": "http://localhost:8792",
+    "CAPTURE_ORIGIN": "http://localhost:8791",
+    "MAIL_ADAPTER": "dev",
+    "MAIL_FROM": "signin@swarm.localhost",
+    "AWS_REGION": "us-east-1",
+    "DNS_RESOLVER": "dev",
+    "LINK_HOSTNAMES": "dev",
+    "TRACK_ORIGIN": "http://localhost:8790",
+    "PLATFORM_MAIL_DOMAIN": "mail.swarm.localhost",
+    "UNSUBSCRIBE_MAIL_DOMAIN": "unsubscribe.swarm.localhost",
+    "DMARC_MAIL_DOMAIN": "dmarc.swarm.localhost",
+    "PLATFORM_SITE_DOMAIN": "site.localhost",
+    "SITE_SCHEME": "http",
+    "WEB_HOSTNAMES": "dev",
+    "SITE_FALLBACK_ORIGIN": "sites.site.localhost",
+    // Cloudflare's public always-pass test site key.
+    "TURNSTILE_SITE_KEY": "1x00000000000000000000AA",
+    // Membership levels: the Stripe fake locally. STRIPE_* secrets are only needed for "stripe".
+    "PAYMENTS": "dev",
+    // Copilot: the deterministic fake locally. "workers-ai" needs the AI binding (declared per
+    // environment below); ANTHROPIC_API_KEY is only needed for "anthropic". AI_GATEWAY_ID and
+    // AI_GATEWAY_ACCOUNT_ID are optional (docs/deployment.md).
+    "COPILOT_ADAPTER": "dev",
+    "COPILOT_MODEL": "claude-opus-5-5",
+    "COPILOT_WORKERS_AI_MODEL": "@cf/moonshotai/kimi-k2.6",
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "swarm",
+      "database_id": "local",
+      "migrations_dir": "../../migrations",
+    },
+  ],
+  "kv_namespaces": [{ "binding": "CACHE", "id": "local" }],
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "SEND_MONITOR",
+        "class_name": "SendMonitor",
+        "script_name": "swarm-realtime-local",
+      },
+      {
+        "name": "API_RATE_LIMITER",
+        "class_name": "ApiRateLimiter",
+        "script_name": "swarm-realtime-local",
+      },
+      { "name": "SEND_PACER", "class_name": "SendPacer", "script_name": "swarm-realtime-local" },
+    ],
+  },
+  "queues": {
+    "producers": [
+      { "binding": "SEND_QUEUE", "queue": "swarm-send" },
+      { "binding": "JOBS_QUEUE", "queue": "swarm-jobs" },
+      { "binding": "WEBHOOKS_QUEUE", "queue": "swarm-webhooks" },
+    ],
+  },
+  "r2_buckets": [
+    { "binding": "MEDIA", "bucket_name": "swarm-media" },
+    { "binding": "IMPORTS", "bucket_name": "swarm-imports" },
+    { "binding": "EXPORTS", "bucket_name": "swarm-exports" },
+    { "binding": "DEV_MAILBOX", "bucket_name": "swarm-dev-mailbox" },
+  ],
+  // Rate-limit namespace ids are account-wide, so each environment has its own: 100x locally,
+  // 101x in staging, 102x in production (pnpm check:provisioned rejects a shared id).
+  "ratelimits": [
+    {
+      "name": "QUICKPASS_LIMITER",
+      "namespace_id": "1001",
+      "simple": { "limit": 10, "period": 60 },
+    },
+    {
+      "name": "TEST_SEND_LIMITER",
+      "namespace_id": "1002",
+      "simple": { "limit": 10, "period": 60 },
+    },
+  ],
+
+  // The vault (workers/vault), through its ApiVault entrypoint and no other: sealed values,
+  // the links it signs and the provider credentials it holds. Every env block names it too.
+  "services": [{ "binding": "VAULT", "service": "swarm-vault-local", "entrypoint": "ApiVault" }],
+  "env": {
+    "staging": {
+      "name": "swarm-api-staging",
+      "workers_dev": false,
+      "preview_urls": false,
+      "vars": {
+        "ENVIRONMENT": "staging",
+        // The installer sets both: v1 until the cutover, then v2 and its time.
+        "LINK_SIGNING_MODE": "v1",
+        "APP_ORIGIN": "https://app.staging.swarm.example",
+        "MEDIA_ORIGIN": "https://media.staging.swarm.example",
+        "CAPTURE_ORIGIN": "https://forms.staging.swarm.example",
+        "MAIL_ADAPTER": "ses",
+        "MAIL_FROM": "signin@staging.swarm.example",
+        "AWS_REGION": "eu-west-1",
+        "SES_CONFIGURATION_SET": "swarm-staging-transactional",
+        "SES_DIRECT_CONFIGURATION_SET": "swarm-staging-direct",
+        "SES_EVENT_TOPIC_ARN": "arn:aws:sns:eu-west-1:000000000000:swarm-staging-ses-events",
+        "DNS_RESOLVER": "doh",
+        "LINK_HOSTNAMES": "cloudflare",
+        "TRACK_ORIGIN": "https://link.staging.swarm.example",
+        "PLATFORM_MAIL_DOMAIN": "mail.staging.swarm.example",
+        "UNSUBSCRIBE_MAIL_DOMAIN": "unsubscribe.staging.swarm.example",
+        "DMARC_MAIL_DOMAIN": "dmarc.staging.swarm.example",
+        "PLATFORM_SITE_DOMAIN": "staging.site.swarm.example",
+        "SITE_SCHEME": "https",
+        "WEB_HOSTNAMES": "cloudflare",
+        "SITE_FALLBACK_ORIGIN": "sites.staging.site.swarm.example",
+        "TURNSTILE_SITE_KEY": "unprovisioned",
+        "PAYMENTS": "stripe",
+        "COPILOT_ADAPTER": "workers-ai",
+        "COPILOT_MODEL": "claude-opus-5-5",
+        "COPILOT_WORKERS_AI_MODEL": "@cf/moonshotai/kimi-k2.6",
+      },
+      "ai": { "binding": "AI" },
+      "d1_databases": [
+        {
+          "binding": "DB",
+          "database_name": "swarm-staging",
+          "database_id": "unprovisioned",
+          "migrations_dir": "../../migrations",
+        },
+      ],
+      "kv_namespaces": [{ "binding": "CACHE", "id": "unprovisioned" }],
+      "durable_objects": {
+        "bindings": [
+          {
+            "name": "SEND_MONITOR",
+            "class_name": "SendMonitor",
+            "script_name": "swarm-realtime-staging",
+          },
+          {
+            "name": "API_RATE_LIMITER",
+            "class_name": "ApiRateLimiter",
+            "script_name": "swarm-realtime-staging",
+          },
+          {
+            "name": "SEND_PACER",
+            "class_name": "SendPacer",
+            "script_name": "swarm-realtime-staging",
+          },
+        ],
+      },
+      "queues": {
+        "producers": [
+          { "binding": "SEND_QUEUE", "queue": "swarm-staging-send" },
+          { "binding": "JOBS_QUEUE", "queue": "swarm-staging-jobs" },
+          { "binding": "WEBHOOKS_QUEUE", "queue": "swarm-staging-webhooks" },
+        ],
+      },
+      "r2_buckets": [
+        { "binding": "MEDIA", "bucket_name": "swarm-staging-media" },
+        { "binding": "IMPORTS", "bucket_name": "swarm-staging-imports" },
+        { "binding": "EXPORTS", "bucket_name": "swarm-staging-exports" },
+      ],
+      "ratelimits": [
+        {
+          "name": "QUICKPASS_LIMITER",
+          "namespace_id": "1011",
+          "simple": { "limit": 10, "period": 60 },
+        },
+        {
+          "name": "TEST_SEND_LIMITER",
+          "namespace_id": "1012",
+          "simple": { "limit": 10, "period": 60 },
+        },
+      ],
+      "assets": {
+        "directory": "../../apps/dashboard/dist",
+        "not_found_handling": "single-page-application",
+        "run_worker_first": [
+          "/api/*",
+          "/v2/*",
+          "/mcp",
+          "/healthz",
+          "/.well-known/*",
+          "/oauth/authorize",
+          "/oauth/token",
+          "/oauth/revoke",
+        ],
+      },
+      "services": [
+        {
+          "binding": "VAULT",
+          "service": "swarm-vault-staging",
+          "entrypoint": "ApiVault",
+        },
+      ],
+    },
+    "production": {
+      "name": "swarm-api",
+      "workers_dev": false,
+      "preview_urls": false,
+      "vars": {
+        "ENVIRONMENT": "production",
+        // The installer sets both: v1 until the cutover, then v2 and its time.
+        "LINK_SIGNING_MODE": "v1",
+        "APP_ORIGIN": "https://app.swarm.example",
+        "MEDIA_ORIGIN": "https://media.swarm.example",
+        "CAPTURE_ORIGIN": "https://forms.swarm.example",
+        "MAIL_ADAPTER": "ses",
+        "MAIL_FROM": "signin@swarm.example",
+        "AWS_REGION": "eu-west-1",
+        "SES_CONFIGURATION_SET": "swarm-production-transactional",
+        "SES_DIRECT_CONFIGURATION_SET": "swarm-production-direct",
+        "SES_EVENT_TOPIC_ARN": "arn:aws:sns:eu-west-1:000000000000:swarm-production-ses-events",
+        "DNS_RESOLVER": "doh",
+        "LINK_HOSTNAMES": "cloudflare",
+        "TRACK_ORIGIN": "https://link.swarm.example",
+        "PLATFORM_MAIL_DOMAIN": "mail.swarm.example",
+        "UNSUBSCRIBE_MAIL_DOMAIN": "unsubscribe.swarm.example",
+        "DMARC_MAIL_DOMAIN": "dmarc.swarm.example",
+        "PLATFORM_SITE_DOMAIN": "site.swarm.example",
+        "SITE_SCHEME": "https",
+        "WEB_HOSTNAMES": "cloudflare",
+        "SITE_FALLBACK_ORIGIN": "sites.site.swarm.example",
+        "TURNSTILE_SITE_KEY": "unprovisioned",
+        "PAYMENTS": "stripe",
+        "COPILOT_ADAPTER": "workers-ai",
+        "COPILOT_MODEL": "claude-opus-5-5",
+        "COPILOT_WORKERS_AI_MODEL": "@cf/moonshotai/kimi-k2.6",
+      },
+      "ai": { "binding": "AI" },
+      "d1_databases": [
+        {
+          "binding": "DB",
+          "database_name": "swarm-production",
+          "database_id": "unprovisioned",
+          "migrations_dir": "../../migrations",
+        },
+      ],
+      "kv_namespaces": [{ "binding": "CACHE", "id": "unprovisioned" }],
+      "durable_objects": {
+        "bindings": [
+          { "name": "SEND_MONITOR", "class_name": "SendMonitor", "script_name": "swarm-realtime" },
+          {
+            "name": "API_RATE_LIMITER",
+            "class_name": "ApiRateLimiter",
+            "script_name": "swarm-realtime",
+          },
+          { "name": "SEND_PACER", "class_name": "SendPacer", "script_name": "swarm-realtime" },
+        ],
+      },
+      "queues": {
+        "producers": [
+          { "binding": "SEND_QUEUE", "queue": "swarm-production-send" },
+          { "binding": "JOBS_QUEUE", "queue": "swarm-production-jobs" },
+          { "binding": "WEBHOOKS_QUEUE", "queue": "swarm-production-webhooks" },
+        ],
+      },
+      "r2_buckets": [
+        { "binding": "MEDIA", "bucket_name": "swarm-production-media" },
+        { "binding": "IMPORTS", "bucket_name": "swarm-production-imports" },
+        { "binding": "EXPORTS", "bucket_name": "swarm-production-exports" },
+      ],
+      "ratelimits": [
+        {
+          "name": "QUICKPASS_LIMITER",
+          "namespace_id": "1021",
+          "simple": { "limit": 10, "period": 60 },
+        },
+        {
+          "name": "TEST_SEND_LIMITER",
+          "namespace_id": "1022",
+          "simple": { "limit": 10, "period": 60 },
+        },
+      ],
+      "assets": {
+        "directory": "../../apps/dashboard/dist",
+        "not_found_handling": "single-page-application",
+        "run_worker_first": [
+          "/api/*",
+          "/v2/*",
+          "/mcp",
+          "/healthz",
+          "/.well-known/*",
+          "/oauth/authorize",
+          "/oauth/token",
+          "/oauth/revoke",
+        ],
+      },
+      "services": [
+        {
+          "binding": "VAULT",
+          "service": "swarm-vault",
+          "entrypoint": "ApiVault",
+        },
+      ],
+    },
+  },
+}

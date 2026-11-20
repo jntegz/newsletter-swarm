@@ -1,0 +1,109 @@
+{% assign s = section.settings %} {% assign pitch = s.pitch | default: site.description %}
+<section class="letter-hero letter-hero--{{ s.layout }}" aria-labelledby="{{ section.id }}-title">
+  <div class="letter-hero__head">
+    {% if s.image %}
+    <div class="letter-hero__photo">{{ s.image | image: '120px' }}</div>
+    {% elsif s.show_logo and site.logo %}
+    <div class="letter-hero__photo">{{ site.logo | image: '120px' }}</div>
+    {% endif %} {% if reader.is_subscriber %}
+    <h1 class="letter-hero__title" id="{{ section.id }}-title">Welcome back</h1>
+    {% else %}
+    <h1 class="letter-hero__title" id="{{ section.id }}-title">
+      {{ s.heading | default: site.name }}
+    </h1>
+    {% endif %}
+  </div>
+  {% if reader.is_subscriber %}
+  <div class="letter-hero__note">
+    {% assign newest = posts.first %} {% if newest %}
+    <p>
+      My newest letter is
+      <a href="{{ newest.url }}">{{ newest.title }}</a>, from
+      <time datetime="{{ newest.date | date: 'iso' }}">{{ newest.date | date: 'long' }}</time>.
+      Thank you for reading.
+    </p>
+    {% else %}
+    <p>The first letter is on its way to you. Thank you for reading.</p>
+    {% endif %}
+  </div>
+  {% if theme.sign_off %}
+  <p class="letter-hero__sign">{{ theme.sign_off }}</p>
+  {% endif %} {% else %} {% if pitch %}
+  <div class="letter-hero__note">{{ pitch | paragraphs }}</div>
+  {% endif %} {% if theme.sign_off %}
+  <p class="letter-hero__sign">{{ theme.sign_off }}</p>
+  {% endif %}
+  <div class="letter-reply" id="subscribe">
+    {% if s.promise %}
+    <p class="letter-reply__promise">{{ s.promise }}</p>
+    {% endif %} {% subscribe_form %}
+    <p class="letter-reply__note">
+      {{ s.privacy_note }} {% if s.show_count and site.subscriber_count %} You would join {{
+      site.subscriber_count | number }} readers. {% endif %}
+    </p>
+  </div>
+  {% endif %}
+</section>
+
+{% comment %}<!-- prettier-ignore -->{% endcomment %}
+{% schema %}
+{
+  "name": "Hero",
+  "description": "The first screen: the promise and the signup form.",
+  "limit": 1,
+  "settings": [
+    {
+      "id": "heading",
+      "type": "text",
+      "label": "Heading",
+      "max": 120,
+      "info": "Leave it empty to use the publication’s name."
+    },
+    {
+      "id": "pitch",
+      "type": "textarea",
+      "label": "The line under it",
+      "max": 400,
+      "info": "Leave it empty to use the description."
+    },
+    {
+      "id": "promise",
+      "type": "text",
+      "label": "What and how often",
+      "max": 120,
+      "info": "Shown next to the form. For example: Every Sunday. Free."
+    },
+    {
+      "id": "show_count",
+      "type": "checkbox",
+      "label": "Show how many people read it",
+      "default": true,
+      "info": "Shown once there are at least 100 subscribers."
+    },
+    { "id": "show_logo", "type": "checkbox", "label": "Show the logo", "default": false },
+    {
+      "id": "privacy_note",
+      "type": "text",
+      "label": "Note under the form",
+      "max": 160,
+      "default": "Unsubscribe at any time."
+    },
+    {
+      "id": "layout",
+      "type": "select",
+      "label": "Layout",
+      "options": [
+        { "value": "note", "label": "A note with your photo" },
+        { "value": "centred", "label": "Centred" }
+      ],
+      "default": "note"
+    },
+    {
+      "id": "image",
+      "type": "image",
+      "label": "Your photo",
+      "info": "A photo of you or the publication, near the form."
+    }
+  ]
+}
+{% endschema %}

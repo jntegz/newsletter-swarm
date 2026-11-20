@@ -1,0 +1,46 @@
+{% assign s = section.settings %} {% if s.items %}
+<section class="mag-quotes" aria-labelledby="{{ section.id }}-title">
+  <div class="mag-head">
+    {% if s.heading %}
+    <h2 class="mag-head__title" id="{{ section.id }}-title">{{ s.heading }}</h2>
+    {% else %}
+    <h2 class="sw-sr" id="{{ section.id }}-title">What readers say</h2>
+    {% endif %}
+  </div>
+  <div class="mag-quotes__list">
+    {% for item in s.items %}{% if item.quote %}
+    <figure class="mag-quote">
+      <blockquote class="mag-quote__text"><p>{{ item.quote }}</p></blockquote>
+      <figcaption>{% render 'person', item: item %}</figcaption>
+    </figure>
+    {% endif %}{% endfor %}
+  </div>
+</section>
+{% endif %} {% comment %}<!-- prettier-ignore -->{% endcomment %}
+{% schema %}
+{
+  "name": "Testimonials",
+  "description": "What readers say.",
+  "settings": [
+    {
+      "id": "heading",
+      "type": "text",
+      "label": "Heading",
+      "max": 120,
+      "default": "What readers say"
+    },
+    {
+      "id": "items",
+      "type": "list",
+      "label": "Quotes",
+      "max": 9,
+      "fields": [
+        { "id": "quote", "type": "textarea", "label": "Quote", "max": 400 },
+        { "id": "name", "type": "text", "label": "Name", "max": 80 },
+        { "id": "role", "type": "text", "label": "Who they are", "max": 80 },
+        { "id": "photo", "type": "image", "label": "Photo" }
+      ]
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,19 @@
+# Copy to .dev.vars for local development. Never commit .dev.vars.
+# The vault is the only worker that holds FIELD_KEYS once the callers have moved onto it; until
+# then it must match the api, capture, site and jobs workers.
+SIGNUP_KEYS=k1:development-only-signup-key-replace-before-using-this-file
+FIELD_KEYS=k1:development-only-field-key-replace-before-using-this-file
+# Member Center links it signs for api and capture, and checks when capture presents one.
+MEMBER_SIGNING_KEYS=dev0:MC4CAQAwBQYDK2VwBCIEIEXKf0Kf-9zhaQaCaKCc9YC0zYHPm9QJIFUdyr1Iims6
+MEMBER_VERIFY_KEYS=dev0:DsT8V2i1akM8f3JdsIMC5fW9QhKyaBTwfiQyHiffkcs
+# Goods links it signs for site and api.
+GOODS_SIGNING_KEYS=dev0:MC4CAQAwBQYDK2VwBCIEIH-xmZdza364osGcrxyiTk_bF_aTftH-qzlphsEgv0a1
+# Signs v1 links until the cutover, then checks them for 30 days; the installer removes it after.
+MEMBER_KEYS=k1:development-only-member-key-replace-before-using-this-file
+
+# Payments: the platform key, for Channels without their own (the same as the api's).
+# STRIPE_SECRET_KEY=sk_test_...
+# Email checks of signups for capture: a real DeBounce key (the same as the api's). The vault has
+# no fake and refuses to start with "dev"; leave it unset locally, and a single opt-in signup
+# goes ahead unchecked (the jobs worker's own "dev" fake still checks confirmed signups).
+# DEBOUNCE_API_KEY=

@@ -1,0 +1,1128 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Notes on the popup economy · Posts · Field Notes · Swarm</title>
+<style>
+@font-face{font-family:"Schibsted";src:url(../fonts/schibsted-grotesk-latin-wght-normal.woff2) format("woff2");font-weight:400 900;font-display:swap}
+@font-face{font-family:"Schibsted";src:url(../fonts/schibsted-grotesk-latin-wght-italic.woff2) format("woff2");font-weight:400 900;font-style:italic;font-display:swap}
+@font-face{font-family:"JB Mono";src:url(../fonts/jetbrains-mono-latin-wght-normal.woff2) format("woff2");font-weight:400 800;font-display:swap}
+:root{
+  --ink:#161616;--bar:#141414;--sub:#50545B;--line:#E1E2E4;--g2:#F2F3F4;--field:#868B94;
+  --ok:#1F7A4C;--warn:#8A5300;--warn-bg:#FFF4D6;--bad:#B42318;--bad-bg:#FDEEEC;
+  --pop:0 10px 30px -12px rgba(0,0,0,.25);--t:160ms cubic-bezier(.2,.7,.2,1);
+  --mono:"JB Mono",ui-monospace,Consolas,monospace;
+}
+.c-home{--c:#FFFFFF;--on:#161616;--on2:#50545B}
+.c-write{--c:#EE6A1F;--on:#17110A;--on2:#3A2410}
+.c-aud{--c:#1F7A4C;--on:#FFFFFF;--on2:#E8F5EE}
+.c-grow{--c:#1E4E8C;--on:#FFFFFF;--on2:#D9E4F4}
+.c-earn{--c:#B8174F;--on:#FFFFFF;--on2:#FBE3EB}
+.c-pub{--c:#46505E;--on:#FFFFFF;--on2:#E3E7ED}
+*{box-sizing:border-box}
+html{scrollbar-color:#B4B8BF var(--g2);-webkit-text-size-adjust:100%}
+::-webkit-scrollbar{width:12px;height:12px}
+::-webkit-scrollbar-track{background:var(--g2)}
+::-webkit-scrollbar-thumb{background:#B4B8BF;border-radius:6px;border:3px solid var(--g2)}
+body{margin:0;font:15px/1.5 "Schibsted",system-ui,sans-serif;color:var(--ink);background:#fff;caret-color:var(--ink);accent-color:var(--ink);-webkit-font-smoothing:antialiased}
+::selection{background:#FFD9BF;color:var(--ink)}
+.d,input{font-variant-numeric:tabular-nums}
+h1,h2,h3,p,ul,ol,dl,dd,figure{margin:0}
+ul,ol{padding:0;list-style:none}
+a{color:inherit;text-underline-offset:3px;text-decoration-thickness:1px}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+.i{width:16px;height:16px;flex:none;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.skip{position:absolute;left:12px;top:-60px;background:#fff;padding:8px 12px;border-radius:6px;z-index:90}
+.skip:focus{top:8px}
+.wrap{max-width:1240px;margin:0 auto;padding:0 32px}
+
+.top{background:var(--bar);color:#fff;position:relative;z-index:40}
+.top-in{height:56px;display:flex;align-items:center;gap:8px;padding:0 20px}
+.top :focus-visible{outline-color:#fff}
+.logo{display:flex;align-items:center;gap:9px;font-weight:800;font-size:17px;letter-spacing:-.01em;text-decoration:none;padding:6px 4px;border-radius:6px}
+.mark{width:20px;height:20px}
+.pop-wrap{position:relative}
+.pub-btn{display:flex;align-items:center;gap:6px;height:36px;padding:0 10px;border:0;border-radius:6px;background:transparent;color:#fff;font-weight:600;margin-left:6px;transition:background var(--t)}
+.pub-btn::before{content:"";width:1px;height:20px;background:#3A3D42;margin-right:10px}
+.pub-btn:hover{background:#262626}
+.pub-btn .i{width:14px;height:14px;color:#AEB2B9}
+.groups{display:flex;align-items:stretch;height:56px;margin-left:14px}
+.tab{position:relative;display:flex;align-items:center;gap:8px;height:56px;padding:0 13px;border:0;background:transparent;color:#D5D7DB;font-weight:550;text-decoration:none;white-space:nowrap;transition:color var(--t),background var(--t)}
+.tab:hover,.pop-wrap.hot .tab{color:#fff;background:#1F1F1F}
+.tab .i{width:12px;height:12px;color:#8E939B;margin-left:-2px}
+.sw{width:10px;height:10px;background:var(--c);outline:1px solid rgba(255,255,255,.55);outline-offset:0}
+.tab[aria-current="page"],.cur>.tab{color:#fff;font-weight:650}
+.tab[aria-current="page"]::after,.cur>.tab::after{content:"";position:absolute;left:0;right:0;bottom:0;height:4px;background:var(--c)}
+.top-r{margin-left:auto;display:flex;align-items:center;gap:8px}
+.search{display:flex;align-items:center;gap:8px;height:36px;padding:0 8px 0 12px;min-width:200px;border:1px solid #33363B;border-radius:6px;background:#1E1E1E;color:#C9CBCF;transition:border-color var(--t)}
+.search:hover{border-color:#5A5E66}
+.search span{margin-right:auto}
+kbd{font:600 12px/1 "Schibsted",sans-serif;padding:4px 6px;border-radius:4px;background:#2E3035;color:#E4E6E9}
+.icon-btn{display:grid;place-items:center;width:36px;height:36px;border:0;border-radius:6px;background:transparent;color:#D5D7DB;transition:background var(--t),color var(--t)}
+.icon-btn:hover{background:#262626;color:#fff}
+.icon-btn .i{width:18px;height:18px}
+.avatar{display:grid;place-items:center;width:32px;height:32px;border-radius:50%;background:#F2F3F4;color:#161616;font-size:13px;font-weight:700;margin-left:2px}
+.set-btn{display:flex;align-items:center;gap:7px;height:36px;padding:0 10px;border-radius:6px;color:#D5D7DB;font-weight:550;text-decoration:none;transition:background var(--t),color var(--t)}
+.set-btn:hover{background:#262626;color:#fff}
+.set-btn .i{width:18px;height:18px}
+.menu-btn{display:none}
+
+.menu{position:absolute;top:calc(100% + 6px);left:0;min-width:240px;background:#fff;color:var(--ink);border:1px solid var(--line);border-radius:6px;box-shadow:var(--pop);padding:6px;z-index:50;visibility:hidden;opacity:0;transform:translateY(-4px);transition:opacity var(--t),transform var(--t),visibility 0s var(--t)}
+.menu.open{visibility:visible;opacity:1;transform:none;transition:opacity var(--t),transform var(--t),visibility 0s}
+.menu :focus-visible{outline-color:var(--ink);outline-offset:-2px}
+.menu a,.menu button{display:flex;align-items:center;gap:10px;width:100%;padding:8px 10px;border:0;border-radius:4px;background:none;text-align:left;text-decoration:none;font-size:15px}
+.menu a:hover,.menu button:hover{background:var(--g2)}
+.menu hr{border:0;border-top:1px solid var(--line);margin:6px 0}
+.menu-h{font-size:13px;color:var(--sub);padding:6px 10px 4px}
+.menu .tick{margin-left:auto;color:var(--ok)}
+.menu small{display:block;color:var(--sub);font-size:13px}
+.dd{top:calc(100% + 4px);min-width:300px;padding:8px 6px}
+.dd a{display:block;padding:9px 10px}
+.dd b{display:flex;align-items:center;gap:8px;font-weight:650}
+.dd b::before{content:"";width:10px;height:10px;flex:none;background:var(--c)}
+.dd small{padding-left:18px}
+
+.ph{border-bottom:1px solid var(--line)}
+.ph-in{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;padding-top:26px;padding-bottom:24px}
+.crumb{display:flex;gap:8px;font-size:13px;color:var(--sub);margin-bottom:6px}
+.crumb a{text-decoration:none}
+.crumb a:hover{text-decoration:underline}
+h1{font-size:28px;line-height:1.15;font-weight:750;letter-spacing:-.015em}
+.ph-sub{color:var(--sub);margin-top:6px}
+.ph-r{display:flex;align-items:center;gap:12px;flex-wrap:wrap;justify-content:flex-end}
+.sample{font-size:13px;color:var(--sub);padding:3px 8px;border:1px dashed #A7ABB2;border-radius:4px}
+.seg{display:inline-flex;padding:3px;background:var(--g2);border-radius:6px;border:1px solid var(--line)}
+.seg button{height:30px;padding:0 12px;border:0;border-radius:4px;background:transparent;color:var(--sub);font-size:13px;font-weight:600;transition:background var(--t),color var(--t)}
+.seg button[aria-pressed="true"]{background:#fff;color:var(--ink);outline:1px solid var(--line)}
+.seg button:focus-visible{outline:2px solid var(--ink);outline-offset:1px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:38px;padding:0 14px;border:1px solid #C9CCD1;border-radius:6px;background:#fff;color:var(--ink);font-size:15px;font-weight:600;text-decoration:none;white-space:nowrap;transition:background var(--t),border-color var(--t)}
+.btn:hover{background:var(--g2);border-color:#A7ABB2}
+.btn.primary{background:var(--ink);border-color:var(--ink);color:#fff}
+.btn.primary:hover:not(:disabled){background:#2E2E2E}
+.btn .i{width:16px;height:16px}
+.np .menu{left:auto;right:0;min-width:300px}
+body{padding-bottom:64px}
+.inp{width:100%;height:42px;padding:0 12px;border:1px solid var(--field);border-radius:6px;background:#fff;font-size:15px;transition:border-color var(--t)}
+.inp:hover{border-color:#5E636B}
+.inp:focus-visible{outline:2px solid var(--ink);outline-offset:1px;border-color:var(--ink)}
+.inp::placeholder{color:#6A6E76}
+select.inp{appearance:none;padding-right:36px;background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23161616' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") no-repeat right 12px center/16px}
+input[type=radio],input[type=checkbox]{width:18px;height:18px;margin:0;flex:none}
+fieldset{border:0;margin:0;padding:0;min-width:0}
+legend{padding:0;font-weight:650;margin-bottom:6px}
+.lnk{border:0;background:none;padding:0;font-weight:600;text-decoration:underline;text-underline-offset:3px;text-decoration-thickness:1px}
+.help{font-size:13px;color:var(--sub);margin-top:6px}
+.lbl{display:flex;justify-content:space-between;align-items:baseline;gap:12px;font-size:13px;font-weight:650;margin-bottom:6px}
+.lbl .count{font-weight:500;color:var(--sub)}
+
+.band-h{background:#EE6A1F;color:#17110A}
+.band-h :focus-visible{outline-color:#17110A}
+.bh-in{padding-top:16px}
+.bh-row{display:flex;align-items:center;justify-content:space-between;gap:12px 20px;flex-wrap:wrap}
+.band-h .crumb{color:#3A2410;margin:0}
+.title-row{display:flex;align-items:center;gap:8px 12px;flex-wrap:wrap;margin-top:10px}
+.title-row h1{margin-right:4px}
+.draft{font-size:13px;font-weight:650;padding:2px 9px;border-radius:999px;background:#17110A;color:#fff}
+.saved{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:#3A2410}
+.saved .i{width:14px;height:14px}
+.band-h .sample{border-color:#8A4314;color:#3A2410}
+.pv{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.pv .seg{background:#D85F1B;border-color:#C6561A}
+.pv .seg button{display:inline-flex;align-items:center;gap:6px;color:#17110A}
+.pv .seg button:hover{background:rgba(255,255,255,.28)}
+.pv .seg button[aria-pressed="true"]{background:#fff;outline:0}
+.pv .seg button:focus-visible{outline:2px solid #17110A}
+.pv .seg .i{width:15px;height:15px}
+.va{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600}
+.va select{height:36px;padding:0 32px 0 10px;border:0;border-radius:6px;font-size:13px;font-weight:600;appearance:none;background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23161616' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") no-repeat right 10px center/14px}
+.tabs{position:relative;display:flex;gap:4px;margin-top:18px;overflow-x:auto;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.stab{display:flex;flex-direction:column;align-items:flex-start;gap:3px;min-width:160px;padding:10px 18px 12px;border:0;border-radius:6px 6px 0 0;background:transparent;color:#17110A;text-align:left;white-space:nowrap;transition:background var(--t)}
+.stab:hover{background:rgba(255,255,255,.24)}
+.stab[aria-selected="true"]{background:#fff}
+.stab:focus-visible{outline-offset:-4px}
+.stab b{font-size:15px;font-weight:700}
+.sh{display:none}
+.st{display:inline-flex;align-items:center;gap:5px;padding:0 8px;border-radius:999px;background:#fff;color:#161616;font-size:13px;font-weight:600;line-height:20px}
+.stab[aria-selected="true"] .st{outline:1px solid var(--line)}
+.st .i{width:14px;height:14px}
+.st.ok .i{color:var(--ok)}
+.st.warn .i{color:var(--warn)}
+.st.bad .i{color:var(--bad)}
+.st.plain .i{color:var(--sub)}
+
+.panel[hidden],.panel.off,.pvw[hidden]{display:none}
+.wcol{max-width:700px;margin:0 auto;padding:32px 0 40px}
+.field{margin-bottom:18px}
+.inbox{display:grid;grid-template-columns:36px minmax(0,1fr) auto;gap:0 12px;align-items:center;padding:12px 14px;background:var(--g2);border-radius:6px}
+.av{display:grid;place-items:center;width:36px;height:36px;border-radius:50%;background:#EE6A1F;color:#17110A;font-weight:750;font-size:13px}
+.inbox .av{grid-row:span 2}
+.inbox .from{font-weight:700}
+.inbox time{font-size:13px;color:var(--sub)}
+.inbox .line{grid-column:2/4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.inbox .line b{font-weight:650}
+.inbox .line span{color:var(--sub)}
+.tb{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:2px;flex-wrap:wrap;margin-top:28px;padding:6px 0;background:#fff;border-top:1px solid var(--line);border-bottom:1px solid var(--line);transition:border-color var(--t)}
+.ed-wrap:focus-within .tb{border-bottom-color:var(--ink)}
+.tb select{width:auto;height:32px;padding:0 30px 0 8px;margin-right:6px;font-size:13px;background-position:right 8px center}
+.tb button{display:grid;place-items:center;width:32px;height:32px;border:0;border-radius:6px;background:none;color:var(--ink);transition:background var(--t)}
+.tb button:hover,.tb button[aria-pressed="true"]{background:var(--g2)}
+.tb .sep{width:1px;height:20px;background:var(--line);margin:0 6px}
+.tb .i{width:18px;height:18px}
+.tb .tb-ins{display:flex;gap:6px;width:auto;padding:0 10px 0 8px;border:1px solid var(--line);font-size:13px;font-weight:650}
+.tb .tb-ins .i{width:16px;height:16px}
+.linkbox{display:flex;gap:6px;align-items:center;margin-left:auto}
+.linkbox[hidden]{display:none}
+.linkbox .inp{height:32px;width:220px;font-size:13px}
+.linkbox .btn{height:32px;font-size:13px;padding:0 10px}
+.ed-wrap{position:relative}
+.prose{font-size:17px;line-height:1.65;overflow-wrap:break-word}
+.prose>*{margin:0 0 1em}
+.prose h2{font-size:22px;line-height:1.25;font-weight:750;letter-spacing:-.01em;margin:1.5em 0 .45em}
+.prose h3{font-size:18px;font-weight:700;margin:1.3em 0 .4em}
+.prose ul,.prose ol{padding-left:1.4em}
+.prose ul{list-style:disc}.prose ol{list-style:decimal}
+.prose li{margin:.25em 0}
+.prose li::marker{color:#C25416}
+.prose blockquote{margin:1.6em 0;padding:16px 0;border-top:1px solid var(--ink);border-bottom:1px solid var(--line);font-size:21px;line-height:1.4;font-weight:650;letter-spacing:-.005em}
+.prose hr{border:0;border-top:1px solid #C9CCD1;margin:2em 0}
+.prose a{text-decoration-color:#EE6A1F;text-decoration-thickness:2px}
+.blk-btn{display:flex;justify-content:center;margin:1.6em 0}
+.blk-btn span{display:inline-block;padding:11px 20px;border-radius:6px;background:var(--ink);color:#fff;font-size:15px;font-weight:650}
+.paywall{display:flex;align-items:center;gap:14px;margin:2.2em 0;color:#B8174F;font-size:13px;line-height:1.45}
+.paywall::before,.paywall::after{content:"";flex:1 1 40px;border-top:2px dashed #B8174F}
+.paywall p{flex:0 1 auto;max-width:44ch;text-align:center;margin:0}
+.paywall b{display:inline-flex;align-items:center;gap:6px;font-size:15px}
+.ph-blk{display:flex;align-items:center;gap:12px;margin:1.4em 0;padding:16px;border:1px dashed var(--field);border-radius:6px;color:var(--sub);font-size:15px}
+.ph-blk b{color:var(--ink);font-weight:650;display:block}
+.ph-blk .i{width:22px;height:22px}
+.upg{margin:2em 0;padding:20px;background:#FBE3EB;color:#5C0A27;border-radius:6px;text-align:center}
+.upg b{display:block;font-size:17px;color:#161616}
+.upg span{display:inline-block;margin-top:12px;padding:9px 16px;border-radius:6px;background:#B8174F;color:#fff;font-weight:650}
+.ed{min-height:420px;padding:24px 0 32px}
+.ed:focus-visible{outline:0}
+.ins{position:absolute;left:-46px;top:0;display:grid;place-items:center;width:30px;height:30px;border-radius:50%;border:1px solid var(--field);background:#fff;color:var(--ink);transition:background var(--t)}
+.ins:hover,.ins[aria-expanded="true"]{background:var(--g2)}
+.ins-menu{left:-46px;top:0;min-width:230px}
+.ins-menu .i{color:var(--sub)}
+.nextbar{background:var(--g2);border-top:1px solid var(--line)}
+.nextbar .wrap{display:flex;align-items:center;justify-content:space-between;gap:16px;padding-top:14px;padding-bottom:14px}
+.nextbar p b{font-weight:700}
+.nextbar p span{color:var(--sub)}
+
+.ph2{font-size:22px;font-weight:750;letter-spacing:-.01em}
+.lead{color:var(--sub);margin-top:4px}
+.aud{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:56px;padding-top:32px;padding-bottom:40px}
+.choices{margin-top:20px}
+.choice{display:grid;grid-template-columns:18px minmax(0,1fr) auto;align-items:center;gap:16px;padding:18px 20px;border:1px solid #C9CCD1;border-radius:6px;cursor:pointer;transition:border-color var(--t),background var(--t)}
+.choice+.choice{margin-top:10px}
+.choice:hover{border-color:var(--field)}
+.choice:has(input:checked){border-color:var(--ink);background:var(--g2)}
+.choice:has(input:focus-visible){outline:2px solid var(--ink);outline-offset:2px}
+.choice input:focus-visible{outline:0}
+.choice b{display:block;font-size:17px;font-weight:650}
+.choice small{font-size:13px;color:var(--sub)}
+.cnt{font-weight:650}
+.segs{margin-top:24px}
+.segs legend{margin-bottom:4px}
+.segs .help{margin:0 0 8px}
+.ck{display:flex;align-items:center;gap:12px;padding:10px 0;border-top:1px solid var(--line);cursor:pointer}
+.ck:last-of-type{border-bottom:1px solid var(--line)}
+.ck .cnt{margin-left:auto}
+.segs:disabled .ck{color:#6A6E76;cursor:not-allowed}
+.indent{margin-left:34px}
+.aud-side{align-self:start;position:sticky;top:20px;padding-top:4px}
+.aud-side .big{font-size:30px;line-height:1.15;font-weight:700;letter-spacing:-.01em;margin-top:2px}
+.aud-side .btn{margin-top:18px}
+.aud-side hr{border:0;border-top:1px solid var(--line);margin:18px 0}
+.aud-side dl{font-size:13px;display:grid;gap:4px}
+.aud-side dl div{display:flex;justify-content:space-between;gap:12px}
+.aud-side dt{color:var(--sub)}
+
+.set{padding-top:12px;padding-bottom:40px}
+.set>*{max-width:920px}
+.srow{display:grid;grid-template-columns:220px minmax(0,1fr);gap:24px;padding:24px 0;border-bottom:1px solid var(--line)}
+.srow h2,.more-h{font-size:17px;font-weight:700}
+.srow .sl p{font-size:13px;color:var(--sub);margin-top:2px}
+.sc{max-width:520px}
+.sc>.lnk,.sc>a{display:inline-block;margin-top:8px;font-size:13px;font-weight:600}
+.radios{display:flex;gap:10px 24px;flex-wrap:wrap}
+.radios label{display:flex;align-items:center;gap:8px;cursor:pointer}
+.sched{margin-top:14px;display:grid;gap:4px}
+.sched[hidden]{display:none}
+.more-h{margin-top:36px;padding-bottom:8px}
+.opt{border-top:1px solid var(--line)}
+.opt:last-child{border-bottom:1px solid var(--line)}
+.opt summary{display:grid;grid-template-columns:220px minmax(0,1fr) auto;gap:24px;align-items:center;padding:16px 0;cursor:pointer;list-style:none}
+.opt summary::-webkit-details-marker{display:none}
+.opt summary b{font-weight:650}
+.opt summary span{color:var(--sub)}
+.opt summary .i{transition:transform var(--t)}
+.opt[open] summary .i{transform:rotate(180deg)}
+.opt summary:focus-visible{outline-offset:-2px}
+.opt-b{padding:0 0 20px 244px;display:grid;gap:12px;max-width:764px}
+.tog{display:flex;align-items:center;gap:10px;cursor:pointer}
+.url{display:flex;align-items:center;border:1px solid var(--field);border-radius:6px;overflow:hidden}
+.url span{padding:0 4px 0 12px;color:var(--sub);white-space:nowrap}
+.url input{flex:1;min-width:0;height:40px;border:0;padding:0 12px 0 0;outline:0}
+.url:focus-within{outline:2px solid var(--ink);outline-offset:1px}
+.revs li{display:flex;align-items:center;gap:12px;padding:9px 0;border-top:1px solid var(--line)}
+.revs li:last-child{border-bottom:1px solid var(--line)}
+.revs .lnk{margin-left:auto;font-size:13px}
+.revs small{color:var(--sub);font-size:13px}
+
+.rev{padding-top:32px;padding-bottom:40px}
+.rev h3{font-size:17px;font-weight:700;margin:36px 0 10px}
+.sum{width:100%;border-collapse:collapse;margin-top:18px}
+.sum th,.sum td{padding:12px 16px 12px 0;text-align:left;vertical-align:top;border-top:1px solid var(--line)}
+.sum tr:last-child>*{border-bottom:1px solid var(--line)}
+.sum th{width:180px;font-weight:600;color:var(--sub)}
+.sum td:last-child{text-align:right;padding-right:0;width:90px}
+.sum .lnk{font-size:13px}
+.mut{color:var(--sub)}
+.wtxt{color:var(--warn);font-weight:600}
+.btxt{color:var(--bad);font-weight:600}
+.chk li{display:flex;align-items:flex-start;gap:12px;padding:11px 0;border-top:1px solid var(--line)}
+.chk li:last-child{border-bottom:1px solid var(--line)}
+.chk .i{width:20px;height:20px;margin-top:1px}
+.chk li>span{flex:1 1 0;min-width:0}
+.chk .bad .i{color:var(--bad)}
+.chk .warn .i{color:var(--warn)}
+.chk .ok .i{color:var(--ok)}
+.chk .kind{display:block;font-size:13px;color:var(--sub)}
+.chk .bad .kind{color:var(--bad)}
+.chk .warn .kind{color:var(--warn)}
+.chk .btn{margin-left:auto;height:34px;font-size:13px}
+.test{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.test .inp{max-width:320px}
+.test .msg{font-size:13px;color:var(--ok);font-weight:600}
+.sendzone{margin-top:40px;padding-top:24px;border-top:2px solid var(--ink)}
+.send-row{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.btn.big{height:52px;padding:0 24px;font-size:17px}
+.btn:disabled,.btn:disabled:hover{background:#E1E2E4;border-color:#E1E2E4;color:#4A4E55;cursor:not-allowed}
+.reason{display:flex;align-items:center;gap:8px;color:var(--bad);font-weight:600}
+.reason[hidden]{display:none}
+.confirm{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:16px 18px;background:var(--g2);border-radius:6px}
+.confirm[hidden],.done-msg[hidden]{display:none}
+.confirm p{flex:1 1 280px;font-weight:650}
+.done-msg{display:flex;align-items:center;gap:10px;padding:16px 18px;background:#E6F2EB;color:#165C39;border-radius:6px;font-weight:650}
+.done-msg .i{width:20px;height:20px}
+
+.pvw-bar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-top:16px;padding-bottom:16px;font-size:13px;color:var(--sub)}
+.stage{background:var(--g2);border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:40px 16px 56px}
+.frame{margin:0 auto;max-width:640px;background:#fff;border:1px solid var(--line)}
+.stage.mobile .frame{max-width:375px;border-radius:24px;border:8px solid #2B2B2B;padding-top:8px}
+.stage.web .frame{max-width:960px}
+.stage.web .m-only,.stage:not(.web) .w-only{display:none}
+.mail-h{display:flex;gap:12px;align-items:center;padding:16px 24px;border-bottom:1px solid var(--line);font-size:13px}
+.mail-h b{font-size:15px}
+.mail-h small{display:block;color:var(--sub);font-size:13px}
+.art{padding:28px 32px 12px}
+.stage.mobile .art{padding:20px 18px 8px}
+.stage.mobile .mail-h{padding:12px 16px}
+.art h1{font-size:28px;margin-bottom:16px}
+.stage.web .art{max-width:700px;margin:0 auto;padding:48px 24px 24px}
+.stage.web .art h1{font-size:36px;letter-spacing:-.02em;margin-bottom:8px}
+.byline{color:var(--sub);font-size:13px;margin-bottom:24px}
+.mail-f,.site-f{padding:20px 32px 28px;border-top:1px solid var(--line);font-size:13px;color:var(--sub);text-align:center}
+.site-h{display:flex;align-items:center;justify-content:space-between;padding:14px 24px;border-bottom:1px solid var(--line)}
+.site-h b{font-size:17px;font-weight:800}
+.site-h nav{display:flex;gap:16px;align-items:center;font-size:13px}
+.site-h .btn{height:32px;font-size:13px}
+.switch{position:fixed;right:14px;bottom:14px;z-index:30;display:flex;align-items:center;gap:2px;padding:4px 4px 4px 12px;background:#fff;border:1px solid var(--line);border-radius:999px;font-size:13px;box-shadow:var(--pop)}
+.switch span{font-weight:650;margin-right:6px}
+.switch a{padding:3px 9px;border-radius:999px;text-decoration:none;color:var(--sub)}
+.switch a:hover{background:var(--g2);color:var(--ink)}
+.switch a[aria-current]{background:var(--ink);color:#fff}
+
+.cmd{position:fixed;inset:0;z-index:80;background:rgba(20,20,20,.42);display:flex;justify-content:center;align-items:flex-start;padding:12vh 16px 16px;visibility:hidden;opacity:0;transition:opacity var(--t),visibility 0s var(--t)}
+.cmd.open{visibility:visible;opacity:1;transition:opacity var(--t),visibility 0s}
+.cmd-box{width:min(580px,100%);background:#fff;border-radius:8px;box-shadow:var(--pop);overflow:hidden}
+.cmd-in{display:flex;align-items:center;gap:10px;padding:0 16px;border-bottom:1px solid var(--line)}
+.cmd-in .i{width:18px;height:18px;color:var(--sub)}
+.cmd-in input{flex:1;height:52px;border:0;outline:0;font-size:17px;background:none}
+.cmd-in kbd{background:var(--g2);color:var(--sub)}
+.cmd-list{max-height:min(420px,60vh);overflow-y:auto;padding:6px}
+.cmd-g p{font-size:13px;color:var(--sub);padding:10px 10px 4px}
+.cmd-list a{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:4px;text-decoration:none}
+.cmd-list a .i{color:var(--sub)}
+.cmd-list a.act,.cmd-list a:hover{background:var(--g2)}
+.cmd-list a:focus-visible{outline-offset:-2px}
+.cmd-empty{padding:18px 10px;color:var(--sub)}
+.sheet{position:fixed;inset:0;z-index:70;background:#fff;display:flex;flex-direction:column;visibility:hidden;opacity:0;transform:translateY(-8px);transition:opacity var(--t),transform var(--t),visibility 0s var(--t)}
+.sheet.open{visibility:visible;opacity:1;transform:none;transition:opacity var(--t),transform var(--t),visibility 0s}
+.sheet-h{display:flex;align-items:center;justify-content:space-between;height:56px;padding:0 12px 0 20px;background:var(--bar);color:#fff}
+.sheet-h :focus-visible{outline-color:#fff}
+.sheet-b{overflow-y:auto;padding:8px 20px 32px}
+.sheet .btn{width:100%;justify-content:flex-start;margin:12px 0 4px}
+.sg{padding:12px 0;border-bottom:1px solid var(--line)}
+.sg>a,.sg>p{display:flex;align-items:center;gap:10px;font-weight:700;font-size:17px;text-decoration:none}
+.sg .sw{width:12px;height:12px;outline:0}
+.c-home .sw{outline:1px solid #A7ABB2}
+.sg ul{display:flex;flex-wrap:wrap;gap:4px 18px;margin:6px 0 0 22px}
+.sg ul a{display:inline-block;padding:4px 0;color:var(--sub);font-weight:550}
+.who{display:flex;align-items:center;gap:10px;padding-top:16px;font-size:13px;color:var(--sub)}
+.who b{display:block;color:var(--ink);font-size:15px}
+@media (max-width:1180px){.search{min-width:0}.search span,.search kbd{display:none}.tab{padding:0 10px}}
+@media (max-width:980px){
+  .groups,.search,.top-r>.icon-btn:not(.menu-btn),.set-btn,.avatar{display:none}
+  .menu-btn{display:grid}
+  .aud{grid-template-columns:1fr;gap:28px}
+  .aud-side{position:static;border-top:1px solid var(--line);padding-top:20px}
+}
+@media (max-width:760px){
+  body{padding-bottom:0}
+  .wrap{padding-left:16px;padding-right:16px}
+  .top-in{padding:0 8px 0 14px}
+  .pv{width:100%}
+  .pv .seg .tx{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+  .pv .seg button{padding:0 11px}
+  .title-row h1{font-size:24px;width:100%}
+  .tabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:2px;overflow:visible}
+  .stab{min-width:0;align-items:center;padding:9px 4px 10px;text-align:center}
+  .stab b{font-size:13px}
+  .lg,.st-t{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+  .sh{display:inline}
+  .st{padding:3px;gap:0}
+  .wcol{padding:24px 16px 32px}
+  .ed{padding-left:34px}
+  .ins{left:0}
+  .ins-menu{left:0}
+  .linkbox{margin-left:0;width:100%}
+  .linkbox .inp{flex:1;width:auto}
+  .nextbar .wrap{flex-direction:column;align-items:stretch}
+  .srow{grid-template-columns:1fr;gap:12px}
+  .opt summary{grid-template-columns:minmax(0,1fr) auto;gap:4px 12px}
+  .opt summary span{grid-row:2}
+  .opt-b{padding-left:0}
+  .sum tr{display:grid;grid-template-columns:minmax(0,1fr) auto;border-top:1px solid var(--line)}
+  .sum th,.sum td{border:0!important;padding:4px 0}
+  .sum th{grid-column:1/-1;width:auto;padding-top:12px;font-size:13px}
+  .sum td:last-child{width:auto;padding-left:12px}
+  .sum tr:last-child{border-bottom:1px solid var(--line)}
+  .chk li{flex-wrap:wrap}
+  .chk .btn{margin-left:32px;flex-basis:auto}
+  .chk li>span{flex-basis:calc(100% - 32px)}
+  .btn.big{width:100%}
+  .art{padding:20px 18px 8px}
+  .stage{padding:20px 12px 32px}
+  .site-h nav a:not(.btn){display:none}
+  .switch{position:static;margin:16px;justify-content:center;flex-wrap:wrap;box-shadow:none}
+}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important}}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-stack" viewBox="0 0 24 24"><path d="M12 3l9 5-9 5-9-5z"/><path d="M3 12.5l9 5 9-5M3 17l9 5 9-5"/></symbol>
+  <symbol id="i-chev" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></symbol>
+  <symbol id="i-chev-r" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
+  <symbol id="i-check-c" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.7 2.7L16 9.8"/></symbol>
+  <symbol id="i-copy" viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="i-settings" viewBox="0 0 24 24"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></symbol>
+  <symbol id="i-alert" viewBox="0 0 24 24"><path d="M10.3 4.2L2.8 17.5A2 2 0 0 0 4.5 20.5h15a2 2 0 0 0 1.7-3L13.7 4.2a2 2 0 0 0-3.4 0z"/><path d="M12 9.5v4M12 17h.01"/></symbol>
+  <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
+  <symbol id="i-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+  <symbol id="i-up" viewBox="0 0 24 24"><path d="M12 19V5M6 11l6-6 6 6"/></symbol>
+  <symbol id="i-mail" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3.5 7l8.5 6 8.5-6"/></symbol>
+  <symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.4 2.5 3.6 5.5 3.6 9s-1.2 6.5-3.6 9c-2.4-2.5-3.6-5.5-3.6-9S9.6 5.5 12 3z"/></symbol>
+  <symbol id="i-doc" viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></symbol>
+  <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-6.5 8-6.5s8 2.5 8 6.5"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+  <symbol id="i-pencil" viewBox="0 0 24 24"><path d="M4 20h4L19 9a2.8 2.8 0 0 0-4-4L4 16z"/><path d="M13.5 6.5l4 4"/></symbol>
+  <symbol id="i-desktop" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></symbol>
+  <symbol id="i-phone" viewBox="0 0 24 24"><rect x="7" y="3" width="10" height="18" rx="2"/><path d="M11 18h2"/></symbol>
+  <symbol id="i-bold" viewBox="0 0 24 24"><path d="M7 5h6a3.5 3.5 0 0 1 0 7H7zM7 12h7a3.5 3.5 0 0 1 0 7H7z"/></symbol>
+  <symbol id="i-italic" viewBox="0 0 24 24"><path d="M10 5h8M6 19h8M14 5l-4 14"/></symbol>
+  <symbol id="i-link" viewBox="0 0 24 24"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></symbol>
+  <symbol id="i-list" viewBox="0 0 24 24"><path d="M9 6h11M9 12h11M9 18h11M4.5 6h.01M4.5 12h.01M4.5 18h.01"/></symbol>
+  <symbol id="i-olist" viewBox="0 0 24 24"><path d="M10 6h10M10 12h10M10 18h10M4 4.5l1.5-.5v5M4 15a1.5 1.5 0 0 1 3 .2c0 1.3-3 2.3-3 3.8h3"/></symbol>
+  <symbol id="i-quote" viewBox="0 0 24 24"><path d="M6 17c2.5-1 4-3 4-6V7H6v4h4M14 17c2.5-1 4-3 4-6V7h-4v4h4"/></symbol>
+  <symbol id="i-divider" viewBox="0 0 24 24"><path d="M4 12h16M8 6h8M8 18h8" /></symbol>
+  <symbol id="i-undo" viewBox="0 0 24 24"><path d="M9 14L4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></symbol>
+  <symbol id="i-redo" viewBox="0 0 24 24"><path d="M15 14l5-5-5-5"/><path d="M20 9H9.5a5.5 5.5 0 0 0 0 11H13"/></symbol>
+  <symbol id="i-heading" viewBox="0 0 24 24"><path d="M6 5v14M18 5v14M6 12h12"/></symbol>
+  <symbol id="i-image" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="10" r="1.5"/><path d="M21 16l-5-5-9 8"/></symbol>
+  <symbol id="i-button" viewBox="0 0 24 24"><rect x="3" y="8" width="18" height="8" rx="3"/><path d="M8 12h8"/></symbol>
+  <symbol id="i-card" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 11h18M7 15h6"/></symbol>
+  <symbol id="i-file" viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/></symbol>
+  <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></symbol>
+  <symbol id="i-dot" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/></symbol>
+  <symbol id="i-x-c" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9 9l6 6M15 9l-6 6"/></symbol>
+  <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+</svg>
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="top">
+  <div class="top-in">
+    <a class="logo" href="home.html" aria-label="Swarm, home">
+      <svg class="mark" viewBox="0 0 20 20" aria-hidden="true"><rect x="1" y="1" width="12" height="3.5" fill="#EE6A1F"/><rect x="1" y="6" width="18" height="3.5" fill="#fff"/><rect x="1" y="11" width="9" height="3.5" fill="#fff"/><rect x="1" y="16" width="15" height="3.5" fill="#fff"/></svg>
+      <span>Swarm</span>
+    </a>
+    <div class="pop-wrap">
+      <button class="pub-btn" aria-haspopup="true" aria-expanded="false" aria-controls="pub-menu" data-pop>Field Notes<svg class="i"><use href="#i-chev"/></svg></button>
+      <div class="menu" id="pub-menu">
+        <p class="menu-h">Publications</p>
+        <a href="home.html" aria-current="true"><span>Field Notes<small>fieldnotes.example</small></span><svg class="i tick"><use href="#i-check"/></svg></a>
+        <a href="#"><span>Morning Ledger<small>morningledger.example</small></span></a>
+        <hr>
+        <a href="#"><svg class="i"><use href="#i-plus"/></svg>New publication</a>
+        <a href="#"><svg class="i"><use href="#i-stack"/></svg>Manage publications</a>
+      </div>
+    </div>
+    <nav class="groups" aria-label="Main">
+      <a class="tab c-home" href="home.html"><span class="sw"></span>Home</a>
+      <div class="pop-wrap c-write cur" data-hover>
+        <button class="tab" aria-haspopup="true" aria-expanded="false" aria-controls="dd-write" data-pop><span class="sw"></span>Write<span class="sr">, current section</span><svg class="i"><use href="#i-chev"/></svg></button>
+        <div class="menu dd" id="dd-write">
+          <a href="editor.html" aria-current="page"><b>Posts</b><small>Drafts, scheduled and sent issues</small></a>
+          <a href="#"><b>Templates</b><small>Reusable layouts for regular issues</small></a>
+        </div>
+      </div>
+      <div class="pop-wrap c-aud" data-hover>
+        <button class="tab" aria-haspopup="true" aria-expanded="false" aria-controls="dd-aud" data-pop><span class="sw"></span>Audience<svg class="i"><use href="#i-chev"/></svg></button>
+        <div class="menu dd" id="dd-aud">
+          <a href="#"><b>Subscribers</b><small>Everyone on your list, with history</small></a>
+          <a href="#"><b>Segments</b><small>Saved groups to send to or leave out</small></a>
+          <a href="#"><b>Signup forms</b><small>Embeds and pages that collect emails</small></a>
+        </div>
+      </div>
+      <div class="pop-wrap c-grow" data-hover>
+        <button class="tab" aria-haspopup="true" aria-expanded="false" aria-controls="dd-grow" data-pop><span class="sw"></span>Grow<svg class="i"><use href="#i-chev"/></svg></button>
+        <div class="menu dd" id="dd-grow">
+          <a href="#"><b>Automations</b><small>Welcome and re-engagement sequences</small></a>
+          <a href="#"><b>Referrals &amp; growth</b><small>Reader referrals and recommendations</small></a>
+        </div>
+      </div>
+      <div class="pop-wrap c-earn" data-hover>
+        <button class="tab" aria-haspopup="true" aria-expanded="false" aria-controls="dd-earn" data-pop><span class="sw"></span>Earn<svg class="i"><use href="#i-chev"/></svg></button>
+        <div class="menu dd" id="dd-earn">
+          <a href="#"><b>Paid subscriptions</b><small>Plans, prices and payouts through Stripe</small></a>
+        </div>
+      </div>
+      <div class="pop-wrap c-pub" data-hover>
+        <button class="tab" aria-haspopup="true" aria-expanded="false" aria-controls="dd-pub" data-pop><span class="sw"></span>Publish<svg class="i"><use href="#i-chev"/></svg></button>
+        <div class="menu dd" id="dd-pub">
+          <a href="#"><b>Website</b><small>Your public archive at fieldnotes.example</small></a>
+          <a href="#"><b>Sending &amp; delivery</b><small>Domain, authentication and inbox placement</small></a>
+        </div>
+      </div>
+    </nav>
+    <div class="top-r">
+      <button class="search" data-cmd><svg class="i"><use href="#i-search"/></svg><span>Search</span><kbd>Ctrl K</kbd></button>
+      <a class="set-btn" href="#"><svg class="i" aria-hidden="true"><use href="#i-settings"/></svg>Settings</a>
+      <span class="avatar" role="img" aria-label="Mara Lind, Owner" title="Mara Lind, Owner">ML</span>
+      <button class="icon-btn menu-btn" aria-label="Open navigation" aria-expanded="false" aria-controls="sheet" data-sheet><svg class="i"><use href="#i-menu"/></svg></button>
+    </div>
+  </div>
+</header>
+
+<header class="band-h">
+  <div class="wrap bh-in">
+    <div class="bh-row">
+      <nav class="crumb" aria-label="Breadcrumb"><a href="home.html">Field Notes</a><span aria-hidden="true">/</span><a href="editor.html">Posts</a><span aria-hidden="true">/</span><span aria-current="page">Notes on the popup economy</span></nav>
+      <div class="pv">
+        <div class="seg" id="pv-seg" role="group" aria-label="Preview">
+          <button type="button" data-mode="edit" aria-pressed="true" title="Edit"><svg class="i"><use href="#i-pencil"/></svg><span class="tx">Edit</span></button>
+          <button type="button" data-mode="desktop" aria-pressed="false" title="Email, desktop"><svg class="i"><use href="#i-desktop"/></svg><span class="tx">Email desktop</span></button>
+          <button type="button" data-mode="mobile" aria-pressed="false" title="Email, mobile"><svg class="i"><use href="#i-phone"/></svg><span class="tx">Email mobile</span></button>
+          <button type="button" data-mode="web" aria-pressed="false" title="Web"><svg class="i"><use href="#i-globe"/></svg><span class="tx">Web</span></button>
+        </div>
+        <label class="va">View as
+          <select id="viewas"><option value="free">Free subscriber</option><option value="paid">Paid subscriber</option></select>
+        </label>
+      </div>
+    </div>
+    <div class="title-row">
+      <h1>Notes on the popup economy</h1>
+      <span class="draft" id="draft-pill">Draft</span>
+      <span class="saved" aria-live="polite"><svg class="i" aria-hidden="true"><use href="#i-check"/></svg><span id="saved">Saved 12:04</span></span>
+      <span class="sample">Sample data</span>
+    </div>
+    <div class="tabs" role="tablist" aria-label="Send steps">
+      <button class="stab" role="tab" id="t-write" data-tab="write" aria-controls="p-write" aria-selected="true"><b>Write</b><span class="st" id="st-write"></span></button>
+      <button class="stab" role="tab" id="t-aud" data-tab="aud" aria-controls="p-aud" aria-selected="false" tabindex="-1"><b>Audience</b><span class="st" id="st-aud"></span></button>
+      <button class="stab" role="tab" id="t-set" data-tab="set" aria-controls="p-set" aria-selected="false" tabindex="-1"><b>Settings</b><span class="st" id="st-set"></span></button>
+      <button class="stab" role="tab" id="t-rev" data-tab="rev" aria-controls="p-rev" aria-selected="false" tabindex="-1"><b><span class="lg">Review &amp; send</span><span class="sh" aria-hidden="true">Review</span></b><span class="st" id="st-rev"></span></button>
+    </div>
+  </div>
+</header>
+
+<main id="main">
+  <section class="panel" id="p-write" role="tabpanel" aria-labelledby="t-write">
+    <div class="wcol">
+      <div class="field">
+        <label class="lbl" for="subject">Subject <span class="count" id="subj-count">26/200</span></label>
+        <input class="inp" id="subject" maxlength="200" value="Notes on the popup economy" autocomplete="off">
+      </div>
+      <div class="field">
+        <label class="lbl" for="preheader">Preview text</label>
+        <input class="inp" id="preheader" maxlength="150" placeholder="Shown after the subject in most inboxes" autocomplete="off">
+        <p class="help">Keep it under 90 characters. If you leave it empty, inboxes show the first line of the post.</p>
+      </div>
+      <div class="field">
+        <p class="lbl">Inbox preview</p>
+        <div class="inbox" aria-live="polite">
+          <span class="av" aria-hidden="true">FN</span>
+          <span class="from">Field Notes</span>
+          <time>12:04</time>
+          <p class="line"><b id="ib-subj">Notes on the popup economy</b> <span id="ib-pre"></span></p>
+        </div>
+        <p class="help" id="ib-note">No preview text yet, so this shows the post's first line.</p>
+      </div>
+
+      <div class="ed-wrap">
+        <div class="tb" role="toolbar" aria-label="Formatting">
+          <label class="sr" for="blockfmt">Text style</label>
+          <select class="inp" id="blockfmt"><option value="p">Paragraph</option><option value="h2">Heading</option><option value="h3">Subheading</option></select>
+          <button type="button" class="tb-ins" id="tb-ins" aria-haspopup="true" aria-expanded="false" aria-controls="ins-menu" title="Insert a block"><svg class="i" aria-hidden="true"><use href="#i-plus"/></svg>Insert</button>
+          <span class="sep" aria-hidden="true"></span>
+          <button type="button" data-x="bold" aria-label="Bold" title="Bold (Ctrl B)"><svg class="i"><use href="#i-bold"/></svg></button>
+          <button type="button" data-x="italic" aria-label="Italic" title="Italic (Ctrl I)"><svg class="i"><use href="#i-italic"/></svg></button>
+          <button type="button" data-x="link" aria-label="Link" title="Link"><svg class="i"><use href="#i-link"/></svg></button>
+          <span class="sep" aria-hidden="true"></span>
+          <button type="button" data-x="insertUnorderedList" aria-label="Bulleted list" title="Bulleted list"><svg class="i"><use href="#i-list"/></svg></button>
+          <button type="button" data-x="insertOrderedList" aria-label="Numbered list" title="Numbered list"><svg class="i"><use href="#i-olist"/></svg></button>
+          <button type="button" data-x="quote" aria-label="Quote" title="Quote"><svg class="i"><use href="#i-quote"/></svg></button>
+          <button type="button" data-x="insertHorizontalRule" aria-label="Divider" title="Divider"><svg class="i"><use href="#i-divider"/></svg></button>
+          <span class="sep" aria-hidden="true"></span>
+          <button type="button" data-x="undo" aria-label="Undo" title="Undo (Ctrl Z)"><svg class="i"><use href="#i-undo"/></svg></button>
+          <button type="button" data-x="redo" aria-label="Redo" title="Redo (Ctrl Y)"><svg class="i"><use href="#i-redo"/></svg></button>
+          <span class="linkbox" id="linkbox" hidden>
+            <label class="sr" for="link-url">Link address</label>
+            <input class="inp" id="link-url" type="url" placeholder="Paste a link, then press Enter">
+            <button type="button" class="btn" id="link-ok" style="width:auto">Add link</button>
+          </span>
+        </div>
+        <button type="button" class="ins" id="ins" aria-label="Insert block" title="Insert block (or type / on an empty line)" aria-haspopup="true" aria-expanded="false" aria-controls="ins-menu"><svg class="i"><use href="#i-plus"/></svg></button>
+        <div class="menu ins-menu" id="ins-menu" role="menu" aria-label="Insert block">
+          <p class="menu-h">Insert</p>
+          <button type="button" role="menuitem" data-ins="heading"><svg class="i"><use href="#i-heading"/></svg>Heading</button>
+          <button type="button" role="menuitem" data-ins="image"><svg class="i"><use href="#i-image"/></svg>Image</button>
+          <button type="button" role="menuitem" data-ins="button"><svg class="i"><use href="#i-button"/></svg>Button</button>
+          <button type="button" role="menuitem" data-ins="quote"><svg class="i"><use href="#i-quote"/></svg>Quote</button>
+          <button type="button" role="menuitem" data-ins="divider"><svg class="i"><use href="#i-divider"/></svg>Divider</button>
+          <button type="button" role="menuitem" data-ins="card"><svg class="i"><use href="#i-card"/></svg>Link card</button>
+          <button type="button" role="menuitem" data-ins="file"><svg class="i"><use href="#i-file"/></svg>File</button>
+          <button type="button" role="menuitem" data-ins="paywall"><svg class="i"><use href="#i-lock"/></svg>Paywall break</button>
+        </div>
+        <div class="ed prose" id="body" contenteditable="true" role="textbox" aria-multiline="true" aria-label="Post body" spellcheck="true">
+          <p>On many small sites a reader now meets three popups before reading one sentence. The first asks about cookies, the second offers ten percent off, and the third slides up from the corner wanting an email address for a newsletter the reader has not yet had a reason to want. By the time the page is clear, the thing they came for has gone a little cold.</p>
+          <h2>What a popup costs</h2>
+          <p>Every interruption spends something the writer never sees on a dashboard. A signup rate is easy to count; the reader who closed the tab is not. A form that appears at second three asks for trust the page has not earned yet, and most people answer the only way they can, by leaving.</p>
+          <p>The pattern shows up when publishers change it. One <a href="#">comparison of independent newsletters</a> found that moving the prompt from a timed overlay to the end of the post lowered raw signups slightly but raised the share of new subscribers who opened their first three issues. Fewer people joined, and more of them stayed.</p>
+          <blockquote>Ask once, at the end, when the reader has had something worth staying for.</blockquote>
+          <div class="blk-btn" contenteditable="false"><span>Read the full notes on the website</span></div>
+          <div class="paywall" contenteditable="false"><p><b><svg class="i" aria-hidden="true"><use href="#i-lock"/></svg>Paywall break</b><br>Paid subscribers read on below this line. Free subscribers see a prompt to upgrade.</p></div>
+          <p>For paid subscribers, the longer version: the three changes we made to Field Notes this spring, and what each one did to signups, opens and cancellations over twelve weeks. None of them is clever. All of them are a little slower than a popup.</p>
+          <h2>A better ask</h2>
+          <ul>
+            <li>One prompt, placed after the last paragraph, never on top of it.</li>
+            <li>Say what arrives and how often: one essay, every Friday.</li>
+            <li>Let people read the archive first, without handing over an address.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="nextbar">
+      <div class="wrap"><p><b>Next: Audience</b> <span>Choose who gets this post.</span></p><button class="btn primary" type="button" data-go="aud">Next: Audience<svg class="i"><use href="#i-arrow"/></svg></button></div>
+    </div>
+  </section>
+
+  <section class="panel" id="p-aud" role="tabpanel" aria-labelledby="t-aud" hidden>
+    <div class="wrap aud">
+      <div>
+        <h2 class="ph2">Who gets this post</h2>
+        <p class="lead">Send to everyone, or narrow it to segments. Either way you can leave groups out.</p>
+        <fieldset class="choices">
+          <legend class="sr">Audience</legend>
+          <label class="choice"><input type="radio" name="aud" value="all"><span><b>Everyone</b><small>Every active subscriber on Field Notes</small></span><span class="cnt">12,731</span></label>
+          <label class="choice"><input type="radio" name="aud" value="some"><span><b>Only some segments</b><small>Pick one or more segments below</small></span></label>
+        </fieldset>
+        <fieldset class="segs indent" id="segs" disabled>
+          <legend>Segments</legend>
+          <p class="help" id="segs-help">Choose "Only some segments" to pick from these.</p>
+          <label class="ck"><input type="checkbox" value="paid">Paid subscribers<span class="cnt">418</span></label>
+          <label class="ck"><input type="checkbox" value="opened">Opened in the last 90 days<span class="cnt">8,904</span></label>
+          <label class="ck"><input type="checkbox" value="new">New this month<span class="cnt">1,212</span></label>
+          <label class="ck"><input type="checkbox" value="free">Free subscribers<span class="cnt">12,313</span></label>
+        </fieldset>
+        <fieldset class="segs" id="leave">
+          <legend>Leave out</legend>
+          <label class="ck"><input type="checkbox" data-n="37">Bounced in the last 30 days<span class="cnt">37</span></label>
+          <label class="ck"><input type="checkbox" data-n="0">Unsubscribed from weekly<span class="cnt">0</span></label>
+        </fieldset>
+      </div>
+      <aside class="aud-side" aria-live="polite">
+        <p class="lbl">Goes to</p>
+        <p class="big" id="goes">No one yet</p>
+        <p class="help" id="goes-note">Choose an audience to see the count.</p>
+        <button class="btn primary" type="button" data-go="set">Next: Settings<svg class="i"><use href="#i-arrow"/></svg></button>
+        <hr>
+        <dl><div><dt>All subscribers</dt><dd>12,731</dd></div><div><dt>Paid</dt><dd>418</dd></div><div><dt>Free</dt><dd>12,313</dd></div></dl>
+        <p class="help">Subscribers in more than one segment are counted once.</p>
+      </aside>
+    </div>
+  </section>
+
+  <section class="panel" id="p-set" role="tabpanel" aria-labelledby="t-set" hidden>
+    <div class="wrap set">
+      <div class="srow">
+        <div class="sl"><h2>From</h2><p>The name and address readers see.</p></div>
+        <div class="sc">
+          <label class="sr" for="from">From</label>
+          <select class="inp" id="from"><option value="mara">Mara at Field Notes &lt;mara@mail.fieldnotes.example&gt;</option><option value="hello">Field Notes &lt;hello@mail.fieldnotes.example&gt;</option></select>
+          <a href="#">Manage senders</a>
+        </div>
+      </div>
+      <div class="srow">
+        <div class="sl"><h2>When</h2><p>Send right away or pick a time.</p></div>
+        <div class="sc">
+          <fieldset><legend class="sr">When</legend>
+            <div class="radios">
+              <label><input type="radio" name="when" value="now" id="w-now" checked>Send now</label>
+              <label><input type="radio" name="when" value="sched" id="w-sched">Schedule</label>
+            </div>
+          </fieldset>
+          <div class="sched" id="sched" hidden>
+            <label class="lbl" for="when-dt">Date and time</label>
+            <input class="inp" type="datetime-local" id="when-dt" value="2025-11-07T06:00" style="max-width:260px">
+            <p class="help">Your time zone: Europe/Prague</p>
+          </div>
+        </div>
+      </div>
+      <h2 class="more-h">More options</h2>
+      <div>
+        <details class="opt">
+          <summary><b>Split test</b><span id="sum-split">Off</span><svg class="i" aria-hidden="true"><use href="#i-chev"/></svg></summary>
+          <div class="opt-b">
+            <label class="tog"><input type="checkbox" id="split">Test two subject lines on 20% first</label>
+            <div id="split-b" hidden><label class="lbl" for="subj-b">Second subject</label><input class="inp" id="subj-b" value="Three popups before the first sentence"></div>
+            <p class="help">After two hours, the subject with more opens goes to the other 80%.</p>
+          </div>
+        </details>
+        <details class="opt">
+          <summary><b>Website</b><span id="sum-web">Everyone can read it</span><svg class="i" aria-hidden="true"><use href="#i-chev"/></svg></summary>
+          <div class="opt-b">
+            <div><label class="lbl" for="vis">Who can read it on the website</label>
+              <select class="inp" id="vis"><option>Everyone</option><option>Subscribers only</option><option>Paid subscribers only</option><option>Hidden</option></select></div>
+            <div><label class="lbl" for="slug">Web address</label>
+              <div class="url"><span>fieldnotes.example/p/</span><input id="slug" value="notes-on-the-popup-economy"></div></div>
+          </div>
+        </details>
+        <details class="opt">
+          <summary><b>Revisions</b><span>3 saved versions</span><svg class="i" aria-hidden="true"><use href="#i-chev"/></svg></summary>
+          <div class="opt-b">
+            <ul class="revs">
+              <li><span>Today, 12:04<br><small>Current version</small></span></li>
+              <li><span>Today, 11:20<br><small>Added "A better ask"</small></span><button class="lnk" type="button">Compare</button></li>
+              <li><span>Yesterday, 18:42<br><small>First draft, 410 words</small></span><button class="lnk" type="button">Compare</button></li>
+            </ul>
+          </div>
+        </details>
+      </div>
+    </div>
+    <div class="nextbar">
+      <div class="wrap"><p><b>Next: Review &amp; send</b> <span>Check everything once, then send.</span></p><button class="btn primary" type="button" data-go="rev">Next: Review &amp; send<svg class="i"><use href="#i-arrow"/></svg></button></div>
+    </div>
+  </section>
+
+  <section class="panel" id="p-rev" role="tabpanel" aria-labelledby="t-rev" hidden>
+    <div class="wrap rev">
+      <h2 class="ph2">Review &amp; send</h2>
+      <p class="lead">Everything this send will use, then the checks. The send button is at the end.</p>
+      <table class="sum">
+        <caption class="sr">Send summary</caption>
+        <tr><th scope="row">Subject</th><td id="r-subj"></td><td><button class="lnk" type="button" data-go="write" data-focus="subject">Edit</button></td></tr>
+        <tr><th scope="row">Preview text</th><td id="r-pre"></td><td><button class="lnk" type="button" data-go="write" data-focus="preheader">Edit</button></td></tr>
+        <tr><th scope="row">Audience</th><td id="r-aud"></td><td><button class="lnk" type="button" data-go="aud">Change</button></td></tr>
+        <tr><th scope="row">From</th><td id="r-from"></td><td><button class="lnk" type="button" data-go="set" data-focus="from">Change</button></td></tr>
+        <tr><th scope="row">When</th><td id="r-when"></td><td><button class="lnk" type="button" data-go="set" data-focus="w-now">Change</button></td></tr>
+        <tr><th scope="row">Website</th><td id="r-web"></td><td><button class="lnk" type="button" data-go="set">Change</button></td></tr>
+      </table>
+      <h3>Checks</h3>
+      <ul class="chk" id="checks" aria-live="polite"></ul>
+      <h3>Send a test</h3>
+      <div class="test">
+        <label class="sr" for="test-email">Test address</label>
+        <input class="inp" id="test-email" type="email" value="mara@fieldnotes.example">
+        <button class="btn" type="button" id="test-btn"><svg class="i"><use href="#i-mail"/></svg>Send test</button>
+        <span class="msg" id="test-msg" aria-live="polite"></span>
+      </div>
+      <div class="sendzone">
+        <div class="send-row" id="send-row">
+          <button class="btn primary big" type="button" id="send" disabled>Send</button>
+          <p class="reason" id="reason"><svg class="i" aria-hidden="true"><use href="#i-alert"/></svg><span id="reason-t">Choose who gets this post first</span></p>
+        </div>
+        <div class="confirm" id="confirm" hidden role="alertdialog" aria-labelledby="confirm-q">
+          <p id="confirm-q"></p>
+          <button class="btn primary" type="button" id="c-yes">Confirm</button>
+          <button class="btn" type="button" id="c-no">Cancel</button>
+        </div>
+        <p class="done-msg" id="done" hidden tabindex="-1"></p>
+      </div>
+    </div>
+  </section>
+
+  <section class="pvw" id="pvw" hidden aria-label="Preview">
+    <div class="wrap pvw-bar"><p id="pv-label">Email desktop, as a free subscriber</p><button class="btn" type="button" data-mode-back>Back to editing</button></div>
+    <div class="stage" id="stage">
+      <div class="frame">
+        <div class="m-only mail-h"><span class="av" aria-hidden="true">FN</span><div><b>Field Notes</b> <span id="pv-from">mara@mail.fieldnotes.example</span><small>To: you</small></div></div>
+        <div class="w-only site-h"><b>Field Notes</b><nav><a href="#">Archive</a><a href="#">About</a><a class="btn primary" href="#">Subscribe</a></nav></div>
+        <article class="art">
+          <h1 id="pv-subj"></h1>
+          <p class="w-only byline">Mara Lind · Preview, not yet published</p>
+          <div class="prose" id="pv-body"></div>
+        </article>
+        <p class="m-only mail-f">You're getting this because you subscribed to Field Notes. <a href="#">Unsubscribe</a> · <a href="#">Manage preferences</a><br>Field Notes, Vinohradská 12, Prague</p>
+        <p class="w-only site-f">Field Notes · Vinohradská 12, Prague · <a href="#">Subscribe</a></p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<nav class="switch" aria-label="Mockup switcher"><span>Design B · Spines</span><a href="home.html">Home</a><a href="editor.html" aria-current="page">Editor</a><a href="../index.html">All designs</a></nav>
+
+<div class="cmd" id="cmd" role="dialog" aria-modal="true" aria-label="Command menu">
+  <div class="cmd-box">
+    <div class="cmd-in"><svg class="i" aria-hidden="true"><use href="#i-search"/></svg><input id="cmd-q" type="text" placeholder="Search or jump to" aria-label="Search or jump to" autocomplete="off"><kbd>Esc</kbd></div>
+    <div class="cmd-list" id="cmd-list">
+      <div class="cmd-g"><p>Jump to</p>
+        <a href="editor.html"><svg class="i"><use href="#i-doc"/></svg>Posts</a>
+        <a href="#"><svg class="i"><use href="#i-user"/></svg>Subscribers</a>
+        <a href="#"><svg class="i"><use href="#i-mail"/></svg>Sending &amp; delivery</a>
+        <a href="#"><svg class="i"><use href="#i-settings"/></svg>Settings</a>
+      </div>
+      <div class="cmd-g"><p>Create</p>
+        <a href="editor.html"><svg class="i"><use href="#i-plus"/></svg>New post</a>
+        <a href="#"><svg class="i"><use href="#i-plus"/></svg>Import subscribers</a>
+        <a href="#"><svg class="i"><use href="#i-plus"/></svg>New segment</a>
+      </div>
+      <div class="cmd-g"><p>Recent</p>
+        <a href="#"><svg class="i"><use href="#i-clock"/></svg>#42 The slow web, revisited</a>
+        <a href="editor.html"><svg class="i"><use href="#i-clock"/></svg>Notes on the popup economy</a>
+      </div>
+      <p class="cmd-empty" hidden>No matches. Try a page name, like "Subscribers".</p>
+    </div>
+  </div>
+</div>
+
+<div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-label="Navigation">
+  <div class="sheet-h">
+    <span class="logo"><svg class="mark" viewBox="0 0 20 20" aria-hidden="true"><rect x="1" y="1" width="12" height="3.5" fill="#EE6A1F"/><rect x="1" y="6" width="18" height="3.5" fill="#fff"/><rect x="1" y="11" width="9" height="3.5" fill="#fff"/><rect x="1" y="16" width="15" height="3.5" fill="#fff"/></svg>Swarm</span>
+    <button class="icon-btn" aria-label="Close navigation" data-sheet-close><svg class="i"><use href="#i-close"/></svg></button>
+  </div>
+  <div class="sheet-b">
+    <button class="btn" data-cmd><svg class="i"><use href="#i-search"/></svg>Search</button>
+    <div class="sg c-home"><a href="home.html"><span class="sw"></span>Home</a></div>
+    <div class="sg c-write"><p><span class="sw"></span>Write</p><ul><li><a href="editor.html" aria-current="page">Posts</a></li><li><a href="#">Templates</a></li></ul></div>
+    <div class="sg c-aud"><p><span class="sw"></span>Audience</p><ul><li><a href="#">Subscribers</a></li><li><a href="#">Segments</a></li><li><a href="#">Signup forms</a></li></ul></div>
+    <div class="sg c-grow"><p><span class="sw"></span>Grow</p><ul><li><a href="#">Automations</a></li><li><a href="#">Referrals &amp; growth</a></li></ul></div>
+    <div class="sg c-earn"><p><span class="sw"></span>Earn</p><ul><li><a href="#">Paid subscriptions</a></li></ul></div>
+    <div class="sg c-pub"><p><span class="sw"></span>Publish</p><ul><li><a href="#">Website</a></li><li><a href="#">Sending &amp; delivery</a></li></ul></div>
+    <div class="sg"><a href="#"><svg class="i"><use href="#i-settings"/></svg>Settings</a></div>
+    <div class="who"><span class="avatar" aria-hidden="true">ML</span><span><b>Mara Lind</b>Owner · Field Notes</span></div>
+  </div>
+</div>
+
+<script>
+const $=(s,r=document)=>r.querySelector(s),$$=(s,r=document)=>[...r.querySelectorAll(s)];
+function tnum(root=document.body){
+  const NS='http://www.w3.org/2000/svg',w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT,{acceptNode:n=>/\d/.test(n.data)&&!n.parentNode.closest('script,style,option,textarea,[contenteditable],.d')?1:2}),list=[];
+  while(w.nextNode())list.push(w.currentNode);
+  list.forEach(n=>{const svg=n.parentNode.namespaceURI===NS,f=document.createDocumentFragment();
+    n.data.split(/(\d+)/).forEach((part,i)=>{if(!part)return;if(i%2){const e=svg?document.createElementNS(NS,'tspan'):document.createElement('span');e.setAttribute('class','d');e.textContent=part;f.appendChild(e)}else f.appendChild(document.createTextNode(part))});
+    if(!svg&&/flex|grid/.test(getComputedStyle(n.parentNode).display)){const box=document.createElement('span');box.appendChild(f);n.replaceWith(box)}else n.replaceWith(f)});
+}
+tnum();
+const pops=[];
+const closePops=keep=>pops.forEach(p=>{if(p!==keep&&p.isOpen())p.close()});
+$$('[data-pop]').forEach(btn=>{
+  const wrap=btn.closest('.pop-wrap'),panel=document.getElementById(btn.getAttribute('aria-controls'));let t=0;
+  const p={btn,hov:false,isOpen:()=>panel.classList.contains('open'),
+    open(focus){closePops(p);panel.classList.add('open');wrap.classList.add('hot');btn.setAttribute('aria-expanded','true');if(focus){const f=panel.querySelector('a,button');f&&f.focus()}},
+    close(ret){panel.classList.remove('open');wrap.classList.remove('hot');btn.setAttribute('aria-expanded','false');p.hov=false;if(ret)btn.focus()}};
+  pops.push(p);
+  btn.addEventListener('click',()=>{clearTimeout(t);if(p.isOpen()&&!p.hov)p.close();else{p.open();p.hov=false}});
+  btn.addEventListener('keydown',e=>{if(e.key==='ArrowDown'){e.preventDefault();p.open(true)}});
+  panel.addEventListener('keydown',e=>{
+    const items=$$('a,button',panel),i=items.indexOf(document.activeElement);
+    if(e.key==='ArrowDown'||e.key==='ArrowUp'){e.preventDefault();items[(i+(e.key==='ArrowDown'?1:-1)+items.length)%items.length].focus()}
+    if(e.key==='Escape'){e.stopPropagation();p.close(true)}
+  });
+  wrap.addEventListener('focusout',e=>{if(e.relatedTarget&&!wrap.contains(e.relatedTarget))p.close()});
+  if(wrap.hasAttribute('data-hover')){
+    wrap.addEventListener('mouseenter',()=>{if(!matchMedia('(hover:hover)').matches)return;clearTimeout(t);t=setTimeout(()=>{if(!p.isOpen()){p.open();p.hov=true}},90)});
+    wrap.addEventListener('mouseleave',()=>{clearTimeout(t);if(p.hov)t=setTimeout(()=>p.close(),200)});
+  }
+});
+document.addEventListener('click',e=>{if(!e.target.closest('.pop-wrap'))closePops()});
+
+const cmd=$('#cmd'),cq=$('#cmd-q');let cmdBack=null,act=-1;
+const cmdItems=()=>$$('#cmd-list a').filter(a=>!a.hidden);
+function setAct(i){const it=cmdItems();it.forEach(a=>a.classList.remove('act'));act=it.length?(i+it.length)%it.length:-1;if(act>-1){it[act].classList.add('act');it[act].scrollIntoView({block:'nearest'})}}
+function filterCmd(){
+  const q=cq.value.trim().toLowerCase();
+  $$('#cmd-list a').forEach(a=>a.hidden=!!q&&!a.textContent.toLowerCase().includes(q));
+  $$('.cmd-g').forEach(g=>g.hidden=!$$('a',g).some(a=>!a.hidden));
+  $('.cmd-empty').hidden=cmdItems().length>0;setAct(0);
+}
+function openCmd(){cmdBack=document.activeElement;closePops();closeSheet(false);cmd.classList.add('open');cq.value='';filterCmd();cq.focus()}
+function closeCmd(){cmd.classList.remove('open');if(cmdBack&&cmdBack.focus)cmdBack.focus()}
+$$('[data-cmd]').forEach(b=>b.addEventListener('click',openCmd));
+cq.addEventListener('input',filterCmd);
+cq.addEventListener('keydown',e=>{
+  if(e.key==='ArrowDown'||e.key==='ArrowUp'){e.preventDefault();setAct(act+(e.key==='ArrowDown'?1:-1))}
+  if(e.key==='Enter'&&act>-1){e.preventDefault();cmdItems()[act].click()}
+});
+cmd.addEventListener('mousedown',e=>{if(e.target===cmd)closeCmd()});
+cmd.addEventListener('keydown',e=>{if(e.key!=='Tab')return;const f=[cq,...cmdItems()],i=f.indexOf(document.activeElement);e.preventDefault();f[(i+(e.shiftKey?-1:1)+f.length)%f.length].focus()});
+
+const sheet=$('#sheet'),sheetBtn=$('[data-sheet]');
+function openSheet(){closePops();sheet.classList.add('open');sheetBtn.setAttribute('aria-expanded','true');document.body.style.overflow='hidden';$('[data-sheet-close]').focus()}
+function closeSheet(ret=true){if(!sheet.classList.contains('open'))return;sheet.classList.remove('open');sheetBtn.setAttribute('aria-expanded','false');document.body.style.overflow='';if(ret)sheetBtn.focus()}
+sheetBtn.addEventListener('click',openSheet);
+$('[data-sheet-close]').addEventListener('click',()=>closeSheet());
+matchMedia('(min-width:981px)').addEventListener('change',e=>{if(e.matches)closeSheet(false)});
+
+document.addEventListener('keydown',e=>{
+  if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='k'){e.preventDefault();cmd.classList.contains('open')?closeCmd():openCmd();return}
+  if(e.key!=='Escape')return;
+  if(cmd.classList.contains('open'))return closeCmd();
+  if(sheet.classList.contains('open'))return closeSheet();
+  const o=pops.find(p=>p.isOpen());if(o)o.close(true);
+});
+const ed=$('#body'),subj=$('#subject'),pre=$('#preheader');
+const pad=n=>String(n).padStart(2,'0'),fmt=n=>n.toLocaleString('en-US'),now=()=>{const d=new Date();return pad(d.getHours())+':'+pad(d.getMinutes())};
+const DAYS=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const setT=(el,s)=>{el.textContent=s;tnum(el)};
+const ico=id=>`<svg class="i" aria-hidden="true"><use href="#i-${id}"/></svg>`;
+const esc=s=>s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+let saveT;
+function touched(){setT($('#saved'),'Saving…');clearTimeout(saveT);saveT=setTimeout(()=>setT($('#saved'),'Saved '+now()),700)}
+function firstLine(){const p=ed.querySelector('p');return p?p.textContent.trim():''}
+function inbox(){
+  $('#ib-subj').textContent=subj.value||'(no subject)';
+  const pv=pre.value.trim();$('#ib-pre').textContent=pv||firstLine();$('#ib-note').hidden=!!pv;
+  setT($('#subj-count'),subj.value.length+'/200');
+}
+[subj,pre].forEach(i=>i.addEventListener('input',()=>{inbox();touched();render()}));
+
+const TOTAL=12731,SEG={paid:418,opened:8904,new:1212,free:12313};
+function audience(){
+  const r=$('input[name=aud]:checked'),mode=r?r.value:null,segs=$$('#segs input:checked').map(i=>i.value);
+  let cov=0;
+  if(mode==='all')cov=1;
+  else if(mode==='some'&&segs.length){
+    cov=((segs.includes('paid')?SEG.paid:0)+(segs.includes('free')?SEG.free:0))/TOTAL;
+    ['opened','new'].forEach(k=>{if(segs.includes(k))cov+=SEG[k]/TOTAL*(1-cov)});
+  }
+  const out=$$('#leave input:checked').reduce((a,i)=>a+Math.round(+i.dataset.n*cov),0);
+  return{mode,segs,count:Math.max(0,Math.round(cov*TOTAL)-out),chosen:mode==='all'||(mode==='some'&&segs.length>0)};
+}
+function when(){
+  if(!$('#w-sched').checked)return null;
+  const d=new Date($('#when-dt').value);
+  return isNaN(d)?'a time you pick':`${DAYS[d.getDay()]} ${d.getDate()} ${MON[d.getMonth()]}, ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+function checks(a){
+  const c=[];
+  if(!subj.value.trim())c.push({k:'bad',t:'Add a subject',a:'Add subject',f:()=>{go('write');subj.focus()}});
+  if(!a.chosen)c.push({k:'bad',t:a.mode==='some'?'Tick at least one segment':'Choose who gets this post',a:'Go to Audience',f:()=>go('aud',true)});
+  if(!pre.value.trim())c.push({k:'warn',t:'Preview text is empty. Inboxes will show the first line instead.',a:'Add preview text',f:()=>{go('write');pre.focus()}});
+  ['Sender domain verified','Unsubscribe link included','Links checked (4 links, all reachable)'].forEach(t=>c.push({k:'ok',t}));
+  if(ed.querySelector('.paywall'))c.push({k:'ok',t:'Paywall break placed, so paid subscribers get the full post'});
+  return c;
+}
+function status(id,k,text){
+  const el=$('#st-'+id),icon={ok:'check',warn:'alert',bad:'x-c',plain:'dot'}[k];
+  el.className='st '+k;el.innerHTML=ico(icon)+'<span class="st-t">'+esc(text)+'</span>';tnum(el);
+}
+let sent=false;
+function render(){
+  const a=audience(),cs=checks(a),bad=cs.filter(c=>c.k==='bad'),w=when();
+  const web=$('#vis').value,changed=$('#from').value!=='mara'||$('#split').checked||web!=='Everyone';
+  status('write',subj.value.trim()?'ok':'bad',subj.value.trim()?'Done':'Subject missing');
+  status('aud',a.chosen?'ok':'warn',a.chosen?fmt(a.count)+' subscribers':a.mode==='some'?'Pick a segment':'Not chosen');
+  status('set',w||changed?'ok':'plain',w?'Scheduled':changed?'Changed':'Defaults');
+  status('rev',bad.length?'bad':'ok',bad.length?bad.length+' to fix':'Ready');
+  $('#segs').disabled=a.mode!=='some';
+  $('#segs-help').textContent=a.mode==='some'?'Tick one or more.':'Choose "Only some segments" to pick from these.';
+  setT($('#goes'),a.chosen?fmt(a.count)+' subscribers':'No one yet');
+  $('#goes-note').textContent=a.chosen?(a.mode==='all'?'Everyone on the list':a.segs.length+' segment'+(a.segs.length>1?'s':'')+' selected')+($$('#leave input:checked').length?', minus the groups left out.':'.'):a.mode==='some'?'Tick at least one segment.':'Choose an audience to see the count.';
+  setT($('#r-subj'),subj.value||'Missing');
+  $('#r-pre').innerHTML=pre.value.trim()?esc(pre.value):'<span class="wtxt">Empty.</span> <span class="mut">Inboxes show the first line instead.</span>';
+  $('#r-aud').innerHTML=a.chosen?esc((a.mode==='all'?'Everyone':a.segs.length+' segment'+(a.segs.length>1?'s':''))+' · '+fmt(a.count)+' subscribers'):'<span class="btxt">Not chosen</span>';
+  $('#r-from').textContent=$('#from').selectedOptions[0].textContent;
+  $('#r-when').textContent=w?'Scheduled for '+w+' (Europe/Prague)':'Send now';
+  $('#r-web').textContent=web+' · fieldnotes.example/p/'+$('#slug').value;
+  tnum($('.sum'));
+  $('#checks').innerHTML=cs.map((c,i)=>`<li class="${c.k}">${ico(c.k==='ok'?'check-c':c.k==='bad'?'x-c':'alert')}<span><span class="kind">${{bad:'Blocks sending',warn:'Worth fixing',ok:'Passed'}[c.k]}</span>${esc(c.t)}</span>${c.a?`<button class="btn" type="button" data-fix="${i}">${c.a}</button>`:''}</li>`).join('');
+  $$('#checks [data-fix]').forEach(b=>b.addEventListener('click',()=>cs[+b.dataset.fix].f()));
+  tnum($('#checks'));
+  $('#sum-split').textContent=$('#split').checked?'On, two subjects':'Off';
+  $('#sum-web').textContent=web==='Everyone'?'Everyone can read it':web==='Hidden'?'Hidden from the website':web;
+  if(sent)return;
+  const send=$('#send');send.disabled=bad.length>0;
+  setT(send,bad.length?'Send':w?'Schedule for '+w:'Send to '+fmt(a.count)+' subscribers');
+  $('#reason').hidden=!bad.length;
+  if(bad.length)$('#reason-t').textContent=bad[0].t+' first';
+  if(bad.length&&!$('#confirm').hidden)hideConfirm();
+}
+$$('#p-aud input,#p-set input,#p-set select').forEach(i=>i.addEventListener('change',()=>{render();touched()}));
+$('#w-now').addEventListener('change',()=>{$('#sched').hidden=true});
+$('#w-sched').addEventListener('change',()=>{$('#sched').hidden=false});
+$('#split').addEventListener('change',e=>{$('#split-b').hidden=!e.target.checked});
+
+const tabs=$$('.stab');
+function go(id,focusTab){
+  if(mode!=='edit')setMode('edit');
+  tabs.forEach(t=>{const on=t.dataset.tab===id;t.setAttribute('aria-selected',String(on));t.tabIndex=on?0:-1;$('#'+t.getAttribute('aria-controls')).hidden=!on});
+  const tl=$('.tabs'),at=$('#t-'+id);tl.scrollLeft=at.offsetLeft-16;
+  const top=tl.getBoundingClientRect().top+scrollY-8;if(scrollY>top)scrollTo(0,top);
+  if(focusTab)$('#t-'+id).focus();
+  if(id==='write')requestAnimationFrame(()=>placeAt(cur||ed.firstElementChild));
+}
+tabs.forEach((t,i)=>{
+  t.addEventListener('click',()=>go(t.dataset.tab));
+  t.addEventListener('keydown',e=>{
+    const k={ArrowRight:i+1,ArrowLeft:i-1,Home:0,End:tabs.length-1}[e.key];
+    if(k===undefined)return;e.preventDefault();go(tabs[(k+tabs.length)%tabs.length].dataset.tab,true);
+  });
+});
+$$('[data-go]').forEach(b=>b.addEventListener('click',()=>{go(b.dataset.go,!b.dataset.focus);if(b.dataset.focus)$('#'+b.dataset.focus).focus()}));
+
+let mode='edit';
+const MODES={desktop:'Email desktop',mobile:'Email mobile',web:'Web'};
+function setMode(m){
+  mode=m;
+  $$('#pv-seg button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.mode===m)));
+  $$('.panel').forEach(p=>p.classList.toggle('off',m!=='edit'));
+  $('#pvw').hidden=m==='edit';
+  if(m!=='edit')renderPreview();
+}
+function renderPreview(){
+  const free=$('#viewas').value==='free',body=ed.cloneNode(true);
+  $('#stage').className='stage '+mode;
+  $('#pv-label').textContent=MODES[mode]+', as a '+(free?'free':'paid')+' subscriber';
+  $$('[contenteditable]',body).forEach(e=>e.removeAttribute('contenteditable'));
+  const pw=body.querySelector('.paywall');
+  if(pw){
+    if(free){while(pw.nextSibling)pw.nextSibling.remove();const u=document.createElement('div');u.className='upg';u.innerHTML='<b>The rest of this post is for paid subscribers.</b>Support Field Notes to keep reading, from $6 a month.<br><span>Upgrade to keep reading</span>';pw.replaceWith(u)}
+    else pw.remove();
+  }
+  $('#pv-body').replaceChildren(...body.childNodes);
+  $('#pv-subj').textContent=subj.value||'(no subject)';
+  $('#pv-from').textContent=$('#from').value==='mara'?'mara@mail.fieldnotes.example':'hello@mail.fieldnotes.example';
+}
+$$('#pv-seg button').forEach(b=>b.addEventListener('click',()=>setMode(b.dataset.mode)));
+$('[data-mode-back]').addEventListener('click',()=>{setMode('edit');$('#pv-seg button').focus()});
+$('#viewas').addEventListener('change',()=>{if(mode!=='edit')renderPreview()});
+
+let range=null;
+const blockOf=n=>{while(n&&n.parentNode!==ed)n=n.parentNode;return n};
+const ins=$('#ins'),insMenu=$('#ins-menu');let cur=null;
+const tbIns=$('#tb-ins');
+function placeAt(b){
+  if(!b||b.parentNode!==ed||!b.offsetHeight)return;cur=b;
+  const lh=parseFloat(getComputedStyle(b).lineHeight)||28;
+  ins.style.top=(b.offsetTop+Math.min(lh,b.offsetHeight)/2-15)+'px';
+}
+function placeIns(){
+  const s=getSelection();if(!s.rangeCount||!ed.contains(s.anchorNode))return;
+  range=s.getRangeAt(0).cloneRange();
+  const b=blockOf(s.anchorNode);if(!b||b===ed)return;placeAt(b);
+  $('#blockfmt').value={H2:'h2',H3:'h3'}[b.tagName]||'p';
+}
+document.addEventListener('selectionchange',placeIns);
+addEventListener('resize',()=>placeAt(cur));
+function restore(){ed.focus();if(range){const s=getSelection();s.removeAllRanges();s.addRange(range)}}
+function openIns(from=ins){
+  if(from===ins){insMenu.style.top=(ins.offsetTop+36)+'px';insMenu.style.left=''}
+  else{const w=$('.ed-wrap').getBoundingClientRect(),r=from.getBoundingClientRect();insMenu.style.top=(r.bottom-w.top+6)+'px';insMenu.style.left=(r.left-w.left)+'px'}
+  insMenu.classList.add('open');from.setAttribute('aria-expanded','true');insMenu.querySelector('button').focus();
+}
+function closeIns(back){insMenu.classList.remove('open');ins.setAttribute('aria-expanded','false');tbIns.setAttribute('aria-expanded','false');if(back)restore()}
+[ins,tbIns].forEach(b=>{
+  b.addEventListener('mousedown',e=>e.preventDefault());
+  b.addEventListener('click',()=>insMenu.classList.contains('open')?closeIns(true):openIns(b));
+});
+insMenu.addEventListener('keydown',e=>{
+  const it=$$('button',insMenu),i=it.indexOf(document.activeElement);
+  if(e.key==='ArrowDown'||e.key==='ArrowUp'){e.preventDefault();it[(i+(e.key==='ArrowDown'?1:-1)+it.length)%it.length].focus()}
+  if(e.key==='Escape'){e.stopPropagation();closeIns(true)}
+});
+document.addEventListener('click',e=>{if(!e.target.closest('#ins,#tb-ins,#ins-menu')&&insMenu.classList.contains('open'))closeIns()});
+const mk=(tag,cls,html,ce)=>{const n=document.createElement(tag);if(cls)n.className=cls;n.innerHTML=html;if(ce===false)n.contentEditable='false';return n};
+const BLOCKS={
+  heading:()=>mk('h2','','New heading'),
+  image:()=>mk('div','ph-blk',ico('image')+'<span><b>Image</b>Drop an image here or choose a file</span>',false),
+  button:()=>mk('div','blk-btn','<span>Button label</span>',false),
+  quote:()=>mk('blockquote','','Quote'),
+  divider:()=>mk('hr','',''),
+  card:()=>mk('div','ph-blk',ico('card')+'<span><b>Link card</b>Paste a link to show its title and image</span>',false),
+  file:()=>mk('div','ph-blk',ico('file')+'<span><b>File</b>Choose a file to attach</span>',false),
+  paywall:()=>mk('div','paywall','<p><b>'+ico('lock')+'Paywall break</b><br>Paid subscribers read on below this line. Free subscribers see a prompt to upgrade.</p>',false)
+};
+$$('[data-ins]',insMenu).forEach(b=>b.addEventListener('click',()=>{
+  const n=BLOCKS[b.dataset.ins]();closeIns();
+  if(cur&&cur.parentNode===ed&&cur.tagName==='P'&&!cur.textContent.trim())cur.replaceWith(n);else if(cur&&cur.parentNode===ed)cur.after(n);else ed.append(n);
+  let target=n;
+  if(n.contentEditable==='false'||n.tagName==='HR'){target=n.nextElementSibling;if(!target||target.contentEditable==='false'){target=mk('p','','<br>');n.after(target)}}
+  ed.focus();const r=document.createRange();r.selectNodeContents(target);if(target!==n)r.collapse(true);const s=getSelection();s.removeAllRanges();s.addRange(r);
+  touched();inbox();render();
+}));
+ed.addEventListener('keydown',e=>{
+  if(e.key==='/'&&cur&&cur.tagName==='P'&&!cur.textContent.trim()){e.preventDefault();openIns()}
+});
+ed.addEventListener('input',()=>{touched();inbox();render()});
+
+$$('.tb [data-x]').forEach(b=>{
+  b.addEventListener('mousedown',e=>e.preventDefault());
+  b.addEventListener('click',()=>{
+    const x=b.dataset.x;restore();
+    if(x==='link'){const lb=$('#linkbox');lb.hidden=!lb.hidden;if(!lb.hidden)$('#link-url').focus();return}
+    if(x==='quote')document.execCommand('formatBlock',false,'<blockquote>');else document.execCommand(x);
+    touched();
+  });
+});
+$('#blockfmt').addEventListener('change',e=>{restore();document.execCommand('formatBlock',false,'<'+e.target.value+'>');touched()});
+function addLink(){
+  const url=$('#link-url').value.trim();if(!url)return;restore();
+  if(range&&range.collapsed)document.execCommand('insertHTML',false,'<a href="'+esc(url)+'">'+esc(url)+'</a>');else document.execCommand('createLink',false,url);
+  $('#linkbox').hidden=true;$('#link-url').value='';touched();
+}
+$('#link-ok').addEventListener('click',addLink);
+$('#link-url').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();addLink()}if(e.key==='Escape'){e.stopPropagation();$('#linkbox').hidden=true;restore()}});
+
+$('#test-btn').addEventListener('click',()=>{
+  const v=$('#test-email').value.trim(),m=$('#test-msg');
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)){m.style.color='var(--bad)';m.textContent='Enter a full email address, like name@example.com.';return}
+  m.style.color='';setT(m,'Test sent to '+v+' at '+now()+'.');
+});
+function hideConfirm(){$('#confirm').hidden=true;$('#send-row').hidden=false}
+$('#send').addEventListener('click',()=>{
+  const a=audience(),w=when();
+  setT($('#confirm-q'),w?`Schedule for ${w} to ${fmt(a.count)} subscribers? You can cancel it until then.`:`Send now to ${fmt(a.count)} subscribers? This can't be undone.`);
+  $('#send-row').hidden=true;$('#confirm').hidden=false;$('#c-yes').focus();
+});
+$('#c-no').addEventListener('click',()=>{hideConfirm();$('#send').focus()});
+$('#c-yes').addEventListener('click',()=>{
+  const w=when(),d=$('#done');sent=true;$('#confirm').hidden=true;d.hidden=false;
+  d.innerHTML=ico('check-c')+(w?'<span>Scheduled for '+esc(w)+'. <a href="#">View it in Posts</a></span>':'<span>Sending… <a href="#">view the send report</a></span>');
+  tnum(d);$('#draft-pill').textContent=w?'Scheduled':'Sending';d.focus();
+});
+
+inbox();render();tnum($('.title-row'));placeAt(ed.firstElementChild);
+</script>
+</body>
+</html>

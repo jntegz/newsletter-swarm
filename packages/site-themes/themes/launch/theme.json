@@ -1,0 +1,203 @@
+{
+  "name": "Launch",
+  "settings": [
+    {
+      "id": "accent",
+      "type": "color",
+      "label": "Accent",
+      "group": "Colour",
+      "default": "#4f36e8",
+      "info": "Buttons, links and highlights."
+    },
+    {
+      "id": "page",
+      "type": "color",
+      "label": "Background",
+      "group": "Colour",
+      "default": "#fbfbfd"
+    },
+    {
+      "id": "ink",
+      "type": "color",
+      "label": "Text",
+      "group": "Colour",
+      "default": "#0e1020"
+    },
+    {
+      "id": "scheme",
+      "type": "select",
+      "label": "Light or dark",
+      "group": "Colour",
+      "default": "light",
+      "options": [
+        {
+          "value": "light",
+          "label": "Light"
+        },
+        {
+          "value": "dark",
+          "label": "Dark"
+        },
+        {
+          "value": "auto",
+          "label": "Follow the reader’s device"
+        }
+      ]
+    },
+    {
+      "id": "heading_font",
+      "type": "font",
+      "label": "Headings",
+      "group": "Type",
+      "default": "archivo"
+    },
+    {
+      "id": "body_font",
+      "type": "font",
+      "label": "Text",
+      "group": "Type",
+      "default": "geist"
+    },
+    {
+      "id": "scale",
+      "type": "select",
+      "label": "Text size",
+      "group": "Type",
+      "default": "regular",
+      "options": [
+        {
+          "value": "compact",
+          "label": "Compact"
+        },
+        {
+          "value": "regular",
+          "label": "Regular"
+        },
+        {
+          "value": "large",
+          "label": "Large"
+        }
+      ]
+    },
+    {
+      "id": "corners",
+      "type": "select",
+      "label": "Corners",
+      "group": "Shape",
+      "default": "round",
+      "options": [
+        {
+          "value": "square",
+          "label": "Square"
+        },
+        {
+          "value": "soft",
+          "label": "Soft"
+        },
+        {
+          "value": "round",
+          "label": "Round"
+        }
+      ]
+    },
+    {
+      "id": "width",
+      "type": "select",
+      "label": "Page width",
+      "group": "Shape",
+      "default": "regular",
+      "options": [
+        {
+          "value": "narrow",
+          "label": "Narrow"
+        },
+        {
+          "value": "regular",
+          "label": "Regular"
+        },
+        {
+          "value": "wide",
+          "label": "Wide"
+        }
+      ]
+    },
+    {
+      "id": "buttons",
+      "type": "select",
+      "label": "Buttons",
+      "group": "Shape",
+      "default": "pill",
+      "options": [
+        {
+          "value": "solid",
+          "label": "Solid"
+        },
+        {
+          "value": "pill",
+          "label": "Pill"
+        },
+        {
+          "value": "outline",
+          "label": "Outline"
+        }
+      ]
+    },
+    {
+      "id": "panel",
+      "type": "select",
+      "label": "Signup panel",
+      "group": "Colour",
+      "default": "accent",
+      "options": [
+        {
+          "value": "accent",
+          "label": "The accent colour"
+        },
+        {
+          "value": "ink",
+          "label": "The text colour"
+        },
+        {
+          "value": "soft",
+          "label": "A soft tint"
+        }
+      ]
+    }
+  ],
+  "sections": [
+    {
+      "type": "hero",
+      "settings": {
+        "layout": "split",
+        "show_count": true
+      }
+    },
+    {
+      "type": "numbers",
+      "audience": "visitors"
+    },
+    {
+      "type": "benefits",
+      "audience": "visitors"
+    },
+    {
+      "type": "latest",
+      "settings": {
+        "style": "cards",
+        "count": 3
+      }
+    },
+    {
+      "type": "testimonials",
+      "audience": "visitors"
+    },
+    {
+      "type": "faq",
+      "audience": "visitors"
+    },
+    {
+      "type": "subscribe_band",
+      "audience": "visitors"
+    }
+  ]
+}

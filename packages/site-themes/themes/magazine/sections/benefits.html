@@ -1,0 +1,41 @@
+{% assign s = section.settings %} {% if s.items %}
+<section class="mag-benefits" aria-labelledby="{{ section.id }}-title">
+  <div class="mag-head">
+    {% if s.heading %}
+    <h2 class="mag-head__title" id="{{ section.id }}-title">{{ s.heading }}</h2>
+    {% else %}
+    <h2 class="sw-sr" id="{{ section.id }}-title">What you get</h2>
+    {% endif %}
+  </div>
+  <ol class="mag-benefits__list">
+    {% for item in s.items %}
+    <li class="mag-benefit">
+      {% if item.title %}
+      <h3 class="mag-benefit__title">{{ item.title }}</h3>
+      {% endif %} {% if item.text %}
+      <p class="mag-benefit__text">{{ item.text }}</p>
+      {% endif %}
+    </li>
+    {% endfor %}
+  </ol>
+</section>
+{% endif %} {% comment %}<!-- prettier-ignore -->{% endcomment %}
+{% schema %}
+{
+  "name": "Benefits",
+  "description": "What subscribers get, as a short list.",
+  "settings": [
+    { "id": "heading", "type": "text", "label": "Heading", "max": 120, "default": "What you get" },
+    {
+      "id": "items",
+      "type": "list",
+      "label": "Benefits",
+      "max": 8,
+      "fields": [
+        { "id": "title", "type": "text", "label": "Title", "max": 80 },
+        { "id": "text", "type": "textarea", "label": "Text", "max": 300 }
+      ]
+    }
+  ]
+}
+{% endschema %}

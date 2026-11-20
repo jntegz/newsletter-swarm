@@ -1,0 +1,46 @@
+{% assign s = section.settings %} {% if s.items or site.issue_count > 0 %}
+<section class="nt-numbers" aria-labelledby="{{ section.id }}-title">
+  {% if s.heading %}
+  <h2 class="nt-h2 nt-numbers__title" id="{{ section.id }}-title">{{ s.heading }}</h2>
+  {% else %}
+  <h2 class="sw-sr" id="{{ section.id }}-title">In numbers</h2>
+  {% endif %}
+  <dl class="nt-numbers__list">
+    {% for item in s.items %}
+    <div class="nt-number">
+      <dt>{{ item.label }}</dt>
+      <dd>{{ item.value }}</dd>
+    </div>
+    {% else %}
+    <div class="nt-number">
+      <dt>{% if site.issue_count == 1 %}Issue{% else %}Issues{% endif %} so far</dt>
+      <dd>{{ site.issue_count | number }}</dd>
+    </div>
+    {% if site.subscriber_count %}
+    <div class="nt-number">
+      <dt>Readers</dt>
+      <dd>{{ site.subscriber_count | number }}</dd>
+    </div>
+    {% endif %} {% endfor %}
+  </dl>
+</section>
+{% endif %} {% comment %}<!-- prettier-ignore -->{% endcomment %}
+{% schema %}
+{
+  "name": "Numbers",
+  "description": "A few figures, set large. Empty, it shows the issues and readers.",
+  "settings": [
+    { "id": "heading", "type": "text", "label": "Heading", "max": 120 },
+    {
+      "id": "items",
+      "type": "list",
+      "label": "Figures",
+      "max": 4,
+      "fields": [
+        { "id": "value", "type": "text", "label": "Figure", "max": 20 },
+        { "id": "label", "type": "text", "label": "What it counts", "max": 60 }
+      ]
+    }
+  ]
+}
+{% endschema %}

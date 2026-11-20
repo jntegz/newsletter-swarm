@@ -1,0 +1,62 @@
+{% assign s = section.settings %} {% if s.items %}
+<section class="news-letters" aria-labelledby="{{ section.id }}-title">
+  {% if s.heading %}
+  <h2 class="news-h2" id="{{ section.id }}-title">{{ s.heading }}</h2>
+  {% else %}
+  <h2 class="sw-sr" id="{{ section.id }}-title">What readers say</h2>
+  {% endif %}
+  <div class="news-letters__list">
+    {% for item in s.items %}{% if item.quote %}
+    <figure class="news-letter">
+      <blockquote class="news-letter__text"><p>{{ item.quote }}</p></blockquote>
+      {% if item.name %}
+      <figcaption class="news-letter__from">
+        {% if item.photo %}
+        <img
+          class="news-letter__photo"
+          src="{{ item.photo.url }}"
+          alt=""
+          width="40"
+          height="40"
+          loading="lazy"
+          decoding="async"
+        />
+        {% endif %}
+        <span>
+          <cite>{{ item.name }}</cite>
+          {% if item.role %}<span class="news-letter__role">{{ item.role }}</span>{% endif %}
+        </span>
+      </figcaption>
+      {% endif %}
+    </figure>
+    {% endif %}{% endfor %}
+  </div>
+</section>
+{% endif %} {% comment %}<!-- prettier-ignore -->{% endcomment %}
+{% schema %}
+{
+  "name": "Testimonials",
+  "description": "What readers say.",
+  "settings": [
+    {
+      "id": "heading",
+      "type": "text",
+      "label": "Heading",
+      "max": 120,
+      "default": "Letters from readers"
+    },
+    {
+      "id": "items",
+      "type": "list",
+      "label": "Quotes",
+      "max": 9,
+      "fields": [
+        { "id": "quote", "type": "textarea", "label": "Quote", "max": 400 },
+        { "id": "name", "type": "text", "label": "Name", "max": 80 },
+        { "id": "role", "type": "text", "label": "Who they are", "max": 80 },
+        { "id": "photo", "type": "image", "label": "Photo" }
+      ]
+    }
+  ]
+}
+{% endschema %}

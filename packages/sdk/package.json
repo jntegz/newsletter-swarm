@@ -1,0 +1,23 @@
+{
+  "name": "@swarm/sdk",
+  "private": true,
+  "license": "AGPL-3.0-only",
+  "type": "module",
+  "version": "2.0.0",
+  "description": "Typed TypeScript client for the Swarm public API (/v2), generated from docs/openapi-v2.json.",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "generate": "tsx scripts/generate.ts",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run --passWithNoTests"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "prettier": "catalog:",
+    "tsx": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  }
+}

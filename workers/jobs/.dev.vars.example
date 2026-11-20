@@ -1,0 +1,18 @@
+# Copy to .dev.vars for local development. Never commit .dev.vars.
+# FIELD_KEYS is the vault worker's alone (workers/vault/.dev.vars.example).
+# Legacy: signed every link before the per-link keyrings below. Locally (wrangler.jsonc) links are
+# signed with those from the start and no old link is taken, so it only matters on a deployed
+# install, until the installer removes it.
+MEMBER_KEYS=k1:development-only-member-key-replace-before-using-this-file
+
+# Email checks of lists and imports (docs/email-verification.md). The same key as the api and
+# capture workers; "dev" uses the fake DeBounce locally.
+# DEBOUNCE_API_KEY=dev
+
+# Per-link keyrings (docs/security.md "Keys"): each link family signs with its own. A worker that
+# signs holds *_KEYS; one that only checks an Ed25519 link holds its public keys, *_VERIFY_KEYS.
+# Each value must be the same in every worker that has it. The installer makes real ones; these
+# (and any dev0 key) are refused when deployed.
+MEMBER_SIGNING_KEYS=dev0:MC4CAQAwBQYDK2VwBCIEIEXKf0Kf-9zhaQaCaKCc9YC0zYHPm9QJIFUdyr1Iims6
+DSR_EXPORT_SIGNING_KEYS=dev0:MC4CAQAwBQYDK2VwBCIEIBNodlzIZcXChWZHqwwEC8LpdxEyuJP5qW_4ZTm0_MJB
+SPONSOR_REPORT_SIGNING_KEYS=dev0:MC4CAQAwBQYDK2VwBCIEIBE-WMv1HS5j22zR-asWYjmDNgm9Jk5NIbcmb23RfOJN

@@ -1,0 +1,102 @@
+name: Release
+
+# Attaches a CycloneDX SBOM of the tagged source, as CI installs it, to a published GitHub release.
+# The signed release bundle carries its own SBOMs, covered by its signature (docs/releasing.md);
+# this one is a convenience. The owner decided to keep it, in this shape (docs/releasing.md).
+#
+# Two jobs, so no repository, dependency or package-manager code runs where the write token is:
+# - sbom runs the install and pnpm sbom with a read-only token, and hands the file on as an
+#   artifact with its sha256;
+# - attach runs only preinstalled tools by absolute path, on a fresh runner, checks the file it
+#   downloads against that sha256 and the tag, and then uploads it. It never replaces an asset.
+on:
+  release:
+    types: [published]
+
+permissions: {}
+
+jobs:
+  sbom:
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    outputs:
+      sha256: ${{ steps.sbom.outputs.sha256 }}
+    steps:
+      - name: Checkout the release tag
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
+
+      # No cache: nothing written by another run reaches this job.
+      - name: Set up Node
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version-file: .node-version
+
+      # Corepack fetches the pnpm that packageManager names into an empty folder; the job fails
+      # unless it is the file the sha512 there names (scripts/ci-pnpm.mjs).
+      - name: Set up pnpm, checked against packageManager
+        run: node scripts/ci-pnpm.mjs
+
+      - name: Record the toolchain
+        run: |
+          echo "runner image: ${ImageOS:-unknown} ${ImageVersion:-unknown}"
+          echo "node $(node --version): $(sha256sum "$(command -v node)")"
+          echo "pnpm $(pnpm --version), packageManager: $(jq -r .packageManager package.json)"
+          test "v$(cat .node-version)" = "$(node --version)"
+          test "pnpm@$(pnpm --version)" = "$(jq -r '.packageManager | split("+")[0]' package.json)"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # The tag reaches the shell as data in an environment variable, never as interpolated code.
+      - name: Software bill of materials (CycloneDX)
+        id: sbom
+        env:
+          TAG: ${{ github.event.release.tag_name }}
+        run: |
+          pnpm sbom -- --out "dist/sbom/swarm-$TAG.cdx.json" --version "$TAG"
+          echo "sha256=$(sha256sum "dist/sbom/swarm-$TAG.cdx.json" | cut -d' ' -f1)" >> "$GITHUB_OUTPUT"
+
+      - name: Hand the SBOM on
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: sbom
+          path: dist/sbom/
+          if-no-files-found: error
+          retention-days: 1
+
+  attach:
+    needs: sbom
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+      actions: read
+    steps:
+      - name: Download the SBOM, as data
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          RUN_ID: ${{ github.run_id }}
+        run: /usr/bin/gh run download "$RUN_ID" --repo "$REPO" --name sbom --dir "$RUNNER_TEMP/sbom"
+
+      - name: Check it is the file the sbom job made, for this tag
+        env:
+          TAG: ${{ github.event.release.tag_name }}
+          EXPECTED: ${{ needs.sbom.outputs.sha256 }}
+        run: |
+          set -euo pipefail
+          file="$RUNNER_TEMP/sbom/swarm-$TAG.cdx.json"
+          test "$(/usr/bin/find "$RUNNER_TEMP/sbom" -type f | /usr/bin/wc -l)" -eq 1
+          test -f "$file"
+          test "$(/usr/bin/sha256sum "$file" | /usr/bin/cut -d' ' -f1)" = "$EXPECTED"
+          /usr/bin/jq -e --arg tag "$TAG" \
+            '.bomFormat == "CycloneDX" and .metadata.component.version == $tag' "$file" > /dev/null
+
+      - name: Attach it to the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          TAG: ${{ github.event.release.tag_name }}
+        run: /usr/bin/gh release upload "$TAG" "$RUNNER_TEMP/sbom/swarm-$TAG.cdx.json" --repo "$REPO"

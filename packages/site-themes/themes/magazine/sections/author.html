@@ -1,0 +1,45 @@
+{% assign s = section.settings %} {% if s.name or s.bio %}
+<section class="mag-author" aria-labelledby="{{ section.id }}-title">
+  <div class="mag-head">
+    {% if s.heading %}
+    <h2 class="mag-head__title" id="{{ section.id }}-title">{{ s.heading }}</h2>
+    {% else %}
+    <h2 class="mag-head__title" id="{{ section.id }}-title">{{ s.name }}</h2>
+    {% endif %}
+  </div>
+  <div class="mag-author__body{% if s.photo %} mag-author__body--photo{% endif %}">
+    {% if s.photo %}
+    <div class="mag-author__photo">{{ s.photo | image: '(min-width:960px)30vw,100vw' }}</div>
+    {% endif %}
+    <div>
+      {% if s.heading and s.name %}
+      <p class="mag-author__name">{{ s.name }}</p>
+      {% endif %}
+      <div class="mag-author__bio">{{ s.bio | paragraphs }}</div>
+      {% if s.link_url and s.link_label %}
+      <p><a class="mag-link" href="{{ s.link_url }}">{{ s.link_label }}</a></p>
+      {% endif %}
+    </div>
+  </div>
+</section>
+{% endif %} {% comment %}<!-- prettier-ignore -->{% endcomment %}
+{% schema %}
+{
+  "name": "Author",
+  "description": "Who writes it.",
+  "settings": [
+    { "id": "heading", "type": "text", "label": "Heading", "max": 120, "default": "Who makes it" },
+    { "id": "name", "type": "text", "label": "Name", "max": 80 },
+    { "id": "bio", "type": "textarea", "label": "About", "max": 800 },
+    { "id": "photo", "type": "image", "label": "Photo" },
+    {
+      "id": "link_label",
+      "type": "text",
+      "label": "Link text",
+      "max": 40,
+      "default": "More about me"
+    },
+    { "id": "link_url", "type": "url", "label": "Link", "default": "/about" }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,66 @@
+{% assign s = section.settings %} {% if s.items %}
+<section class="zn-notes" aria-labelledby="{{ section.id }}-title">
+  <div class="zn-head">
+    {% if s.heading %}
+    <h2 class="zn-h2" id="{{ section.id }}-title">{{ s.heading }}</h2>
+    {% else %}
+    <h2 class="sw-sr" id="{{ section.id }}-title">What readers say</h2>
+    {% endif %}
+  </div>
+  <ul class="zn-notes__list" role="list">
+    {% for item in s.items %}{% if item.quote %}
+    <li class="zn-notes__item">
+      <figure class="zn-note">
+        <blockquote class="zn-note__text"><p>{{ item.quote }}</p></blockquote>
+        {% if item.name %}
+        <figcaption class="zn-note__by">
+          {% if item.photo %}
+          <img
+            class="zn-note__photo"
+            src="{{ item.photo.url }}"
+            alt=""
+            width="36"
+            height="36"
+            loading="lazy"
+            decoding="async"
+          />
+          {% endif %}
+          <span>
+            <cite class="zn-note__name">{{ item.name }}</cite>
+            {% if item.role %}<span class="zn-note__role">{{ item.role }}</span>{% endif %}
+          </span>
+        </figcaption>
+        {% endif %}
+      </figure>
+    </li>
+    {% endif %}{% endfor %}
+  </ul>
+</section>
+{% endif %} {% comment %}<!-- prettier-ignore -->{% endcomment %}
+{% schema %}
+{
+  "name": "Testimonials",
+  "description": "What readers say, as notes pinned up.",
+  "settings": [
+    {
+      "id": "heading",
+      "type": "text",
+      "label": "Heading",
+      "max": 120,
+      "default": "Notes from readers"
+    },
+    {
+      "id": "items",
+      "type": "list",
+      "label": "Quotes",
+      "max": 9,
+      "fields": [
+        { "id": "quote", "type": "textarea", "label": "Quote", "max": 400 },
+        { "id": "name", "type": "text", "label": "Name", "max": 80 },
+        { "id": "role", "type": "text", "label": "Who they are", "max": 80 },
+        { "id": "photo", "type": "image", "label": "Photo" }
+      ]
+    }
+  ]
+}
+{% endschema %}

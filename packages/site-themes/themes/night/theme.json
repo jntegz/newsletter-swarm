@@ -1,0 +1,231 @@
+{
+  "name": "Night",
+  "settings": [
+    {
+      "id": "accent",
+      "type": "color",
+      "label": "Accent",
+      "group": "Colour",
+      "default": "#7c3aed",
+      "info": "Buttons, links and highlights."
+    },
+    {
+      "id": "page",
+      "type": "color",
+      "label": "Background",
+      "group": "Colour",
+      "default": "#0b0a0d"
+    },
+    {
+      "id": "ink",
+      "type": "color",
+      "label": "Text",
+      "group": "Colour",
+      "default": "#f2eee8"
+    },
+    {
+      "id": "scheme",
+      "type": "select",
+      "label": "Light or dark",
+      "group": "Colour",
+      "default": "dark",
+      "options": [
+        {
+          "value": "light",
+          "label": "Light"
+        },
+        {
+          "value": "dark",
+          "label": "Dark"
+        },
+        {
+          "value": "auto",
+          "label": "Follow the reader’s device"
+        }
+      ]
+    },
+    {
+      "id": "heading_font",
+      "type": "font",
+      "label": "Headings",
+      "group": "Type",
+      "default": "archivo"
+    },
+    {
+      "id": "body_font",
+      "type": "font",
+      "label": "Text",
+      "group": "Type",
+      "default": "geist"
+    },
+    {
+      "id": "scale",
+      "type": "select",
+      "label": "Text size",
+      "group": "Type",
+      "default": "regular",
+      "options": [
+        {
+          "value": "compact",
+          "label": "Compact"
+        },
+        {
+          "value": "regular",
+          "label": "Regular"
+        },
+        {
+          "value": "large",
+          "label": "Large"
+        }
+      ]
+    },
+    {
+      "id": "corners",
+      "type": "select",
+      "label": "Corners",
+      "group": "Shape",
+      "default": "soft",
+      "options": [
+        {
+          "value": "square",
+          "label": "Square"
+        },
+        {
+          "value": "soft",
+          "label": "Soft"
+        },
+        {
+          "value": "round",
+          "label": "Round"
+        }
+      ]
+    },
+    {
+      "id": "width",
+      "type": "select",
+      "label": "Page width",
+      "group": "Shape",
+      "default": "wide",
+      "options": [
+        {
+          "value": "narrow",
+          "label": "Narrow"
+        },
+        {
+          "value": "regular",
+          "label": "Regular"
+        },
+        {
+          "value": "wide",
+          "label": "Wide"
+        }
+      ]
+    },
+    {
+      "id": "buttons",
+      "type": "select",
+      "label": "Buttons",
+      "group": "Shape",
+      "default": "pill",
+      "options": [
+        {
+          "value": "solid",
+          "label": "Solid"
+        },
+        {
+          "value": "pill",
+          "label": "Pill"
+        },
+        {
+          "value": "outline",
+          "label": "Outline"
+        }
+      ]
+    },
+    {
+      "id": "glow",
+      "type": "color",
+      "label": "The light",
+      "group": "Colour",
+      "default": "#ff9d42",
+      "info": "The colour of the light across the first screen. Only drawn, never used for text."
+    },
+    {
+      "id": "light",
+      "type": "select",
+      "label": "Where the light falls from",
+      "group": "Colour",
+      "default": "above",
+      "options": [
+        {
+          "value": "above",
+          "label": "Above"
+        },
+        {
+          "value": "side",
+          "label": "The side"
+        },
+        {
+          "value": "below",
+          "label": "Below, like a stage"
+        }
+      ]
+    },
+    {
+      "id": "grain",
+      "type": "select",
+      "label": "Film grain",
+      "group": "Colour",
+      "default": "fine",
+      "options": [
+        {
+          "value": "fine",
+          "label": "Fine"
+        },
+        {
+          "value": "heavy",
+          "label": "Heavy"
+        },
+        {
+          "value": "off",
+          "label": "None"
+        }
+      ]
+    }
+  ],
+  "sections": [
+    {
+      "type": "hero",
+      "settings": {
+        "layout": "marquee",
+        "show_count": true
+      }
+    },
+    {
+      "type": "latest",
+      "settings": {
+        "style": "reel",
+        "count": 8
+      }
+    },
+    {
+      "type": "testimonials",
+      "audience": "visitors"
+    },
+    {
+      "type": "benefits",
+      "audience": "visitors"
+    },
+    {
+      "type": "author"
+    },
+    {
+      "type": "faq",
+      "audience": "visitors"
+    },
+    {
+      "type": "subscribe_band",
+      "audience": "visitors"
+    }
+  ]
+}

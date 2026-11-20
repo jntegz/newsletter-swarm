@@ -1,0 +1,4121 @@
+table account_events
+  id TEXT PK1
+  operator_id TEXT NOT NULL
+  action TEXT NOT NULL
+  method TEXT
+  ip_prefix TEXT
+  user_agent TEXT
+  metadata_json TEXT NOT NULL DEFAULT '{}'
+  created_at INTEGER NOT NULL
+  fk operator_id -> operators(id) on delete cascade on update no action
+  index account_events_by_age (created_at)
+  index account_events_by_operator (operator_id, created_at)
+  index (pk) UNIQUE (id)
+table address_confirmations
+  id INTEGER PK1
+  workspace_id TEXT NOT NULL
+  channel_id TEXT NOT NULL
+  kind TEXT NOT NULL
+  email_enc TEXT NOT NULL
+  email_hash TEXT NOT NULL
+  created_at INTEGER NOT NULL
+  expires_at INTEGER NOT NULL
+  used_at INTEGER
+  nonce_hash TEXT
+  CHECK (kind IN ('export', 'erase'))
+  fk channel_id -> channels(id) on delete cascade on update no action
+  fk workspace_id -> workspaces(id) on delete cascade on update no action
+  index address_confirmations_by_expiry (expires_at)
+  index address_confirmations_by_hash (workspace_id, email_hash, created_at)
+table agent_action_anchors
+  workspace_id TEXT PK1
+  seq INTEGER NOT NULL
+  hash TEXT NOT NULL
+  pruned_before INTEGER NOT NULL
+  updated_at INTEGER NOT NULL
+  fk workspace_id -> workspaces(id) on delete cascade on update no action
+  index (pk) UNIQUE (workspace_id)
+table agent_actions
+  id TEXT PK1
+  workspace_id TEXT NOT NULL
+  seq INTEGER NOT NULL
+  source TEXT NOT NULL
+  principal_kind TEXT NOT NULL
+  principal_id TEXT NOT NULL
+  client_name TEXT
+  client_version TEXT
+  tool TEXT NOT NULL
+  channel_id TEXT
+  risk TEXT
+  arguments_json TEXT NOT NULL
+  outcome TEXT NOT NULL
+  status_code INTEGER
+  error_code TEXT
+  latency_ms INTEGER NOT NULL
+  approval_id TEXT
+  created_at INTEGER NOT NULL
+  prev_hash TEXT NOT NULL
+  hash TEXT NOT NULL
+  copilot_request_id TEXT
+  CHECK (source IN ('mcp', 'approval', 'copilot'))
+  CHECK (principal_kind IN ('key', 'oauth', 'copilot'))
+  CHECK (risk IN ('read', 'write', 'destructive'))
+  CHECK (outcome IN ('ok', 'error', 'denied', 'pending_approval'))
+  fk workspace_id -> workspaces(id) on delete cascade on update no action
+  index agent_actions_by_principal (principal_id, seq)
+  index agent_actions_by_workspace_time (workspace_id, created_at)
+  index (pk) UNIQUE (id)
+  index (u) UNIQUE (workspace_id, seq)
+table agent_approvals
+  id TEXT PK1
+  workspace_id TEXT NOT NULL
+  action_id TEXT NOT NULL
+  principal_kind TEXT NOT NULL
+  principal_id TEXT NOT NULL
+  client_name TEXT
+  client_version TEXT
+  tool TEXT NOT NULL
+  scope TEXT NOT NULL
+  risk TEXT NOT NULL
+  channel_id TEXT
+  method TEXT NOT NULL
+  path TEXT NOT NULL
+  body_json TEXT
+  arguments_json TEXT NOT NULL
+  status TEXT NOT NULL DEFAULT 'pending'
+  expires_at INTEGER NOT NULL
+  decided_by TEXT
+  decided_at INTEGER
+  reason TEXT
+  result_status INTEGER
+  result_json TEXT
+  executed_action_id TEXT
+  created_at INTEGER NOT NULL
+  target_json TEXT
+  hold_reason TEXT
+  copilot_request_id TEXT
+  CHECK (principal_kind IN ('key', 'oauth', 'copilot'))
+  CHECK (risk IN ('read', 'write', 'destructive'))
+  CHECK (status IN ('pending', 'approved', 'executed', 'failed', 'rejected', 'canceled'))
+  fk decided_by -> operators(id) on delete set null on update no action
+  fk workspace_id -> workspaces(id) on delete cascade on update no action
+  index agent_approvals_by_principal (principal_id, status)
+  index agent_approvals_by_workspace (workspace_id, status, created_at)
+  index agent_approvals_pending_expiry PARTIAL (expires_at)
+  index (pk) UNIQUE (id)
+table agent_settings
+  workspace_id TEXT PK1
+  mcp_enabled INTEGER NOT NULL DEFAULT 1
+  approval_mode TEXT NOT NULL DEFAULT 'destructive'
+  approval_ttl_hours INTEGER NOT NULL DEFAULT 24
+  updated_by TEXT
+  updated_at INTEGER NOT NULL
+  separate_approver INTEGER NOT NULL DEFAULT 0
+  exposed_hold_minutes INTEGER NOT NULL DEFAULT 0
+  copilot_member_detail TEXT NOT NULL DEFAULT 'masked'
+  CHECK (mcp_enabled IN (0, 1))
+  CHECK (approval_mode IN ('never', 'destructive', 'writes'))
+  CHECK (approval_ttl_hours BETWEEN 1 AND 72)
+  CHECK (separate_approver IN (0, 1))
+  CHECK (exposed_hold_minutes BETWEEN 0 AND 1440)
+  CHECK (copilot_member_detail IN ('masked', 'full'))
+  fk updated_by -> operators(id) on delete set null on update no action
+  fk workspace_id -> workspaces(id) on delete cascade on update no action
+  index (pk) UNIQUE (workspace_id)
+table api_idempotency
+  principal TEXT NOT NULL PK1
+  key TEXT NOT NULL PK2
+  method TEXT NOT NULL
+  path TEXT NOT NULL
+  request_hash TEXT NOT NULL
+  status INTEGER NOT NULL
+  response_json TEXT NOT NULL
+  created_at INTEGER NOT NULL
+  index api_idempotency_by_time (created_at)
+  index (pk) UNIQUE (principal, key)
+table api_keys
+  id TEXT PK1
+  workspace_id TEXT NOT NULL
+  channel_ids_json TEXT
+  name TEXT NOT NULL
+  prefix TEXT NOT NULL
+  secret_hash TEXT NOT NULL
+  scopes_json TEXT NOT NULL
+  ip_allowlist_json TEXT
+  rate_cap INTEGER
+  expires_at INTEGER
+  last_used_at INTEGER
+  last_used_ip_prefix TEXT
+  created_by TEXT
+  created_at INTEGER NOT NULL
+  revoked_at INTEGER
+  surface TEXT NOT NULL DEFAULT 'both'
+  CHECK (channel_ids_json IS NULL OR json_valid(channel_ids_json))
+  CHECK (length(name) BETWEEN 1 AND 80)
+  CHECK (json_valid(scopes_json))
+  CHECK (ip_allowlist_json IS NULL OR json_valid(ip_allowlist_json))
+  CHECK (rate_cap IS NULL OR rate_cap > 0)
+  CHECK (surface IN ('both', 'mcp'))
+  fk created_by -> operators(id) on delete set null on update no action
+  fk workspace_id -> workspaces(id) on delete cascade on update no action
+  index api_keys_by_creator PARTIAL (created_by, workspace_id)
+  index api_keys_by_workspace (workspace_id, created_at)
+  index (pk) UNIQUE (id)
+  index (u) UNIQUE (secret_hash)
+table app_connections
+  id TEXT PK1
+  workspace_id TEXT NOT NULL
+  app TEXT NOT NULL
+  base_url TEXT NOT NULL
+  key_enc TEXT NOT NULL
+  last4 TEXT NOT NULL
+  slug_format TEXT NOT NULL
+  domain TEXT
+  created_by TEXT
+  created_at INTEGER NOT NULL
+  updated_at INTEGER NOT NULL
+  CHECK (app IN ('shorthop'))
+  fk created_by -> operators(id) on delete set null on update no action
+  fk workspace_id -> workspaces(id) on delete cascade on update no action
+  index (pk) UNIQUE (id)
+  index (u) UNIQUE (workspace_id, app)
+table app_listings
+  id TEXT PK1
+  app_id TEXT NOT NULL
+  workspace_id TEXT NOT NULL
+  status TEXT NOT NULL DEFAULT 'draft'
+  name TEXT NOT NULL
+  slug TEXT NOT NULL
+  tagline TEXT NOT NULL DEFAULT ''
+  description TEXT NOT NULL DEFAULT ''
+  icon_media_id TEXT
+  screenshots_json TEXT NOT NULL DEFAULT '[]'
+  categories_json TEXT NOT NULL DEFAULT '[]'
+  scopes_json TEXT NOT NULL DEFAULT '[]'
+  webhook_events_json TEXT NOT NULL DEFAULT '[]'
+  website_url TEXT
+  support_url TEXT
+  privacy_url TEXT
+  install_url TEXT
+  review_note TEXT
+  submitted_at INTEGER
+  reviewed_at INTEGER
+  reviewed_by TEXT
+  created_by TEXT
+  created_at INTEGER NOT NULL
+  updated_at INTEGER NOT NULL
+  CHECK (status IN ('draft', 'submitted', 'approved', 'rejected', 'delisted'))
+  CHECK (length(name) BETWEEN 1 AND 80)
+  CHECK (length(slug) BETWEEN 2 AND 50)
+  CHECK (length(tagline) <= 120)
+  CHECK (length(description) <= 5000)
+  CHECK (json_valid(screenshots_json))
+  CHECK (json_valid(categories_json))
+  CHECK (json_valid(scopes_json))
+  CHECK (json_valid(webhook_events_json))
+  CHECK (review_note IS NULL OR length(review_note) <= 1000)
+  fk created_by -> operators(id) on delete set null on update no action
+  fk reviewed_by -> operators(id) on delete set null on update no action
+  fk icon_media_id -> media(id) on delete set null on update no action
+  fk workspace_id -> workspaces(id) on delete cascade on update no action
+  fk app_id -> oauth_apps(id) on delete cascade on update no action
+  index app_listings_by_status (status, reviewed_at)
+  index app_listings_by_workspace (workspace_id, created_at)
+  index (pk) UNIQUE (id)
+  index (u) UNIQUE (app_id)
+  index (u) UNIQUE (slug)
+table app_short_links
+  connection_id TEXT NOT NULL PK1
+  post_id TEXT NOT NULL PK2
+  url TEXT NOT NULL PK3
+  short_url TEXT NOT NULL
+  created_at INTEGER NOT NULL
+  fk connection_id -> app_connections(id) on delete cascade on update no action
+  index app_short_links_short_url (short_url)
+  index app_short_links_url (url)
+  index (pk) UNIQUE (connection_id, post_id, url)
+table ask_options
+  id TEXT PK1
+  ask_id TEXT NOT NULL
+  question_id TEXT NOT NULL
+  label TEXT NOT NULL
+  position INTEGER NOT NULL
+  CHECK (length(label) BETWEEN 1 AND 120)
+  fk question_id -> ask_questions(id) on delete cascade on update no action
+  fk ask_id -> asks(id) on delete cascade on update no action
+  index (pk) UNIQUE (id)
+  index (u) UNIQUE (question_id, position)
+table ask_questions
+  id TEXT PK1
+  ask_id TEXT NOT NULL
+  position INTEGER NOT NULL
+  prompt TEXT NOT NULL
+  description TEXT
+  kind TEXT NOT NULL
+  field_id TEXT
+  required INTEGER NOT NULL DEFAULT 0
+  CHECK (length(prompt) BETWEEN 1 AND 300)
+  CHECK (description IS NULL OR length(description) <= 1000)
+  CHECK (kind IN ('choice', 'text'))
+  CHECK (required IN (0, 1))
+  fk field_id -> member_fields(id) on delete set null on update no action
+  fk ask_id -> asks(id) on delete cascade on update no action
+  index (pk) UNIQUE (id)
+  index (u) UNIQUE (ask_id, position)
+table ask_responses
+  id TEXT PK1
+  ask_id TEXT NOT NULL
+  question_id TEXT NOT NULL
+  channel_id TEXT NOT NULL
+  member_id TEXT NOT NULL
+  option_id TEXT
+  text TEXT
+  surface TEXT NOT NULL
+  created_at INTEGER NOT NULL
+  updated_at INTEGER NOT NULL
+  CHECK (text IS NULL OR length(text) <= 2000)
+  CHECK (surface IN ('email', 'page', 'journey'))
+  CHECK (option_id IS NOT NULL OR text IS NOT NULL)
+  fk option_id -> ask_options(id) on delete set null on update no action
+  fk member_id -> members(id) on delete cascade on update no action
+  fk channel_id -> channels(id) on delete cascade on update no action
+  fk question_id -> ask_questions(id) on delete cascade on update no action
+  fk ask_id -> asks(id) on delete cascade on update no action
+  index ask_responses_by_member (member_id)
+  index ask_responses_by_option (question_id, option_id)
+  index (pk) UNIQUE (id)
+  index (u) UNIQUE (question_id, member_id)
+table asks
+  id TEXT PK1
+  channel_id TEXT NOT NULL
+  kind TEXT NOT NULL
+  title TEXT NOT NULL
+  description TEXT
+  status TEXT NOT NULL DEFAULT 'draft'
+  results_public INTEGER NOT NULL DEFAULT 1
+  closes_at INTEGER
+  created_by TEXT
+  created_at INTEGER NOT NULL
+  updated_at INTEGER NOT NULL
+  deleted_at INTEGER
+  CHECK (kind IN ('poll', 'survey'))
+  CHECK (length(title) BETWEEN 1 AND 200)
+  CHECK (description IS NULL OR length(description) <= 1000)
+  CHECK (status IN ('draft', 'open', 'closed'))
+  CHECK (results_public IN (0, 1))
+  fk created_by -> operators(id) on delete set null on update no action
+  fk channel_id -> channels(id) on delete cascade on update no action
+  index asks_by_channel PARTIAL (channel_id, created_at)
+  index (pk) UNIQUE (id)
+table audit_anchors
+  workspace_id TEXT NOT NULL PK1
+  seq INTEGER NOT NULL
+  hash TEXT NOT NULL
+  pruned_before INTEGER NOT NULL
+  updated_at INTEGER NOT NULL
+  CHECK (seq > 0)
+  fk workspace_id -> workspaces(id) on delete cascade on update no action
+  index (pk) UNIQUE (workspace_id)
+table audit_events
+  id TEXT PK1
+  workspace_id TEXT NOT NULL
+  seq INTEGER NOT NULL
+  actor_operator_id TEXT
+  action TEXT NOT NULL
+  target_type TEXT
+  target_id TEXT
+  metadata_json TEXT NOT NULL DEFAULT '{}'
+  ip_prefix TEXT
+  created_at INTEGER NOT NULL
+  prev_hash TEXT NOT NULL
+  hash TEXT NOT NULL
+  CHECK (json_valid(metadata_json))
+  fk actor_operator_id -> operators(id) on delete set null on update no action
+  fk workspace_id -> workspaces(id) on delete cascade on update no action
+  index audit_events_by_workspace_time (workspace_id, created_at)
+  index (pk) UNIQUE (id)
+  index (u) UNIQUE (workspace_id, seq)
+table audit_verification_passes
+  workspace_id TEXT NOT NULL PK1
+  chain TEXT NOT NULL PK2
+  through_seq INTEGER NOT NULL
+  through_hash TEXT NOT NULL
+  checked INTEGER NOT NULL
+  started_at INTEGER NOT NULL
+  updated_at INTEGER NOT NULL
+  fk workspace_id -> workspaces(id) on delete cascade on update no action
+  index (pk) UNIQUE (workspace_id, chain)
+table audit_verifications
+  workspace_id TEXT NOT NULL PK1
+  chain TEXT NOT NULL PK2
+  verified_at INTEGER NOT NULL
+  ok INTEGER NOT NULL
+  checked INTEGER NOT NULL
+  broken_at_seq INTEGER
+  broken_since INTEGER
+  CHECK (ok IN (0, 1))
+  fk workspace_id -> workspaces(id) on delete cascade on update no action
+  index audit_verifications_due (chain, verified_at)
+  index (pk) UNIQUE (workspace_id, chain)
+table author_profiles
+  channel_id TEXT NOT NULL PK1
+  operator_id TEXT NOT NULL PK2
+  slug TEXT NOT NULL
+  name TEXT NOT NULL
+  bio TEXT
+  avatar_media_id TEXT
+  created_at INTEGER NOT NULL
+  updated_at INTEGER NOT NULL
+  CHECK (length(slug) BETWEEN 1 AND 60)
+  CHECK (length(name) BETWEEN 1 AND 80)
+  CHECK (bio IS NULL OR length(bio) <= 1000)
+  fk avatar_media_id -> media(id) on delete set null on update no action
+  fk operator_id -> operators(id) on delete cascade on update no action
+  fk channel_id -> channels(id) on delete cascade on update no action
+  index (pk) UNIQUE (channel_id, operator_id)
+  index (u) UNIQUE (channel_id, slug)
+table bot_rules
+  channel_id TEXT NOT NULL PK1
+  agent TEXT NOT NULL PK2
+  action TEXT NOT NULL
+  updated_at INTEGER NOT NULL
+  CHECK (agent GLOB '[a-z0-9-]*' AND length(agent) BETWEEN 2 AND 40)
+  CHECK (action IN ('allow', 'block'))
+  fk channel_id -> channels(id) on delete cascade on update no action
+  index (pk) UNIQUE (channel_id, agent)
+table bounce_events
+  workspace_id TEXT NOT NULL
+  email TEXT NOT NULL
+  send_id TEXT
+  kind TEXT NOT NULL
+  cause TEXT NOT NULL
+  code TEXT
+  detail TEXT
+  created_at INTEGER NOT NULL
+  CHECK (kind IN ('hard', 'soft', 'blocked'))
+  CHECK (cause IN ( 'no_mailbox', 'no_domain', 'provider_list', 'rejected', 'mailbox_full', 'mailbox_unavailable', 'too_large', 'greylisted', 'temporary', 'unknown', 'reputation', 'blocklist', 'content', 'authentication', 'rate_limited', 'policy'))
+  CHECK (code IS NULL OR length(code) <= 12)
+  CHECK (detail IS NULL OR length(detail) <= 500)
+  fk workspace_id -> workspaces(id) on delete cascade on update no action
+  index bounce_events_by_age (created_at)
+  index bounce_events_by_email (workspace_id, email, created_at)
+  index bounce_events_once UNIQUE PARTIAL (workspace_id, email, send_id, kind)
+table bounce_policies
+  workspace_id TEXT PK1
+  hard_bounces INTEGER NOT NULL DEFAULT 1
+  soft_streak INTEGER
+  soft_window_count INTEGER
+  soft_window_days INTEGER
+  ask_for_paid INTEGER NOT NULL DEFAULT 1
+  updated_by TEXT
+  updated_at INTEGER NOT NULL
+  CHECK (hard_bounces IN (1, 2))
+  CHECK (soft_streak IS NULL OR soft_streak BETWEEN 2 AND 10)
+  CHECK (soft_window_count IS NULL OR soft_window_count BETWEEN 2 AND 10)
+  CHECK (soft_window_days IS NULL OR soft_window_days IN (7, 14, 30, 60, 90))
+  CHECK (ask_for_paid IN (0, 1))
+  CHECK ((soft_window_count IS NULL) = (soft_window_days IS NULL))
+  fk updated_by -> operators(id) on delete set null on update no action
+  fk workspace_id -> workspaces(id) on delete cascade on update no action
+  index (pk) UNIQUE (workspace_id)
+table bounce_states
+  id TEXT PK1
+  workspace_id TEXT NOT NULL
+  email TEXT NOT NULL
+  soft_streak INTEGER NOT NULL DEFAULT 0
+  streak_sent_at INTEGER
+  counts_from INTEGER NOT NULL DEFAULT 0
+  last_kind TEXT NOT NULL
+  last_cause TEXT NOT NULL
+  last_code TEXT
+  last_detail TEXT
+  last_bounced_at INTEGER NOT NULL
+  held_at INTEGER
+  held_rule TEXT
+  held_counted INTEGER
+  held_days INTEGER
+  hold_notice TEXT
+  created_at INTEGER NOT NULL
+  updated_at INTEGER NOT NULL
+  CHECK (soft_streak >= 0)
+  CHECK (last_kind IN ('hard', 'soft', 'blocked'))
+  CHECK (last_cause IN ( 'no_mailbox', 'no_domain', 'provider_list', 'rejected', 'mailbox_full', 'mailbox_unavailable', 'too_large', 'greylisted', 'temporary', 'unknown', 'reputation', 'blocklist', 'content', 'authentication', 'rate_limited', 'policy'))
+  CHECK (last_code IS NULL OR length(last_code) <= 12)
+  CHECK (last_detail IS NULL OR length(last_detail) <= 500)
+  CHECK (held_rule IS NULL OR held_rule IN ('hard', 'hard_repeat', 'soft_streak', 'soft_window'))
+  CHECK (hold_notice IS NULL OR hold_notice IN ('due', 'sent'))
+  CHECK ((held_at IS NULL) = (held_rule IS NULL))
+  fk workspace_id -> workspaces(id) on delete cascade on update no action
+  index bounce_states_by_age (updated_at)
+  index bounce_states_held PARTIAL (workspace_id, held_at)
+  index bounce_states_notice PARTIAL (hold_notice)
+  index (pk) UNIQUE (id)
+  index (u) UNIQUE (workspace_id, email)
+table broadcast_recipients
+  broadcast_id TEXT NOT NULL PK1
+  member_id TEXT NOT NULL PK2
+  email TEXT NOT NULL
+  first_name TEXT
+  last_name TEXT
+  status TEXT NOT NULL DEFAULT 'pending'
+  claimed_at INTEGER
+  attempts INTEGER NOT NULL DEFAULT 0
+  variant TEXT NOT NULL DEFAULT 'full'
+  held INTEGER NOT NULL DEFAULT 0
+  split_variant_id TEXT
+  smart_blocks_json TEXT
+  send_tier INTEGER NOT NULL DEFAULT 0
+  send_after INTEGER
+  reserved_on TEXT
+  CHECK (status IN ('pending', 'sending', 'sent', 'failed', 'skipped'))
+  CHECK (variant IN ('full', 'teaser'))
+  CHECK (held IN (0, 1))
+  CHECK (smart_blocks_json IS NULL OR json_valid(smart_blocks_json))
+  CHECK (send_tier IN (0, 1, 2))
+  fk member_id -> members(id) on delete cascade on update no action
+  fk broadcast_id -> broadcasts(id) on delete cascade on update no action
+  index broadcast_recipients_by_status (broadcast_id, status)
+  index broadcast_recipients_by_tier PARTIAL (broadcast_id, send_tier, member_id)
+  index broadcast_recipients_held PARTIAL (broadcast_id, member_id)
+  index broadcast_recipients_identified PARTIAL (broadcast_id, claimed_at)
+  index broadcast_recipients_slots PARTIAL (broadcast_id, send_after)
+  index (pk) UNIQUE (broadcast_id, member_id)
+table broadcasts
+  id TEXT PK1
+  dispatch_id TEXT NOT NULL
+  channel_id TEXT NOT NULL
+  workspace_id TEXT NOT NULL
+  status TEXT NOT NULL DEFAULT 'queued'
+  subject TEXT NOT NULL
+  preheader TEXT NOT NULL
+  html TEXT NOT NULL
+  text TEXT NOT NULL
+  from_name TEXT NOT NULL
+  from_address TEXT NOT NULL
+  reply_to TEXT
+  sending_domain_id TEXT
+  ramp_id TEXT
+  track_opens INTEGER NOT NULL
+  recipient_count INTEGER NOT NULL DEFAULT 0
+  sent_count INTEGER NOT NULL DEFAULT 0
+  failed_count INTEGER NOT NULL DEFAULT 0
+  snapshot_cursor TEXT
+  fanout_cursor TEXT
+  snapshot_done INTEGER NOT NULL DEFAULT 0
+  fanout_done INTEGER NOT NULL DEFAULT 0
+  failure_reason TEXT
+  created_by TEXT
+  created_at INTEGER NOT NULL
+  last_progress_at INTEGER NOT NULL
+  resume_at INTEGER
+  completed_at INTEGER
+  canceled_at INTEGER
+  audience_json TEXT NOT NULL DEFAULT '{"include":[],"exclude":[]}'
+  teaser_html TEXT
+  teaser_text TEXT
+  gate_level_ids_json TEXT
+  kind TEXT NOT NULL DEFAULT 'broadcast'
+  flow_id TEXT
+  split_test_id TEXT
+  cohort_sample_id TEXT
+  test_run_id TEXT
+  fanout_tier INTEGER
+  best_time INTEGER NOT NULL DEFAULT 0
+  personal_time_count INTEGER NOT NULL DEFAULT 0
+  default_time_count INTEGER NOT NULL DEFAULT 0
+  track_clicks INTEGER NOT NULL DEFAULT 1
+  carried_opened INTEGER NOT NULL DEFAULT 0
+  carried_human_opened INTEGER NOT NULL DEFAULT 0
+  carried_clicked INTEGER NOT NULL DEFAULT 0
+  carried_human_clicked INTEGER NOT NULL DEFAULT 0
+  waiting_for TEXT
+  waiting_since INTEGER
+  wait_detail TEXT
+  share_wait_since INTEGER
+  share_wait_until INTEGER
+  CHECK (status IN ('queued', 'sending', 'sent', 'partially_failed', 'canceled', 'failed'))
+  CHECK (track_opens IN (0, 1))
+  CHECK (snapshot_done IN (0, 1))
+  CHECK (fanout_done IN (0, 1))
+  CHECK (json_valid(audience_json))
+  CHECK (gate_level_ids_json IS NULL OR json_valid(gate_level_ids_json))
+  CHECK (kind IN ('broadcast', 'flow'))
+  CHECK (fanout_tier IS NULL OR fanout_tier IN (0, 1, 2))
+  CHECK (best_time IN (0, 1, 2))
+  CHECK (track_clicks IN (0, 1))
+  CHECK (waiting_for IS NULL OR waiting_for IN ('hour', 'day', 'month', 'service_day', 'service_month', 'service_stopped'))
+  fk test_run_id -> flow_runs(id) on delete set null on update no action
+  fk cohort_sample_id -> cohort_samples(id) on delete set null on update no action
+  fk split_test_id -> split_tests(id) on delete set null on update no action
+  fk flow_id -> flows(id) on delete set null on update no action
+  fk created_by -> operators(id) on delete set null on update no action
+  fk ramp_id -> reputation_ramps(id) on delete set null on update no action
+  fk sending_domain_id -> sending_domains(id) on delete set null on update no action
+  fk workspace_id -> workspaces(id) on delete cascade on update no action
+  fk channel_id -> channels(id) on delete cascade on update no action
+  fk dispatch_id -> dispatches(id) on delete cascade on update no action
+  index broadcasts_active PARTIAL (last_progress_at)
+  index broadcasts_best_time_open PARTIAL (last_progress_at)
+  index broadcasts_by_channel (channel_id, created_at)
+  index broadcasts_one_active_per_dispatch UNIQUE PARTIAL (dispatch_id)
+  index broadcasts_test_copy UNIQUE PARTIAL (test_run_id, dispatch_id)
+  index broadcasts_waiting PARTIAL (resume_at)
+  index (pk) UNIQUE (id)
+table bulk_jobs
+  id TEXT PK1
+  workspace_id TEXT NOT NULL
+  channel_id TEXT NOT NULL
+  action TEXT NOT NULL
+  params_json TEXT NOT NULL DEFAULT '{}'
+  selection_json TEXT NOT NULL
+  status TEXT NOT NULL DEFAULT 'queued'
+  total INTEGER NOT NULL DEFAULT 0
+  processed INTEGER NOT NULL DEFAULT 0
+  entered INTEGER NOT NULL DEFAULT 0
+  cursor TEXT
+  error TEXT
+  created_by TEXT
+  created_at INTEGER NOT NULL
+  completed_at INTEGER
+  CHECK (action IN ('tag', 'untag', 'set_field', 'unsubscribe', 'delete', 'flow_enrol'))
+  CHECK (json_valid(params_json))
+  CHECK (json_valid(selection_json))
+  CHECK (status IN ('queued', 'running', 'done', 'failed'))
+  fk created_by -> operators(id) on delete set null on update no action
+  fk channel_id -> channels(id) on delete cascade on update no action
+  fk workspace_id -> workspaces(id) on delete cascade on update no action
+  index bulk_jobs_by_channel (channel_id, created_at)
+  index (pk) UNIQUE (id)
+table capture_form_daily
+  form_id TEXT NOT NULL PK1
+  day TEXT NOT NULL PK2
+  views INTEGER NOT NULL DEFAULT 0
+  submissions INTEGER NOT NULL DEFAULT 0
+  confirmed INTEGER NOT NULL DEFAULT 0
+  CHECK (length(day) = 10)
+  fk form_id -> capture_forms(id) on delete cascade on update no action
+  index (pk) UNIQUE (form_id, day)
+table capture_form_versions
+  form_id TEXT NOT NULL PK1
+  version INTEGER NOT NULL PK2
+  config_json TEXT NOT NULL
+  published_by TEXT
+  published_at INTEGER NOT NULL
+  CHECK (json_valid(config_json))
+  fk published_by -> operators(id) on delete set null on update no action
+  fk form_id -> capture_forms(id) on delete cascade on update no action
+  index (pk) UNIQUE (form_id, version)
+table capture_forms
+  id TEXT PK1
+  workspace_id TEXT NOT NULL
+  channel_id TEXT NOT NULL
+  name TEXT NOT NULL
+  status TEXT NOT NULL DEFAULT 'draft'
+  draft_config_json TEXT NOT NULL
+  published_config_json TEXT
+  version INTEGER NOT NULL DEFAULT 0
+  published_at INTEGER
+  created_by TEXT
+  created_at INTEGER NOT NULL
+  updated_at INTEGER NOT NULL
+  deleted_at INTEGER
+  kind TEXT NOT NULL DEFAULT 'form'
+  placement_json TEXT
+  CHECK (length(name) BETWEEN 1 AND 80)
+  CHECK (status IN ('draft', 'published', 'archived'))
+  CHECK (json_valid(draft_config_json))
+  CHECK (published_config_json IS NULL OR json_valid(published_config_json))
+  CHECK (kind IN ('form', 'prompt'))
+  CHECK (placement_json IS NULL OR json_valid(placement_json))
+  fk created_by -> operators(id) on delete set null on update no action
+  fk channel_id -> channels(id) on delete cascade on update no action
+  fk workspace_id -> workspaces(id) on delete cascade on update no action
+  index capture_forms_by_channel PARTIAL (channel_id, created_at)
+  index (pk) UNIQUE (id)
+table champion_awards
+  id TEXT PK1
+  channel_id TEXT NOT NULL
+  member_id TEXT NOT NULL
+  milestone_id TEXT NOT NULL
+  reward_id TEXT
+  status TEXT NOT NULL DEFAULT 'pending'
+  comp_grant_id TEXT
+  detail TEXT
+  created_at INTEGER NOT NULL
+  fulfilled_at INTEGER
+  CHECK (status IN ('pending', 'fulfilled', 'failed', 'revoked'))
+  CHECK (detail IS NULL OR length(detail) <= 500)
+  fk comp_grant_id -> comp_grants(id) on delete set null on update no action
+  fk reward_id -> champion_rewards(id) on delete set null on update no action
+  fk milestone_id -> champion_milestones(id) on delete cascade on update no action
+  fk member_id -> members(id) on delete cascade on update no action
+  fk channel_id -> channels(id) on delete cascade on update no action
+  index champion_awards_by_channel (channel_id, created_at)
+  index (pk) UNIQUE (id)
+  index (u) UNIQUE (member_id, milestone_id)
+table champion_milestones
+  id TEXT PK1
+  channel_id TEXT NOT NULL
+  referrals_required INTEGER NOT NULL
+  name TEXT NOT NULL
+  reward_id TEXT
+  status TEXT NOT NULL DEFAULT 'active'
+  created_at INTEGER NOT NULL
+  updated_at INTEGER NOT NULL
+  CHECK (referrals_required BETWEEN 1 AND 100000)
+  CHECK (length(name) BETWEEN 1 AND 80)
+  CHECK (status IN ('active', 'archived'))
+  fk reward_id -> champion_rewards(id) on delete set null on update no action
+  fk channel_id -> channels(id) on delete cascade on update no action
+  index champion_milestones_threshold UNIQUE PARTIAL (channel_id, referrals_required)
+  index (pk) UNIQUE (id)
+table champion_rewards
+  id TEXT PK1
+  channel_id TEXT NOT NULL
+  kind TEXT NOT NULL
+  name TEXT NOT NULL
+  description TEXT
+  level_id TEXT
+  comp_days INTEGER
+  coupon_id TEXT
+  goods_ref TEXT
+  fulfil_flow_id TEXT
+  status TEXT NOT NULL DEFAULT 'active'
+  created_at INTEGER NOT NULL
+  updated_at INTEGER NOT NULL
+  CHECK (kind IN ('comp_level', 'coupon', 'goods', 'manual'))
+  CHECK (length(name) BETWEEN 1 AND 80)
+  CHECK (description IS NULL OR length(description) <= 500)
+  CHECK (comp_days IS NULL OR comp_days BETWEEN 1 AND 3650)
+  CHECK (goods_ref IS NULL OR length(goods_ref) <= 80)
+  CHECK (status IN ('active', 'archived'))
+  fk fulfil_flow_id -> flows(id) on delete set null on update no action
+  fk coupon_id -> coupons(id) on delete set null on update no action
+  fk level_id -> membership_levels(id) on delete set null on update no action
+  fk channel_id -> channels(id) on delete cascade on update no action
+  index champion_rewards_by_channel (channel_id, status)
+  index (pk) UNIQUE (id)
+table champion_settings
+  channel_id TEXT PK1
+  enabled INTEGER NOT NULL DEFAULT 0
+  engagement_days INTEGER NOT NULL DEFAULT 14
+  cluster_limit INTEGER NOT NULL DEFAULT 3
+  cluster_window_hours INTEGER NOT NULL DEFAULT 24
+  block_disposable INTEGER NOT NULL DEFAULT 1
+  public_leaderboard INTEGER NOT NULL DEFAULT 0
+  share_text TEXT
+  updated_at INTEGER NOT NULL
+  CHECK (enabled IN (0, 1))
+  CHECK (engagement_days BETWEEN 1 AND 90)
+  CHECK (cluster_limit BETWEEN 1 AND 100)
+  CHECK (cluster_window_hours BETWEEN 1 AND 720)
+  CHECK (block_disposable IN (0, 1))
+  CHECK (public_leaderboard IN (0, 1))
+  CHECK (share_text IS NULL OR length(share_text) <= 280)
+  fk channel_id -> channels(id) on delete cascade on update no action
+  index (pk) UNIQUE (channel_id)
+table channel_email_css
+  channel_id TEXT PK1
+  css TEXT NOT NULL
+  updated_by TEXT
+  updated_at INTEGER NOT NULL
+  CHECK (length(css) <= 20000)
+  fk updated_by -> operators(id) on delete set null on update no action
+  fk channel_id -> channels(id) on delete cascade on update no action
+  index (pk) UNIQUE (channel_id)
+table channel_messages
+  channel_id TEXT NOT NULL PK1
+  key TEXT NOT NULL PK2
+  subject TEXT NOT NULL
+  mode TEXT NOT NULL
+  heading TEXT NOT NULL DEFAULT ''
+  body TEXT NOT NULL
+  button_label TEXT NOT NULL DEFAULT ''
+  updated_by TEXT
+  updated_at INTEGER NOT NULL
+  CHECK (mode IN ('text', 'html'))
+  fk channel_id -> channels(id) on delete cascade on update no action
+  index (pk) UNIQUE (channel_id, key)
+table channel_roles
+  id TEXT PK1
+  channel_id TEXT NOT NULL
+  operator_id TEXT NOT NULL
+  role TEXT NOT NULL
+  created_at INTEGER NOT NULL
+  CHECK (role IN ('owner', 'admin', 'editor', 'author', 'viewer'))
+  fk operator_id -> operators(id) on delete cascade on update no action
+  fk channel_id -> channels(id) on delete cascade on update no action
+  index channel_roles_by_operator (operator_id)
+  index (pk) UNIQUE (id)
+  index (u) UNIQUE (channel_id, operator_id)
+table channels
+  id TEXT PK1
+  workspace_id TEXT NOT NULL
+  slug TEXT NOT NULL
+  name TEXT NOT NULL
+  description TEXT
+  branding_json TEXT NOT NULL DEFAULT '{}'
+  settings_json TEXT NOT NULL DEFAULT '{}'
+  status TEXT NOT NULL DEFAULT 'active'
+  created_at INTEGER NOT NULL
+  updated_at INTEGER NOT NULL
+  deleted_at INTEGER
+  ses_configuration_set TEXT
+  dedicated_ip_pool TEXT
+  dedicated_ip_status TEXT NOT NULL DEFAULT 'none'
+  dedicated_ip_warmup_percent INTEGER
+  dedicated_ip_requested_at INTEGER
+  dedicated_ip_checked_at INTEGER
+  purged_at INTEGER
+  files_purged_at INTEGER
+  CHECK (length(slug) BETWEEN 3 AND 48)
+  CHECK (length(name) BETWEEN 1 AND 80)
+  CHECK (description IS NULL OR length(description) <= 280)
+  CHECK (json_valid(branding_json))
+  CHECK (json_valid(settings_json))
+  CHECK (status IN ('active', 'paused'))
+  CHECK (dedicated_ip_status IN ('none', 'requested', 'warming', 'active'))
+  CHECK (dedicated_ip_warmup_percent IS NULL OR dedicated_ip_warmup_percent BETWEEN 0 AND 100)
+  fk workspace_id -> workspaces(id) on delete cascade on update no action
+  index channels_by_workspace PARTIAL (workspace_id, created_at)
+  index channels_dedicated_ip_pending PARTIAL (dedicated_ip_status)
+  index channels_files_unpurged PARTIAL (purged_at)
+  index (pk) UNIQUE (id)
+  index (u) UNIQUE (slug)
+table checkout_sessions
+  reference TEXT PK1
+  stripe_session_id TEXT
+  channel_id TEXT NOT NULL
+  subject_id TEXT
+  coupon_id TEXT
+  custom_amount INTEGER
+  level_id TEXT
+  price_id TEXT
+  member_id TEXT
+  email TEXT
+  intent TEXT NOT NULL
+  status TEXT NOT NULL DEFAULT 'open'
+  created_at INTEGER NOT NULL
+  completed_at INTEGER
+  detached_at INTEGER
+  CHECK (length(reference) BETWEEN 16 AND 64)
+  CHECK (stripe_session_id IS NULL OR stripe_session_id GLOB 'cs_*')
+  CHECK (custom_amount IS NULL OR custom_amount > 0)
+  CHECK (intent IN ('subscribe', 'lifetime', 'gift', 'pledge', 'tip', 'good'))
+  CHECK (status IN ('open', 'complete', 'expired'))
+  fk member_id -> members(id) on delete set null on update no action
+  fk price_id -> level_prices(id) on delete set null on update no action
+  fk level_id -> membership_levels(id) on delete set null on update no action
+  fk channel_id -> channels(id) on delete cascade on update no action
+  index checkout_sessions_by_channel (channel_id, created_at)
+  index checkout_sessions_detached PARTIAL (created_at)
+  index (pk) UNIQUE (reference)
+  index (u) UNIQUE (stripe_session_id)
+table circle_members
+  circle_id TEXT NOT NULL PK1
+  member_id TEXT NOT NULL PK2
+  generation INTEGER NOT NULL
+  fk member_id -> members(id) on delete cascade on update no action
+  fk circle_id -> circles(id) on delete cascade on update no action
+  index circle_members_by_member (member_id)
+  index (pk) UNIQUE (circle_id, member_id)
+table circles
+  id TEXT PK1
+  workspace_id TEXT NOT NULL
+  channel_id TEXT NOT NULL
+  name TEXT NOT NULL
+  description TEXT
+  rule_json TEXT NOT NULL
+  member_count INTEGER NOT NULL DEFAULT 0
+  generation INTEGER NOT NULL DEFAULT 0
+  status TEXT NOT NULL DEFAULT 'pending'
+  evaluated_at INTEGER
+  error TEXT
+  created_by TEXT
+  created_at INTEGER NOT NULL
+  updated_at INTEGER NOT NULL
+  deleted_at INTEGER
+  refresh_failures INTEGER NOT NULL DEFAULT 0
+  CHECK (length(name) BETWEEN 1 AND 80)
+  CHECK (description IS NULL OR length(description) <= 280)
+  CHECK (json_valid(rule_json))
+  CHECK (status IN ('pending', 'refreshing', 'ready', 'failed'))
+  fk created_by -> operators(id) on delete set null on update no action
+  fk channel_id -> channels(id) on delete cascade on update no action
+  fk workspace_id -> workspaces(id) on delete cascade on update no action
+  index circles_by_channel PARTIAL (channel_id, created_at)
+  index (pk) UNIQUE (id)
+table clicks
+  id TEXT PK1
+  delivery_id TEXT NOT NULL
+  broadcast_id TEXT NOT NULL
+  link_target_id TEXT NOT NULL
+  classification TEXT NOT NULL
+  ua_family TEXT
+  ip_prefix TEXT
+  asn INTEGER
+  created_at INTEGER NOT NULL
+  CHECK (classification IN ('human', 'scanner', 'bot'))
+  fk link_target_id -> link_targets(id) on delete cascade on update no action
+  fk broadcast_id -> broadcasts(id) on delete cascade on update no action
+  fk delivery_id -> deliveries(id) on delete cascade on update no action
+  index clicks_by_broadcast (broadcast_id, link_target_id)
+  index clicks_by_delivery (delivery_id, created_at)
+  index (pk) UNIQUE (id)
+table cohort_samples
+  id TEXT PK1
+  channel_id TEXT NOT NULL
+  dispatch_id TEXT NOT NULL
+  broadcast_id TEXT
+  sample_percent INTEGER NOT NULL
+  window_minutes INTEGER NOT NULL
+  min_open_rate REAL
+  max_bounce_rate REAL NOT NULL
+  max_complaint_rate REAL NOT NULL
+  max_unsubscribe_rate REAL NOT NULL
+  status TEXT NOT NULL DEFAULT 'draft'
+  metrics_json TEXT
+  decide_at INTEGER
+  decided_at INTEGER
+  created_at INTEGER NOT NULL
+  updated_at INTEGER NOT NULL
+  CHECK (sample_percent BETWEEN 1 AND 99)
+  CHECK (window_minutes BETWEEN 30 AND 2880)
+  CHECK (min_open_rate IS NULL OR (min_open_rate >= 0 AND min_open_rate <= 1))
+  CHECK (max_bounce_rate > 0 AND max_bounce_rate < 1)
+  CHECK (max_complaint_rate > 0 AND max_complaint_rate < 1)
+  CHECK (max_unsubscribe_rate > 0 AND max_unsubscribe_rate < 1)
+  CHECK (status IN ('draft', 'sampling', 'extended', 'halted', 'canceled'))
+  CHECK (metrics_json IS NULL OR json_valid(metrics_json))
+  fk broadcast_id -> broadcasts(id) on delete set null on update no action
+  fk dispatch_id -> dispatches(id) on delete cascade on update no action
+  fk channel_id -> channels(id) on delete cascade on update no action
+  index cohort_samples_due PARTIAL (decide_at)
+  index (pk) UNIQUE (id)
+  index (u) UNIQUE (dispatch_id)
+table comp_grants
+  id TEXT PK1
+  channel_id TEXT NOT NULL
+  member_id TEXT NOT NULL
+  level_id TEXT
+  subscription_id TEXT
+  expires_at INTEGER
+  note TEXT
+  granted_by TEXT
+  created_at INTEGER NOT NULL
+  revoked_at INTEGER
+  revoked_by TEXT
+  CHECK (note IS NULL OR length(note) <= 280)
+  fk revoked_by -> operators(id) on delete set null on update no action
+  fk granted_by -> operators(id) on delete set null on update no action
+  fk subscription_id -> member_subscriptions(id) on delete set null on update no action
+  fk level_id -> membership_levels(id) on delete set null on update no action
+  fk member_id -> members(id) on delete cascade on update no action
+  fk channel_id -> channels(id) on delete cascade on update no action
+  index comp_grants_by_member (member_id)
+  index (pk) UNIQUE (id)
+table confirm_requests
+  id TEXT PK1
+  member_id TEXT NOT NULL
+  channel_id TEXT NOT NULL
+  form_id TEXT
+  kind TEXT NOT NULL DEFAULT 'subscribe'
+  sent_count INTEGER NOT NULL DEFAULT 1
+  last_sent_at INTEGER NOT NULL
+  reminded_at INTEGER
+  confirmed_at INTEGER
+  expires_at INTEGER NOT NULL
+  created_at INTEGER NOT NULL
+  CHECK (kind IN ('subscribe', 'return'))
+  fk form_id -> capture_forms(id) on delete set null on update no action
+  fk channel_id -> channels(id) on delete cascade on update no action
+  fk member_id -> members(id) on delete cascade on update no action
+  index confirm_requests_by_member (member_id, created_at)
+  index confirm_requests_open PARTIAL (last_sent_at)
+  index (pk) UNIQUE (id)
+table copilot_keys
+  id TEXT PK1
+  workspace_id TEXT NOT NULL
+  provider TEXT NOT NULL
+  key_enc TEXT NOT NULL
+  last4 TEXT NOT NULL
+  created_by TEXT
+  validated_at INTEGER NOT NULL
+  created_at INTEGER NOT NULL
+  updated_at INTEGER NOT NULL
+  monthly_unit_cap INTEGER
+  CHECK (provider IN ('anthropic'))
+  CHECK (length(last4) = 4)
+  CHECK (monthly_unit_cap IS NULL OR monthly_unit_cap > 0)
+  fk created_by -> operators(id) on delete set null on update no action
+  fk workspace_id -> workspaces(id) on delete cascade on update no action
+  index (pk) UNIQUE (id)
+  index (u) UNIQUE (workspace_id)
+table copilot_requests
+  id TEXT PK1
+  workspace_id TEXT NOT NULL
+  channel_id TEXT
+  dispatch_id TEXT
+  operator_id TEXT
+  feature TEXT NOT NULL
+  key_source TEXT NOT NULL
+  provider TEXT NOT NULL
+  model TEXT NOT NULL
+  status TEXT NOT NULL DEFAULT 'pending'
+  error_code TEXT
+  input_tokens INTEGER
+  output_tokens INTEGER
+  latency_ms INTEGER
+  created_at INTEGER NOT NULL
+  finished_at INTEGER
+  CHECK (feature IN ('subject_lines', 'preview_text', 'rewrite', 'fix_grammar', 'translate', 'teaser', 'social_posts', 'actions'))
+  CHECK (key_source IN ('platform', 'workspace'))
+  CHECK (status IN ('pending', 'succeeded', 'failed', 'canceled', 'refused'))
+  fk operator_id -> operators(id) on delete set null on update no action
+  fk dispatch_id -> dispatches(id) on delete set null on update no action
+  fk channel_id -> channels(id) on delete set null on update no action
+  fk workspace_id -> workspaces(id) on delete cascade on update no action
+  index copilot_requests_by_operator (operator_id, created_at)
+  index copilot_requests_by_workspace (workspace_id, key_source, created_at)
+  index (pk) UNIQUE (id)
+table coupons
+  id TEXT PK1
+  channel_id TEXT NOT NULL
+  code TEXT NOT NULL
+  name TEXT
+  percent_off INTEGER
+  amount_off INTEGER
+  currency TEXT
+  duration TEXT NOT NULL
+  duration_months INTEGER
+  max_redemptions INTEGER
+  expires_at INTEGER
+  level_ids_json TEXT NOT NULL DEFAULT '[]'
+  status TEXT NOT NULL DEFAULT 'active'
+  stripe_coupon_id TEXT
+  stripe_promotion_code_id TEXT
+  created_by TEXT
+  created_at INTEGER NOT NULL
+  CHECK (code GLOB '[A-Za-z0-9]*' AND length(code) BETWEEN 3 AND 40)
+  CHECK (name IS NULL OR length(name) <= 60)
+  CHECK (percent_off IS NULL OR percent_off BETWEEN 1 AND 100)
+  CHECK (amount_off IS NULL OR amount_off > 0)
+  CHECK (currency IS NULL OR length(currency) = 3)
+  CHECK (duration IN ('once', 'repeating', 'forever'))
+  CHECK (duration_months IS NULL OR duration_months BETWEEN 1 AND 36)
+  CHECK (max_redemptions IS NULL OR max_redemptions > 0)
+  CHECK (json_valid(level_ids_json))
+  CHECK (status IN ('active', 'archived'))
+  CHECK ((percent_off IS NULL) <> (amount_off IS NULL))
+  CHECK (amount_off IS NULL OR currency IS NOT NULL)
+  CHECK (duration <> 'repeating' OR duration_months IS NOT NULL)
+  fk created_by -> operators(id) on delete set null on update no action
+  fk channel_id -> channels(id) on delete cascade on update no action
+  index coupons_code UNIQUE PARTIAL (channel_id, code)
+  index (pk) UNIQUE (id)
+table custom_hostnames
+  id TEXT PK1
+  workspace_id TEXT NOT NULL
+  channel_id TEXT NOT NULL
+  hostname TEXT NOT NULL
+  role TEXT NOT NULL DEFAULT 'web'
+  status TEXT NOT NULL DEFAULT 'pending'
+  provider_id TEXT
+  records_json TEXT NOT NULL DEFAULT '[]'
+  detail TEXT
+  is_primary INTEGER NOT NULL DEFAULT 0
+  last_checked_at INTEGER
+  created_by TEXT
+  created_at INTEGER NOT NULL
+  updated_at INTEGER NOT NULL
+  proven_at INTEGER
+  CHECK (length(hostname) BETWEEN 4 AND 253)
+  CHECK (role IN ('web', 'apex_redirect'))
+  CHECK (status IN ('pending', 'active', 'failed', 'removed'))
+  CHECK (json_valid(records_json))
+  CHECK (is_primary IN (0, 1))
+  fk created_by -> operators(id) on delete set null on update no action
+  fk channel_id -> channels(id) on delete cascade on update no action
+  fk workspace_id -> workspaces(id) on delete cascade on update no action
+  index custom_hostnames_by_channel (channel_id)
+  index custom_hostnames_primary UNIQUE PARTIAL (channel_id)
+  index (pk) UNIQUE (id)
+  index (u) UNIQUE (hostname)
+table deliveries
+  id TEXT PK1
+  broadcast_id TEXT NOT NULL
+  channel_id TEXT NOT NULL
+  member_id TEXT
+  email TEXT NOT NULL
+  provider_message_id TEXT
+  status TEXT NOT NULL DEFAULT 'sent'
+  bounce_type TEXT
+  error TEXT
+  sent_at INTEGER NOT NULL
+  delivered_at INTEGER
+  bounced_at INTEGER
+  complained_at INTEGER
+  opened_at INTEGER
+  human_opened_at INTEGER
+  clicked_at INTEGER
+  human_clicked_at INTEGER
+  unsubscribed_at INTEGER
+  tracked INTEGER NOT NULL DEFAULT 1
+  CHECK (status IN ('sent', 'delivered', 'bounced', 'complained', 'failed'))
+  CHECK (tracked IN (0, 1))
+  fk member_id -> members(id) on delete set null on update no action
+  fk channel_id -> channels(id) on delete cascade on update no action
+  fk broadcast_id -> broadcasts(id) on delete cascade on update no action
+  index deliveries_by_broadcast_status (broadcast_id, status)
+  index deliveries_by_member (member_id, sent_at)
+  index deliveries_by_message (provider_message_id)
+  index deliveries_human_clicked_by_channel PARTIAL (channel_id, human_clicked_at, member_id)
+  index deliveries_human_opened_by_channel PARTIAL (channel_id, human_opened_at, member_id)
+  index deliveries_identified PARTIAL (channel_id, sent_at)
+  index deliveries_recent_by_channel (channel_id, sent_at)
+  index (pk) UNIQUE (id)
+  index (u) UNIQUE (broadcast_id, member_id)
+table direct_sends
+  id TEXT PK1
+  workspace_id TEXT NOT NULL
+  channel_id TEXT NOT NULL
+  member_id TEXT
+  template_id TEXT
+  kind TEXT NOT NULL
+  status TEXT NOT NULL DEFAULT 'queued'
+  provider_message_id TEXT
+  error TEXT
+  api_key_id TEXT
+  created_at INTEGER NOT NULL
+  sent_at INTEGER
+  updated_at INTEGER NOT NULL
+  oauth_grant_id TEXT
+  dispatch_id TEXT
+  CHECK (kind IN ('transactional', 'one_off'))
+  CHECK (status IN ('queued', 'sent', 'delivered', 'bounced', 'complained', 'suppressed', 'failed'))
+  fk dispatch_id -> dispatches(id) on delete set null on update no action
+  fk template_id -> templates(id) on delete set null on update no action
+  fk member_id -> members(id) on delete set null on update no action
+  fk channel_id -> channels(id) on delete cascade on update no action
+  fk workspace_id -> workspaces(id) on delete cascade on update no action
+  index direct_sends_by_channel (channel_id, created_at)
+  index direct_sends_by_message (provider_message_id)
+  index direct_sends_by_workspace (workspace_id, created_at)
+  index (pk) UNIQUE (id)
+table dispatch_revisions
+  id TEXT PK1
+  dispatch_id TEXT NOT NULL
+  subject TEXT NOT NULL
+  preheader TEXT NOT NULL
+  content_json TEXT NOT NULL
+  name TEXT
+  created_by TEXT
+  created_at INTEGER NOT NULL
+  updated_at INTEGER NOT NULL
+  cover_media_id TEXT
+  cover_alt TEXT NOT NULL DEFAULT ''
+  CHECK (json_valid(content_json))
+  CHECK (name IS NULL OR length(name) BETWEEN 1 AND 80)
+  CHECK (length(cover_alt) <= 300)
+  fk cover_media_id -> media(id) on delete set null on update no action
+  fk created_by -> operators(id) on delete set null on update no action
+  fk dispatch_id -> dispatches(id) on delete cascade on update no action
+  index dispatch_revisions_by_dispatch (dispatch_id, created_at)
+  index (pk) UNIQUE (id)
+table dispatch_search (CREATE VIRTUAL TABLE dispatch_search USING fts5( dispatch_id UNINDEXED, channel_id UNINDEXED, title, subtitle, body, tokenize = 'unicode61 remove_diacritics 2' ))
+  dispatch_id (no type)
+  channel_id (no type)
+  title (no type)
+  subtitle (no type)
+  body (no type)
+  dispatch_search (no type) HIDDEN
+  rank (no type) HIDDEN
+table dispatch_search_config
+  k (no type) NOT NULL PK1
+  v (no type)
+  index (pk) UNIQUE (k)
+table dispatch_search_content
+  id INTEGER PK1
+  c0 (no type)
+  c1 (no type)
+  c2 (no type)
+  c3 (no type)
+  c4 (no type)
+table dispatch_search_data
+  id INTEGER PK1
+  block BLOB
+table dispatch_search_docsize
+  id INTEGER PK1
+  sz BLOB
+table dispatch_search_idx
+  segid (no type) NOT NULL PK1
+  term (no type) NOT NULL PK2
+  pgno (no type)
+  index (pk) UNIQUE (segid, term)
+table dispatch_slugs
+  channel_id TEXT NOT NULL PK1
+  slug TEXT NOT NULL PK2
+  dispatch_id TEXT NOT NULL
+  is_current INTEGER NOT NULL DEFAULT 1
+  created_at INTEGER NOT NULL
+  CHECK (slug GLOB '[a-z0-9]*' AND length(slug) BETWEEN 1 AND 120)
+  CHECK (is_current IN (0, 1))
+  fk dispatch_id -> dispatches(id) on delete cascade on update no action
+  fk channel_id -> channels(id) on delete cascade on update no action
+  index dispatch_slugs_current UNIQUE PARTIAL (dispatch_id)
+  index (pk) UNIQUE (channel_id, slug)
+table dispatches
+  id TEXT PK1
+  channel_id TEXT NOT NULL
+  subject TEXT NOT NULL DEFAULT ''
+  preheader TEXT NOT NULL DEFAULT ''
+  content_json TEXT NOT NULL
+  html TEXT NOT NULL DEFAULT ''
+  text TEXT NOT NULL DEFAULT ''
+  status TEXT NOT NULL DEFAULT 'draft'
+  sender_identity_id TEXT
+  publish_at INTEGER
+  sent_at INTEGER
+  created_by TEXT
+  updated_by TEXT
+  created_at INTEGER NOT NULL
+  updated_at INTEGER NOT NULL
+  audience_json TEXT NOT NULL DEFAULT '{"include":[],"exclude":[]}'
+  web_visibility TEXT NOT NULL DEFAULT 'public'
+  web_published_at INTEGER
+  section_id TEXT
+  kind TEXT NOT NULL DEFAULT 'broadcast'
+  flow_id TEXT
+  cover_media_id TEXT
+  cover_alt TEXT NOT NULL DEFAULT ''
+  created_via TEXT
+  from_feed INTEGER NOT NULL DEFAULT 0
+  internal_note TEXT NOT NULL DEFAULT ''
+  seo_title TEXT NOT NULL DEFAULT ''
+  seo_description TEXT NOT NULL DEFAULT ''
+  archived_at INTEGER
+  planned_date TEXT
+  imported_at INTEGER
+  best_time INTEGER NOT NULL DEFAULT 0
+  start_attempts INTEGER NOT NULL DEFAULT 0
+  start_retry_at INTEGER
+  CHECK (length(subject) <= 200)
+  CHECK (length(preheader) <= 200)
+  CHECK (json_valid(content_json))
+  CHECK (status IN ('draft', 'scheduled', 'sending', 'sent', 'canceled'))
+  CHECK (json_valid(audience_json))
+  CHECK (web_visibility IN ('public', 'members', 'paid', 'hidden'))
+  CHECK (kind IN ('broadcast', 'flow'))
+  CHECK (length(cover_alt) <= 300)
+  CHECK (created_via IS NULL OR created_via IN ('agent', 'copilot', 'api'))
+  CHECK (from_feed IN (0, 1))
+  CHECK (length(internal_note) <= 2000)
+  CHECK (best_time IN (0, 1))
+  CHECK (status <> 'scheduled' OR publish_at IS NOT NULL)
+  fk cover_media_id -> media(id) on delete set null on update no action
+  fk flow_id -> flows(id) on delete cascade on update no action
+  fk section_id -> site_sections(id) on delete set null on update no action
+  fk updated_by -> operators(id) on delete set null on update no action
+  fk created_by -> operators(id) on delete set null on update no action
+  fk sender_identity_id -> sender_identities(id) on delete set null on update no action
+  fk channel_id -> channels(id) on delete cascade on update no action
+  index dispatches_by_channel (channel_id, updated_at)
+  index dispatches_by_creator PARTIAL (channel_id, created_by)
+  index dispatches_by_flow PARTIAL (flow_id)
+  index dispatches_due PARTIAL (publish_at)
+  index dispatches_on_web PARTIAL (channel_id, web_published_at)
+  index (pk) UNIQUE (id)
+table dmarc_records
+  id TEXT PK1
+  report_id TEXT NOT NULL
+  source_ip TEXT NOT NULL
+  count INTEGER NOT NULL
+  disposition TEXT NOT NULL
+  dkim_aligned INTEGER NOT NULL
+  spf_aligned INTEGER NOT NULL
+  header_from TEXT NOT NULL
+  dkim_domain TEXT
+  spf_domain TEXT
+  CHECK (disposition IN ('none', 'quarantine', 'reject'))
+  CHECK (dkim_aligned IN (0, 1))
+  CHECK (spf_aligned IN (0, 1))
+  fk report_id -> dmarc_reports(id) on delete cascade on update no action
+  index dmarc_records_by_report (report_id)
+  index (pk) UNIQUE (id)
+table dmarc_reports
+  id TEXT PK1
+  workspace_id TEXT NOT NULL
+  sending_domain_id TEXT NOT NULL
+  org_name TEXT NOT NULL
+  report_id TEXT NOT NULL
+  begin_at INTEGER NOT NULL
+  end_at INTEGER NOT NULL
+  policy_json TEXT NOT NULL
+  raw_key TEXT NOT NULL
+  message_count INTEGER NOT NULL
+  pass_count INTEGER NOT NULL
+  created_at INTEGER NOT NULL
+  reporter_domain TEXT
+  CHECK (json_valid(policy_json))
+  fk sending_domain_id -> sending_domains(id) on delete cascade on update no action
+  fk workspace_id -> workspaces(id) on delete cascade on update no action
+  index dmarc_reports_by_domain (sending_domain_id, begin_at)
+  index dmarc_reports_by_reporter (sending_domain_id, reporter_domain, created_at)
+  index (pk) UNIQUE (id)
+  index (u) UNIQUE (sending_domain_id, org_name, report_id)
+table dsr_confirmations
+  id INTEGER PK1
+  member_id TEXT NOT NULL
+  kind TEXT NOT NULL
+  created_at INTEGER NOT NULL
+  expires_at INTEGER NOT NULL
+  used_at INTEGER
+  nonce_hash TEXT
+  CHECK (kind IN ('erase'))
+  fk member_id -> members(id) on delete cascade on update no action
+  index dsr_confirmations_by_member (member_id, created_at)
+table dsr_requests
+  id TEXT PK1
+  workspace_id TEXT NOT NULL
+  channel_id TEXT
+  member_id TEXT
+  email_hash TEXT NOT NULL
+  kind TEXT NOT NULL
+  source TEXT NOT NULL
+  status TEXT NOT NULL DEFAULT 'pending'
+  due_at INTEGER NOT NULL
+  export_key TEXT
+  export_expires_at INTEGER
+  note TEXT
+  handled_by TEXT
+  created_at INTEGER NOT NULL
+  updated_at INTEGER NOT NULL
+  completed_at INTEGER
+  email_enc TEXT
+  claimed_until INTEGER
+  attempts INTEGER NOT NULL DEFAULT 0
+  error TEXT
+  outcome_noticed_at INTEGER
+  admin_reminded_at INTEGER
+  CHECK (kind IN ('export', 'erase'))
+  CHECK (source IN ('member_center', 'member_center_unverified', 'operator', 'api', 'address_form'))
+  CHECK (status IN ('pending', 'processing', 'completed', 'rejected', 'failed'))
+  CHECK (error IS NULL OR length(error) <= 500)
+  fk handled_by -> operators(id) on delete set null on update no action
+  fk member_id -> members(id) on delete set null on update no action
+  fk channel_id -> channels(id) on delete set null on update no action
+  fk workspace_id -> workspaces(id) on delete cascade on update no action
+  index dsr_requests_by_hash (workspace_id, email_hash)
+  index dsr_requests_by_workspace (workspace_id, status, due_at)
+  index dsr_requests_exports PARTIAL (export_expires_at)
+  index dsr_requests_runnable PARTIAL (status, created_at)
+  index (pk) UNIQUE (id)
+table email_check_budgets
+  workspace_id TEXT PK1
+  daily_checks INTEGER NOT NULL
+  updated_by TEXT
+  updated_at INTEGER NOT NULL
+  CHECK (daily_checks >= 0 AND daily_checks <= 1000000)
+  fk workspace_id -> workspaces(id) on delete cascade on update no action
+  index (pk) UNIQUE (workspace_id)
+table email_check_items
+  run_id TEXT NOT NULL PK1
+  email TEXT NOT NULL PK2
+  part INTEGER NOT NULL
+  local_code INTEGER
+  done INTEGER NOT NULL DEFAULT 0
+  attempts INTEGER NOT NULL DEFAULT 0
+  CHECK (local_code IS NULL OR local_code BETWEEN 1 AND 8)
+  CHECK (done IN (0, 1))
+  fk run_id -> email_check_runs(id) on delete cascade on update no action
+  index email_check_items_by_part (run_id, part, done)
+  index (pk) UNIQUE (run_id, email)
+table email_check_leases
+  id TEXT PK1
+  priority TEXT NOT NULL
+  expires_at INTEGER NOT NULL
+  CHECK (priority IN ('signup', 'background'))
+  index (pk) UNIQUE (id)
+table email_check_list_budgets
+  workspace_id TEXT PK1
+  monthly_checks INTEGER NOT NULL
+  updated_by TEXT
+  updated_at INTEGER NOT NULL
+  CHECK (monthly_checks >= 0 AND monthly_checks <= 100000000)
+  fk workspace_id -> workspaces(id) on delete cascade on update no action
+  index (pk) UNIQUE (workspace_id)
+table email_check_parts
+  run_id TEXT NOT NULL PK1
+  part INTEGER NOT NULL PK2
+  status TEXT NOT NULL DEFAULT 'waiting'
+  list_id TEXT
+  file_key TEXT
+  token_hash TEXT
+  file_expires_at INTEGER
+  percent INTEGER NOT NULL DEFAULT 0
+  submitted_at INTEGER
+  completed_at INTEGER
+  error TEXT
+  claimed_until INTEGER
+  CHECK (status IN ('waiting', 'submitted', 'done', 'failed'))
+  CHECK (error IS NULL OR length(error) <= 500)
+  fk run_id -> email_check_runs(id) on delete cascade on update no action
+  index (u) UNIQUE (token_hash)
+  index (pk) UNIQUE (run_id, part)
+table email_check_requests
+  id TEXT PK1
+  workspace_id TEXT NOT NULL
+  channel_id TEXT NOT NULL
+  member_id TEXT NOT NULL
+  requested_by TEXT
+  created_at INTEGER NOT NULL
+  fk requested_by -> operators(id) on delete set null on update no action
+  fk member_id -> members(id) on delete cascade on update no action
+  fk channel_id -> channels(id) on delete cascade on update no action
+  fk workspace_id -> workspaces(id) on delete cascade on update no action
+  index email_check_requests_by_age (created_at)
+  index email_check_requests_by_member (member_id)
+  index (pk) UNIQUE (id)
+table email_check_rules
+  id INTEGER PK1
+  every_workspace INTEGER NOT NULL DEFAULT 0
+  updated_by TEXT
+  updated_at INTEGER NOT NULL
+  CHECK (id = 1)
+  CHECK (every_workspace IN (0, 1))
+  fk updated_by -> operators(id) on delete set null on update no action
+table email_check_runs
+  id TEXT PK1
+  workspace_id TEXT NOT NULL
+  scope TEXT NOT NULL
+  channel_id TEXT
+  circle_id TEXT
+  import_id TEXT
+  only_never_checked INTEGER NOT NULL DEFAULT 0
+  status TEXT NOT NULL DEFAULT 'planning'
+  paused_reason TEXT
+  error TEXT
+  method TEXT NOT NULL DEFAULT 'bulk'
+  plan_cursor TEXT
+  addresses INTEGER NOT NULL DEFAULT 0
+  fresh INTEGER NOT NULL DEFAULT 0
+  local_results INTEGER NOT NULL DEFAULT 0
+  to_check INTEGER NOT NULL DEFAULT 0
+  parts INTEGER NOT NULL DEFAULT 0
+  balance INTEGER
+  current_part INTEGER NOT NULL DEFAULT 0
+  checked INTEGER NOT NULL DEFAULT 0
+  credits_used INTEGER NOT NULL DEFAULT 0
+  green INTEGER NOT NULL DEFAULT 0
+  orange INTEGER NOT NULL DEFAULT 0
+  red INTEGER NOT NULL DEFAULT 0
+  created_by TEXT
+  created_at INTEGER NOT NULL
+  started_at INTEGER
+  updated_at INTEGER NOT NULL
+  completed_at INTEGER
+  budget_taken INTEGER NOT NULL DEFAULT 0
+  budget_month INTEGER
+  CHECK (scope IN ('workspace', 'channel', 'segment', 'import'))
+  CHECK (only_never_checked IN (0, 1))
+  CHECK (status IN ('planning', 'planned', 'running', 'stopping', 'paused', 'completed', 'stopped', 'canceled', 'failed'))
+  CHECK (paused_reason IS NULL OR paused_reason IN ('credits', 'key'))
+  CHECK (error IS NULL OR length(error) <= 500)
+  CHECK (method IN ('bulk', 'single'))
+  fk created_by -> operators(id) on delete set null on update no action
+  fk import_id -> import_jobs(id) on delete cascade on update no action
+  fk circle_id -> circles(id) on delete set null on update no action
+  fk channel_id -> channels(id) on delete cascade on update no action
+  fk workspace_id -> workspaces(id) on delete cascade on update no action
+  index email_check_runs_active PARTIAL (status)
+  index email_check_runs_by_workspace (workspace_id, created_at)
+  index (pk) UNIQUE (id)
+table email_check_settings
+  workspace_id TEXT PK1
+  settings_json TEXT NOT NULL
+  updated_by TEXT
+  updated_at INTEGER NOT NULL
+  CHECK (json_valid(settings_json))
+  fk updated_by -> operators(id) on delete set null on update no action
+  fk workspace_id -> workspaces(id) on delete cascade on update no action
+  index (pk) UNIQUE (workspace_id)
+table email_check_workspaces
+  workspace_id TEXT PK1
+  allowed_by TEXT
+  created_at INTEGER NOT NULL
+  fk allowed_by -> operators(id) on delete set null on update no action
+  fk workspace_id -> workspaces(id) on delete cascade on update no action
+  index (pk) UNIQUE (workspace_id)
+table email_checks
+  workspace_id TEXT NOT NULL PK1
+  email TEXT NOT NULL PK2
+  state TEXT NOT NULL
+  code INTEGER NOT NULL
+  reason TEXT
+  did_you_mean TEXT
+  source TEXT NOT NULL
+  checked_at INTEGER NOT NULL
+  CHECK (length(email) BETWEEN 3 AND 254)
+  CHECK (state IN ('green', 'orange', 'red'))
+  CHECK (code BETWEEN 1 AND 8)
+  CHECK (reason IS NULL OR length(reason) <= 80)
+  CHECK (did_you_mean IS NULL OR length(did_you_mean) <= 254)
+  CHECK (source IN ('swarm', 'debounce'))
+  fk workspace_id -> workspaces(id) on delete cascade on update no action
+  index email_checks_by_state (workspace_id, state, code)
+  index (pk) UNIQUE (workspace_id, email)
+table engagement_rollups
+  channel_id TEXT PK1
+  day TEXT NOT NULL
+  cursor TEXT
+  finished INTEGER NOT NULL DEFAULT 0
+  fk channel_id -> channels(id) on delete cascade on update no action
+  index (pk) UNIQUE (channel_id)
+table event_cursors
+  name TEXT NOT NULL PK1
+  value INTEGER NOT NULL
+  updated_at INTEGER NOT NULL
+  index (pk) UNIQUE (name)
+table export_destinations
+  id TEXT PK1
+  workspace_id TEXT NOT NULL
+  channel_id TEXT NOT NULL
+  kind TEXT NOT NULL
+  config_json TEXT NOT NULL
+  credentials_enc TEXT NOT NULL
+  schedule TEXT NOT NULL DEFAULT 'daily'
+  cursor_json TEXT NOT NULL DEFAULT '{}'
+  status TEXT NOT NULL DEFAULT 'active'
+  last_run_at INTEGER
+  last_error TEXT
+  created_at INTEGER NOT NULL
+  updated_at INTEGER NOT NULL
+  failure_count INTEGER NOT NULL DEFAULT 0
+  created_by TEXT
+  confirmed_by TEXT
+  confirmed_at INTEGER
+  scope_json TEXT NOT NULL DEFAULT '{"members":"active","fields":[]}'
+  scope_legacy INTEGER NOT NULL DEFAULT 0
+  CHECK (kind IN ('s3', 'r2'))
+  CHECK (json_valid(config_json))
+  CHECK (schedule IN ('hourly', 'daily'))
+  CHECK (json_valid(cursor_json))
+  CHECK (status IN ('active', 'paused', 'failing'))
+  CHECK (json_valid(scope_json))
+  CHECK (scope_legacy IN (0, 1))
+  fk confirmed_by -> operators(id) on delete set null on update no action
+  fk created_by -> operators(id) on delete set null on update no action
+  fk channel_id -> channels(id) on delete cascade on update no action
+  fk workspace_id -> workspaces(id) on delete cascade on update no action
+  index export_destinations_by_channel (channel_id)
+  index (pk) UNIQUE (id)
+table export_jobs
+  id TEXT PK1
+  workspace_id TEXT NOT NULL
+  channel_id TEXT NOT NULL
+  format TEXT NOT NULL
+  filter_json TEXT NOT NULL DEFAULT '{}'
+  status TEXT NOT NULL DEFAULT 'queued'
+  r2_key TEXT
+  row_count INTEGER NOT NULL DEFAULT 0
+  cursor TEXT
+  error TEXT
+  created_by TEXT
+  created_at INTEGER NOT NULL
+  completed_at INTEGER
+  expires_at INTEGER
+  CHECK (format IN ('csv', 'jsonl'))
+  CHECK (json_valid(filter_json))
+  CHECK (status IN ('queued', 'running', 'done', 'failed'))
+  fk created_by -> operators(id) on delete set null on update no action
+  fk channel_id -> channels(id) on delete cascade on update no action
+  fk workspace_id -> workspaces(id) on delete cascade on update no action
+  index export_jobs_by_channel (channel_id, created_at)
+  index (pk) UNIQUE (id)
+table factor_undo_tokens
+  token_hash TEXT PK1
+  operator_id TEXT NOT NULL
+  window_start INTEGER NOT NULL
+  created_at INTEGER NOT NULL
+  expires_at INTEGER NOT NULL
+  used_at INTEGER
+  fk operator_id -> operators(id) on delete cascade on update no action
+  index factor_undo_tokens_by_operator (operator_id)
+  index (pk) UNIQUE (token_hash)
+table feature_flags
+  id TEXT PK1
+  key TEXT NOT NULL
+  scope TEXT NOT NULL
+  scope_id TEXT
+  enabled INTEGER NOT NULL
+  updated_by TEXT
+  updated_at INTEGER NOT NULL
+  CHECK (scope IN ('platform', 'workspace', 'channel'))
+  CHECK (enabled IN (0, 1))
+  CHECK ((scope = 'platform' AND scope_id IS NULL) OR (scope <> 'platform' AND scope_id IS NOT NULL))
+  fk updated_by -> operators(id) on delete set null on update no action
+  index feature_flags_by_scope (scope, scope_id)
+  index feature_flags_unique_scope UNIQUE (key, scope, <expr>)
+  index (pk) UNIQUE (id)
+table feed_items
+  id TEXT PK1
+  feed_source_id TEXT NOT NULL
+  key_hash TEXT NOT NULL
+  guid TEXT
+  link TEXT
+  title TEXT NOT NULL DEFAULT ''
+  published_at INTEGER
+  content_json TEXT
+  status TEXT NOT NULL DEFAULT 'new'
+  dispatch_id TEXT
+  dispatched_at INTEGER
+  created_at INTEGER NOT NULL
+  updated_at INTEGER NOT NULL
+  CHECK (content_json IS NULL OR json_valid(content_json))
+  CHECK (status IN ('new', 'dispatched', 'skipped'))
+  fk dispatch_id -> dispatches(id) on delete set null on update no action
+  fk feed_source_id -> feed_sources(id) on delete cascade on update no action
+  index feed_items_by_source (feed_source_id, status, created_at)
+  index feed_items_dispatched PARTIAL (feed_source_id, dispatched_at)
+  index feed_items_waiting PARTIAL (feed_source_id)
+  index (pk) UNIQUE (id)
+  index (u) UNIQUE (feed_source_id, key_hash)
+table feed_sources
+  id TEXT PK1
+  channel_id TEXT NOT NULL
+  url TEXT NOT NULL
+  name TEXT
+  title TEXT
+  format TEXT
+  mode TEXT NOT NULL DEFAULT 'draft'
+  grouping TEXT NOT NULL DEFAULT 'each'
+  content_mode TEXT NOT NULL DEFAULT 'full'
+  template_id TEXT
+  sender_identity_id TEXT
+  audience_json TEXT NOT NULL DEFAULT '{"include":[],"exclude":[]}'
+  subject_template TEXT
+  interval_minutes INTEGER NOT NULL DEFAULT 60
+  min_gap_minutes INTEGER NOT NULL DEFAULT 0
+  max_per_day INTEGER NOT NULL DEFAULT 3
+  digest_limit INTEGER NOT NULL DEFAULT 10
+  quiet_start INTEGER
+  quiet_end INTEGER
+  timezone TEXT NOT NULL DEFAULT 'UTC'
+  status TEXT NOT NULL DEFAULT 'active'
+  etag TEXT
+  last_modified TEXT
+  next_check_at INTEGER
+  last_checked_at INTEGER
+  last_success_at INTEGER
+  failure_count INTEGER NOT NULL DEFAULT 0
+  last_error TEXT
+  lock_until INTEGER
+  created_by TEXT
+  created_at INTEGER NOT NULL
+  updated_at INTEGER NOT NULL
+  digest_weekdays_json TEXT
+  digest_time TEXT
+  digest_since INTEGER
+  release_checked_at INTEGER
+  CHECK (length(url) BETWEEN 1 AND 2048)
+  CHECK (name IS NULL OR length(name) <= 120)
+  CHECK (format IS NULL OR format IN ('rss', 'atom', 'json'))
+  CHECK (mode IN ('draft', 'send'))
+  CHECK (grouping IN ('each', 'digest'))
+  CHECK (content_mode IN ('full', 'summary'))
+  CHECK (json_valid(audience_json))
+  CHECK (subject_template IS NULL OR length(subject_template) <= 200)
+  CHECK (interval_minutes BETWEEN 15 AND 1440)
+  CHECK (min_gap_minutes BETWEEN 0 AND 10080)
+  CHECK (max_per_day BETWEEN 1 AND 48)
+  CHECK (digest_limit BETWEEN 1 AND 30)
+  CHECK (quiet_start IS NULL OR quiet_start BETWEEN 0 AND 1439)
+  CHECK (quiet_end IS NULL OR quiet_end BETWEEN 0 AND 1439)
+  CHECK (status IN ('active', 'paused', 'disabled'))
+  CHECK (digest_weekdays_json IS NULL OR json_valid(digest_weekdays_json))
+  CHECK ((quiet_start IS NULL) = (quiet_end IS NULL))
+  fk created_by -> operators(id) on delete set null on update no action
+  fk sender_identity_id -> sender_identities(id) on delete set null on update no action
+  fk template_id -> templates(id) on delete set null on update no action
+  fk channel_id -> channels(id) on delete cascade on update no action
+  index feed_sources_by_channel (channel_id, created_at)
+  index feed_sources_due PARTIAL (next_check_at)
+  index (pk) UNIQUE (id)
+table field_key_reseal
+  kid TEXT PK1
+  place TEXT
+  after_key TEXT
+  resealed INTEGER NOT NULL DEFAULT 0
+  unreadable INTEGER NOT NULL DEFAULT 0
+  started_at INTEGER NOT NULL
+  updated_at INTEGER NOT NULL
+  finished_at INTEGER
+  CHECK (after_key IS NULL OR json_valid(after_key))
+  index (pk) UNIQUE (kid)
+table flow_email_ledger
+  member_id TEXT NOT NULL PK1
+  broadcast_id TEXT NOT NULL PK2
+  channel_id TEXT NOT NULL
+  send_regardless INTEGER NOT NULL DEFAULT 0
+  sent_at INTEGER NOT NULL
+  CHECK (send_regardless IN (0, 1))
+  fk channel_id -> channels(id) on delete cascade on update no action
+  fk broadcast_id -> broadcasts(id) on delete cascade on update no action
+  fk member_id -> members(id) on delete cascade on update no action
+  index flow_email_ledger_by_age (sent_at)
+  index flow_email_ledger_by_member (member_id, sent_at)
+  index (pk) UNIQUE (member_id, broadcast_id)
+table flow_emails
+  flow_id TEXT NOT NULL PK1
+  version INTEGER NOT NULL PK2
+  node_id TEXT NOT NULL PK3
+  dispatch_id TEXT NOT NULL
+  broadcast_id TEXT NOT NULL
+  created_at INTEGER NOT NULL
+  resend INTEGER NOT NULL DEFAULT 0
+  CHECK (length(node_id) <= 40)
+  CHECK (resend IN (0, 1))
+  fk broadcast_id -> broadcasts(id) on delete cascade on update no action
+  fk dispatch_id -> dispatches(id) on delete cascade on update no action
+  fk flow_id -> flows(id) on delete cascade on update no action
+  index (u) UNIQUE (broadcast_id)
+  index (pk) UNIQUE (flow_id, version, node_id)
+table flow_enrol_decisions
+  member_id TEXT NOT NULL PK1
+  flow_id TEXT NOT NULL PK2
+  version INTEGER NOT NULL
+  reason TEXT NOT NULL
+  trigger_event TEXT NOT NULL
+  decided_at INTEGER NOT NULL
+  CHECK (length(reason) <= 30)
+  CHECK (length(trigger_event) <= 40)
+  fk flow_id -> flows(id) on delete cascade on update no action
+  fk member_id -> members(id) on delete cascade on update no action
+  index flow_enrol_decisions_by_flow (flow_id)
+  index (pk) UNIQUE (member_id, flow_id)
+table flow_holds
+  run_id TEXT NOT NULL PK1
+  node_id TEXT NOT NULL PK2
+  flow_id TEXT NOT NULL
+  version INTEGER NOT NULL
+  channel_id TEXT NOT NULL
+  member_id TEXT NOT NULL
+  reason TEXT NOT NULL
+  until INTEGER NOT NULL
+  zone TEXT NOT NULL
+  held_at INTEGER NOT NULL
+  released_at INTEGER
+  outcome TEXT
+  CHECK (length(node_id) <= 40)
+  CHECK (length(reason) <= 40)
+  CHECK (length(zone) <= 64)
+  CHECK (outcome IS NULL OR outcome IN ('sent', 'skipped', 'expired', 'left'))
+  fk member_id -> members(id) on delete cascade on update no action
+  fk channel_id -> channels(id) on delete cascade on update no action
+  fk flow_id -> flows(id) on delete cascade on update no action
+  fk run_id -> flow_runs(id) on delete cascade on update no action
+  index flow_holds_by_step (flow_id, version, node_id)
+  index flow_holds_line PARTIAL (member_id, held_at)
+  index flow_holds_open_by_channel PARTIAL (channel_id)
+  index (pk) UNIQUE (run_id, node_id)
+table flow_run_steps
+  run_id TEXT NOT NULL PK1
+  node_id TEXT NOT NULL PK2
+  attempt INTEGER NOT NULL PK3
+  flow_id TEXT NOT NULL
+  version INTEGER NOT NULL
+  status TEXT NOT NULL DEFAULT 'pending'
+  outcome TEXT
+  result_json TEXT
+  error TEXT
+  started_at INTEGER NOT NULL
+  finished_at INTEGER
+  CHECK (length(node_id) <= 40)
+  CHECK (attempt >= 1)
+  CHECK (status IN ('pending', 'done', 'failed', 'skipped'))
+  CHECK (outcome IS NULL OR length(outcome) <= 20)
+  CHECK (result_json IS NULL OR json_valid(result_json))
+  CHECK (error IS NULL OR length(error) <= 1000)
+  fk flow_id -> flows(id) on delete cascade on update no action
+  fk run_id -> flow_runs(id) on delete cascade on update no action
+  index flow_run_steps_by_node (flow_id, version, node_id, status)
+  index (pk) UNIQUE (run_id, node_id, attempt)
+table flow_runs
+  id TEXT PK1
+  flow_id TEXT NOT NULL
+  version INTEGER NOT NULL
+  channel_id TEXT NOT NULL
+  member_id TEXT NOT NULL
+  status TEXT NOT NULL DEFAULT 'running'
+  exit_reason TEXT
+  current_node_id TEXT
+  next_at INTEGER
+  wait_json TEXT
+  context_json TEXT NOT NULL DEFAULT '{}'
+  trigger_event_seq INTEGER
+  test INTEGER NOT NULL DEFAULT 0
+  started_at INTEGER NOT NULL
+  updated_at INTEGER NOT NULL
+  ended_at INTEGER
+  CHECK (status IN ('running', 'waiting', 'paused', 'completed', 'exited', 'failed'))
+  CHECK (exit_reason IS NULL OR length(exit_reason) <= 40)
+  CHECK (current_node_id IS NULL OR length(current_node_id) <= 40)
+  CHECK (wait_json IS NULL OR json_valid(wait_json))
+  CHECK (json_valid(context_json))
+  CHECK (test IN (0, 1))
+  fk member_id -> members(id) on delete cascade on update no action
+  fk channel_id -> channels(id) on delete cascade on update no action
+  fk flow_id -> flows(id) on delete cascade on update no action
+  index flow_runs_by_flow (flow_id, version, status)
+  index flow_runs_by_member (member_id, started_at)
+  index flow_runs_due PARTIAL (next_at)
+  index flow_runs_one_open UNIQUE PARTIAL (flow_id, member_id)
+  index flow_runs_one_open_test UNIQUE PARTIAL (flow_id, member_id)
+  index (pk) UNIQUE (id)
+table flow_versions
+  flow_id TEXT NOT NULL PK1
+  version INTEGER NOT NULL PK2
+  graph_json TEXT NOT NULL
+  trigger_type TEXT NOT NULL
+  published_by TEXT
+  published_at INTEGER NOT NULL
+  retired_at INTEGER
+  extra_trigger_types TEXT
+  CHECK (version >= 1)
+  CHECK (json_valid(graph_json))
+  CHECK (length(trigger_type) <= 40)
+  CHECK (extra_trigger_types IS NULL OR json_valid(extra_trigger_types))
+  fk published_by -> operators(id) on delete set null on update no action
+  fk flow_id -> flows(id) on delete cascade on update no action
+  index (pk) UNIQUE (flow_id, version)
+table flows
+  id TEXT PK1
+  workspace_id TEXT NOT NULL
+  channel_id TEXT NOT NULL
+  name TEXT NOT NULL
+  description TEXT
+  status TEXT NOT NULL DEFAULT 'draft'
+  recipe TEXT
+  draft_graph_json TEXT NOT NULL
+  live_version INTEGER
+  trigger_type TEXT
+  reentry TEXT NOT NULL DEFAULT 'never'
+  webhook_secret_enc TEXT
+  created_by TEXT
+  created_at INTEGER NOT NULL
+  updated_at INTEGER NOT NULL
+  deleted_at INTEGER
+  draft_pending_json TEXT
+  extra_trigger_types TEXT
+  CHECK (length(name) BETWEEN 1 AND 80)
+  CHECK (description IS NULL OR length(description) <= 280)
+  CHECK (status IN ('draft', 'live', 'paused', 'archived'))
+  CHECK (recipe IS NULL OR length(recipe) <= 40)
+  CHECK (json_valid(draft_graph_json))
+  CHECK (trigger_type IS NULL OR length(trigger_type) <= 40)
+  CHECK (reentry IN ('never', 'after_exit'))
+  CHECK (draft_pending_json IS NULL OR json_valid(draft_pending_json))
+  CHECK (extra_trigger_types IS NULL OR json_valid(extra_trigger_types))
+  fk created_by -> operators(id) on delete set null on update no action
+  fk channel_id -> channels(id) on delete cascade on update no action
+  fk workspace_id -> workspaces(id) on delete cascade on update no action
+  index flows_by_channel PARTIAL (channel_id, created_at)
+  index flows_live_by_trigger PARTIAL (channel_id, trigger_type)
+  index (pk) UNIQUE (id)
+table funnel_cursors
+  name TEXT NOT NULL PK1
+  value INTEGER NOT NULL
+  updated_at INTEGER NOT NULL
+  CHECK (name IN ('member_events', 'opens'))
+  index (pk) UNIQUE (name)
+table funnel_daily
+  channel_id TEXT NOT NULL PK1
+  day TEXT NOT NULL PK2
+  source TEXT NOT NULL DEFAULT '' PK3
+  utm_source TEXT NOT NULL DEFAULT '' PK4
+  utm_medium TEXT NOT NULL DEFAULT '' PK5
+  utm_campaign TEXT NOT NULL DEFAULT '' PK6
+  form_id TEXT NOT NULL DEFAULT '' PK7
+  champion_id TEXT NOT NULL DEFAULT '' PK8
+  visits INTEGER NOT NULL DEFAULT 0
+  form_views INTEGER NOT NULL DEFAULT 0
+  subscribes INTEGER NOT NULL DEFAULT 0
+  confirms INTEGER NOT NULL DEFAULT 0
+  first_opens INTEGER NOT NULL DEFAULT 0
+  paid INTEGER NOT NULL DEFAULT 0
+  CHECK (length(day) = 10)
+  CHECK (length(source) <= 120)
+  CHECK (length(utm_source) <= 120)
+  CHECK (length(utm_medium) <= 120)
+  CHECK (length(utm_campaign) <= 120)
+  fk channel_id -> channels(id) on delete cascade on update no action
+  index (pk) UNIQUE (channel_id, day, source, utm_source, utm_medium, utm_campaign, form_id, champion_id)
+table funnel_members
+  member_id TEXT NOT NULL PK1
+  channel_id TEXT NOT NULL
+  joined_at INTEGER NOT NULL
+  confirmed INTEGER NOT NULL DEFAULT 0
+  first_opened INTEGER NOT NULL DEFAULT 0
+  paid INTEGER NOT NULL DEFAULT 0
+  CHECK (confirmed IN (0, 1))
+  CHECK (first_opened IN (0, 1))
+  CHECK (paid IN (0, 1))
+  fk channel_id -> channels(id) on delete cascade on update no action
+  fk member_id -> members(id) on delete cascade on update no action
+  index funnel_members_by_channel (channel_id)
+  index (pk) UNIQUE (member_id)
+table gate_meter_grants
+  id TEXT PK1
+  channel_id TEXT NOT NULL
+  member_id TEXT NOT NULL
+  period TEXT NOT NULL
+  extra INTEGER NOT NULL
+  granted_by TEXT
+  created_at INTEGER NOT NULL
+  CHECK (length(period) <= 10)
+  CHECK (extra BETWEEN 1 AND 100)
+  fk granted_by -> operators(id) on delete set null on update no action
+  fk member_id -> members(id) on delete cascade on update no action
+  fk channel_id -> channels(id) on delete cascade on update no action
+  index gate_meter_grants_by_member (member_id, period)
+  index (pk) UNIQUE (id)
+table gate_meter_reads
+  channel_id TEXT NOT NULL PK1
+  reader_key TEXT NOT NULL PK2
+  period TEXT NOT NULL PK3
+  dispatch_id TEXT NOT NULL PK4
+  read_at INTEGER NOT NULL
+  CHECK (length(reader_key) <= 80)
+  CHECK (length(period) <= 10)
+  fk dispatch_id -> dispatches(id) on delete cascade on update no action
+  fk channel_id -> channels(id) on delete cascade on update no action
+  index gate_meter_reads_by_time (read_at)
+  index (pk) UNIQUE (channel_id, reader_key, period, dispatch_id)
+table gate_settings
+  channel_id TEXT PK1
+  meter_limit INTEGER NOT NULL DEFAULT 0
+  meter_period TEXT NOT NULL DEFAULT 'month'
+  meter_mode TEXT NOT NULL DEFAULT 'hard'
+  design_json TEXT NOT NULL DEFAULT '{}'
+  gate_coupon_id TEXT
+  updated_at INTEGER NOT NULL
+  CHECK (meter_limit BETWEEN 0 AND 100)
+  CHECK (meter_period IN ('week', 'month'))
+  CHECK (meter_mode IN ('soft', 'hard'))
+  CHECK (json_valid(design_json))
+  fk channel_id -> channels(id) on delete cascade on update no action
+  index (pk) UNIQUE (channel_id)
+table gates
+  dispatch_id TEXT PK1
+  channel_id TEXT NOT NULL
+  level_ids_json TEXT NOT NULL DEFAULT '[]'
+  metered INTEGER NOT NULL DEFAULT 1
+  design_json TEXT NOT NULL DEFAULT '{}'
+  updated_by TEXT
+  updated_at INTEGER NOT NULL
+  CHECK (json_valid(level_ids_json))
+  CHECK (metered IN (0, 1))
+  CHECK (json_valid(design_json))
+  fk updated_by -> operators(id) on delete set null on update no action
+  fk channel_id -> channels(id) on delete cascade on update no action
+  fk dispatch_id -> dispatches(id) on delete cascade on update no action
+  index (pk) UNIQUE (dispatch_id)
+table gift_article_links
+  token_hash TEXT PK1
+  channel_id TEXT NOT NULL
+  member_id TEXT NOT NULL
+  dispatch_id TEXT NOT NULL
+  period TEXT NOT NULL
+  created_at INTEGER NOT NULL
+  expires_at INTEGER NOT NULL
+  reads INTEGER NOT NULL DEFAULT 0
+  revoked_at INTEGER
+  CHECK (length(period) <= 10)
+  fk dispatch_id -> dispatches(id) on delete cascade on update no action
+  fk member_id -> members(id) on delete cascade on update no action
+  fk channel_id -> channels(id) on delete cascade on update no action
+  index gift_article_links_by_member (member_id, period)
+  index (pk) UNIQUE (token_hash)
+table gift_passes
+  id TEXT PK1
+  channel_id TEXT NOT NULL
+  level_id TEXT
+  months INTEGER NOT NULL
+  purchaser_email TEXT NOT NULL
+  purchaser_member_id TEXT
+  recipient_email TEXT
+  message TEXT
+  claim_token_hash TEXT
+  status TEXT NOT NULL DEFAULT 'pending_payment'
+  checkout_session_id TEXT
+  claimed_member_id TEXT
+  claimed_at INTEGER
+  claim_by INTEGER
+  created_at INTEGER NOT NULL
+  claim_reminded_at INTEGER
+  reminder_token_hash TEXT
+  CHECK (months BETWEEN 1 AND 24)
+  CHECK (message IS NULL OR length(message) <= 500)
+  CHECK (status IN ('pending_payment', 'paid', 'claimed', 'expired', 'refunded'))
+  fk claimed_member_id -> members(id) on delete set null on update no action
+  fk purchaser_member_id -> members(id) on delete set null on update no action
+  fk level_id -> membership_levels(id) on delete set null on update no action
+  fk channel_id -> channels(id) on delete cascade on update no action
+  index gift_passes_by_channel (channel_id, status)
+  index gift_passes_claim_due PARTIAL (claim_by)
+  index gift_passes_reminder_token UNIQUE PARTIAL (reminder_token_hash)
+  index (pk) UNIQUE (id)
+  index (u) UNIQUE (claim_token_hash)
+table good_files
+  id TEXT PK1
+  good_id TEXT NOT NULL
+  media_id TEXT NOT NULL
+  name TEXT NOT NULL
+  position INTEGER NOT NULL DEFAULT 0
+  CHECK (length(name) BETWEEN 1 AND 120)
+  fk media_id -> media(id) on delete restrict on update no action
+  fk good_id -> goods(id) on delete cascade on update no action
+  index good_files_by_media (media_id)
+  index (pk) UNIQUE (id)
+  index (u) UNIQUE (good_id, media_id)
+table good_license_keys
+  id TEXT PK1
+  channel_id TEXT NOT NULL
+  order_id TEXT NOT NULL
+  good_id TEXT NOT NULL
+  license_key TEXT NOT NULL
+  revoked_at INTEGER
+  created_at INTEGER NOT NULL
+  fk good_id -> goods(id) on delete cascade on update no action
+  fk order_id -> good_orders(id) on delete cascade on update no action
+  fk channel_id -> channels(id) on delete cascade on update no action
+  index (pk) UNIQUE (id)
+  index (u) UNIQUE (order_id)
+  index (u) UNIQUE (channel_id, license_key)
+table good_orders
+  id TEXT PK1
+  channel_id TEXT NOT NULL
+  good_id TEXT NOT NULL
+  price_id TEXT
+  member_id TEXT
+  email TEXT NOT NULL
+  amount INTEGER NOT NULL
+  currency TEXT NOT NULL
+  status TEXT NOT NULL DEFAULT 'pending'
+  stripe_session_id TEXT
+  payment_intent_id TEXT
+  created_at INTEGER NOT NULL
+  paid_at INTEGER
+  ended_at INTEGER
+  CHECK (status IN ('pending', 'paid', 'refunded', 'disputed'))
+  fk member_id -> members(id) on delete set null on update no action
+  fk price_id -> good_prices(id) on delete set null on update no action
+  fk good_id -> goods(id) on delete restrict on update no action
+  fk channel_id -> channels(id) on delete cascade on update no action
+  index good_orders_by_channel (channel_id, id)
+  index good_orders_by_email (channel_id, email, status)
+  index good_orders_by_payment (channel_id, payment_intent_id)
+  index (pk) UNIQUE (id)
+table good_prices
+  id TEXT PK1
+  good_id TEXT NOT NULL
+  name TEXT NOT NULL
+  amount INTEGER NOT NULL
+  currency TEXT NOT NULL
+  position INTEGER NOT NULL DEFAULT 0
+  archived_at INTEGER
+  CHECK (length(name) BETWEEN 1 AND 80)
+  CHECK (amount > 0)
+  CHECK (length(currency) = 3 AND currency = lower(currency))
+  fk good_id -> goods(id) on delete cascade on update no action
+  index good_prices_by_good (good_id, position)
+  index (pk) UNIQUE (id)
+table goods
+  id TEXT PK1
+  channel_id TEXT NOT NULL
+  slug TEXT NOT NULL
+  name TEXT NOT NULL
+  description TEXT NOT NULL DEFAULT ''
+  status TEXT NOT NULL DEFAULT 'draft'
+  license_keys INTEGER NOT NULL DEFAULT 0
+  created_at INTEGER NOT NULL
+  updated_at INTEGER NOT NULL
+  CHECK (length(slug) BETWEEN 1 AND 80)
+  CHECK (length(name) BETWEEN 1 AND 120)
+  CHECK (length(description) <= 5000)
+  CHECK (status IN ('draft', 'published', 'archived'))
+  CHECK (license_keys IN (0, 1))
+  fk channel_id -> channels(id) on delete cascade on update no action
+  index (pk) UNIQUE (id)
+  index (u) UNIQUE (channel_id, slug)
+table hub_link_clicks_daily
+  channel_id TEXT NOT NULL PK1
+  day TEXT NOT NULL PK2
+  link_id TEXT NOT NULL PK3
+  source TEXT NOT NULL PK4
+  country TEXT NOT NULL PK5
+  clicks INTEGER NOT NULL DEFAULT 0
+  CHECK (length(day) = 10)
+  CHECK (length(source) <= 120)
+  CHECK (length(country) <= 2)
+  fk channel_id -> channels(id) on delete cascade on update no action
+  index (pk) UNIQUE (channel_id, day, link_id, source, country)
+table hub_links
+  id TEXT PK1
+  channel_id TEXT NOT NULL
+  title TEXT NOT NULL
+  url TEXT NOT NULL
+  thumbnail_media_id TEXT
+  starts_at INTEGER
+  ends_at INTEGER
+  position INTEGER NOT NULL DEFAULT 0
+  created_at INTEGER NOT NULL
+  updated_at INTEGER NOT NULL
+  CHECK (length(title) BETWEEN 1 AND 80)
+  CHECK ( length(url) <= 2048 AND (url LIKE 'https://%' OR url LIKE 'http://%') )
+  CHECK (starts_at IS NULL OR ends_at IS NULL OR starts_at < ends_at)
+  fk thumbnail_media_id -> media(id) on delete set null on update no action
+  fk channel_id -> channels(id) on delete cascade on update no action
+  index hub_links_by_channel (channel_id, position)
+  index (pk) UNIQUE (id)
+table hub_settings
+  channel_id TEXT PK1
+  enabled INTEGER NOT NULL DEFAULT 0
+  title TEXT
+  bio TEXT
+  socials_json TEXT NOT NULL DEFAULT '[]'
+  latest_dispatches INTEGER NOT NULL DEFAULT 3
+  show_form INTEGER NOT NULL DEFAULT 1
+  capture_form_id TEXT
+  updated_by TEXT
+  updated_at INTEGER NOT NULL
+  CHECK (enabled IN (0, 1))
+  CHECK (title IS NULL OR length(title) BETWEEN 1 AND 80)
+  CHECK (bio IS NULL OR length(bio) <= 280)
+  CHECK (json_valid(socials_json))
+  CHECK (latest_dispatches BETWEEN 0 AND 10)
+  CHECK (show_form IN (0, 1))
+  fk updated_by -> operators(id) on delete set null on update no action
+  fk capture_form_id -> capture_forms(id) on delete set null on update no action
+  fk channel_id -> channels(id) on delete cascade on update no action
+  index (pk) UNIQUE (channel_id)
+table import_jobs
+  id TEXT PK1
+  workspace_id TEXT NOT NULL
+  channel_id TEXT NOT NULL
+  status TEXT NOT NULL DEFAULT 'uploaded'
+  file_name TEXT NOT NULL
+  r2_key TEXT NOT NULL
+  bytes INTEGER NOT NULL
+  mapping_json TEXT NOT NULL DEFAULT '{}'
+  consent_attested INTEGER NOT NULL DEFAULT 0
+  update_existing INTEGER NOT NULL DEFAULT 0
+  report_json TEXT
+  total_rows INTEGER NOT NULL DEFAULT 0
+  processed_rows INTEGER NOT NULL DEFAULT 0
+  cursor INTEGER NOT NULL DEFAULT 0
+  error TEXT
+  created_by TEXT
+  created_at INTEGER NOT NULL
+  updated_at INTEGER NOT NULL
+  completed_at INTEGER
+  consent_attested_by TEXT
+  check_addresses INTEGER NOT NULL DEFAULT 0
+  email_check_run_id TEXT
+  CHECK (status IN ('uploaded', 'analyzing', 'analyzed', 'importing', 'done', 'failed', 'canceled'))
+  CHECK (length(file_name) <= 200)
+  CHECK (json_valid(mapping_json))
+  CHECK (consent_attested IN (0, 1))
+  CHECK (update_existing IN (0, 1))
+  CHECK (report_json IS NULL OR json_valid(report_json))
+  CHECK (check_addresses IN (0, 1))
+  fk created_by -> operators(id) on delete set null on update no action
+  fk channel_id -> channels(id) on delete cascade on update no action
+  fk workspace_id -> workspaces(id) on delete cascade on update no action
+  index import_jobs_by_channel (channel_id, created_at)
+  index (pk) UNIQUE (id)
+table instance_admins
+  operator_id TEXT PK1
+  created_at INTEGER NOT NULL
+  fk operator_id -> operators(id) on delete cascade on update no action
+  index (pk) UNIQUE (operator_id)
+table instance_audit_events
+  seq INTEGER PK1
+  id TEXT NOT NULL
+  actor_operator_id TEXT
+  action TEXT NOT NULL
+  metadata_json TEXT NOT NULL DEFAULT '{}'
+  ip_prefix TEXT
+  created_at INTEGER NOT NULL
+  prev_hash TEXT NOT NULL
+  hash TEXT NOT NULL
+  CHECK (json_valid(metadata_json))
+  index (u) UNIQUE (id)
+table instance_settings
+  key TEXT PK1
+  value TEXT NOT NULL
+  updated_by TEXT
+  updated_at INTEGER NOT NULL
+  CHECK (key IN ('signup'))
+  CHECK (key <> 'signup' OR value IN ('open', 'invite_only'))
+  fk updated_by -> operators(id) on delete set null on update no action
+  index (pk) UNIQUE (key)
+table invites
+  id TEXT PK1
+  workspace_id TEXT NOT NULL
+  email TEXT NOT NULL
+  role TEXT NOT NULL
+  token_hash TEXT NOT NULL
+  invited_by TEXT
+  created_at INTEGER NOT NULL
+  expires_at INTEGER NOT NULL
+  accepted_at INTEGER
+  revoked_at INTEGER
+  CHECK (role IN ('admin', 'editor', 'author', 'viewer'))
+  fk invited_by -> operators(id) on delete set null on update no action
+  fk workspace_id -> workspaces(id) on delete cascade on update no action
+  index invites_by_workspace (workspace_id, created_at)
+  index (pk) UNIQUE (id)
+  index (u) UNIQUE (token_hash)
+table left_addresses
+  channel_id TEXT NOT NULL PK1
+  email_hash TEXT NOT NULL PK2
+  left_at INTEGER NOT NULL
+  fk channel_id -> channels(id) on delete cascade on update no action
+  index (pk) UNIQUE (channel_id, email_hash)
+table level_prices
+  id TEXT PK1
+  level_id TEXT NOT NULL
+  channel_id TEXT NOT NULL
+  interval TEXT NOT NULL
+  currency TEXT NOT NULL
+  amount INTEGER NOT NULL
+  custom_amount INTEGER NOT NULL DEFAULT 0
+  min_amount INTEGER
+  status TEXT NOT NULL DEFAULT 'active'
+  effective_at INTEGER
+  existing TEXT NOT NULL DEFAULT 'grandfather'
+  stripe_price_id TEXT
+  created_at INTEGER NOT NULL
+  retired_at INTEGER
+  paypal_plan_id TEXT
+  CHECK (interval IN ('month', 'year', 'lifetime'))
+  CHECK (length(currency) = 3)
+  CHECK (amount >= 0)
+  CHECK (custom_amount IN (0, 1))
+  CHECK (min_amount IS NULL OR min_amount >= 0)
+  CHECK (status IN ('active', 'scheduled', 'retired'))
+  CHECK (existing IN ('grandfather', 'migrate'))
+  CHECK (status <> 'scheduled' OR effective_at IS NOT NULL)
+  fk channel_id -> channels(id) on delete cascade on update no action
+  fk level_id -> membership_levels(id) on delete cascade on update no action
+  index level_prices_active UNIQUE PARTIAL (level_id, interval)
+  index level_prices_by_level (level_id, interval, status)
+  index level_prices_due PARTIAL (effective_at)
+  index (pk) UNIQUE (id)
+table link_targets
+  id TEXT PK1
+  broadcast_id TEXT NOT NULL
+  url TEXT NOT NULL
+  position INTEGER NOT NULL
+  carried_clicks INTEGER NOT NULL DEFAULT 0
+  carried_human_clicks INTEGER NOT NULL DEFAULT 0
+  carried_human_people INTEGER NOT NULL DEFAULT 0
+  CHECK (url LIKE 'http://%' OR url LIKE 'https://%')
+  fk broadcast_id -> broadcasts(id) on delete cascade on update no action
+  index (pk) UNIQUE (id)
+  index (u) UNIQUE (broadcast_id, position)
+table mail_allowances
+  scope TEXT NOT NULL PK1
+  key_hash TEXT NOT NULL PK2
+  window_start INTEGER NOT NULL
+  used INTEGER NOT NULL
+  CHECK (length(scope) <= 40)
+  CHECK (length(key_hash) = 64)
+  CHECK (used >= 0)
+  index mail_allowances_by_window (window_start)
+  index (pk) UNIQUE (scope, key_hash)
+table mail_service_changes
+  id TEXT PK1
+  from_provider TEXT NOT NULL
+  to_provider TEXT NOT NULL
+  state TEXT NOT NULL
+  started_at INTEGER NOT NULL
+  cut_over_at INTEGER
+  drain_until INTEGER
+  finished_at INTEGER
+  CHECK (state IN ('prepared', 'cut_over', 'finished', 'rolled_back'))
+  index mail_service_changes_one_open UNIQUE PARTIAL (<expr>)
+  index (pk) UNIQUE (id)
+table mailgun_webhook_tokens
+  token TEXT NOT NULL PK1
+  expires_at INTEGER NOT NULL
+  event_hash TEXT
+  released INTEGER NOT NULL DEFAULT 0
+  CHECK (released IN (0, 1))
+  index mailgun_webhook_tokens_expires (expires_at)
+  index (pk) UNIQUE (token)
+table media
+  id TEXT PK1
+  workspace_id TEXT NOT NULL
+  channel_id TEXT
+  r2_key TEXT NOT NULL
+  content_type TEXT NOT NULL
+  bytes INTEGER NOT NULL
+  width INTEGER
+  height INTEGER
+  focal_x REAL
+  focal_y REAL
+  alt_text TEXT
+  visibility TEXT NOT NULL DEFAULT 'public'
+  created_by TEXT
+  created_at INTEGER NOT NULL
+  deleted_at INTEGER
+  CHECK (bytes > 0)
+  CHECK (focal_x IS NULL OR focal_x BETWEEN 0 AND 1)
+  CHECK (focal_y IS NULL OR focal_y BETWEEN 0 AND 1)
+  CHECK (visibility IN ('public', 'private'))
+  fk created_by -> operators(id) on delete set null on update no action
+  fk channel_id -> channels(id) on delete set null on update no action
+  fk workspace_id -> workspaces(id) on delete cascade on update no action
+  index media_by_channel PARTIAL (channel_id, created_at)
+  index media_by_workspace PARTIAL (workspace_id, created_at)
+  index (pk) UNIQUE (id)
+  index (u) UNIQUE (r2_key)
+table member_consents
+  id INTEGER PK1
+  member_id TEXT NOT NULL
+  source TEXT NOT NULL
+  form_id TEXT
+  form_version INTEGER
+  wording TEXT
+  ticked INTEGER
+  must_confirm INTEGER NOT NULL
+  attested_by TEXT
+  created_at INTEGER NOT NULL
+  version_claimed INTEGER NOT NULL DEFAULT 0
+  verified_host TEXT
+  claimed_origin TEXT
+  stamped_at INTEGER
+  CHECK (source IN ('form', 'operator', 'api', 'import', 'checkout'))
+  CHECK (ticked IS NULL OR ticked IN (0, 1))
+  CHECK (must_confirm IN (0, 1))
+  CHECK (attested_by IS NULL OR length(attested_by) <= 80)
+  CHECK (version_claimed IN (0, 1))
+  CHECK (verified_host IS NULL OR length(verified_host) <= 255)
+  CHECK (claimed_origin IS NULL OR length(claimed_origin) <= 255)
+  fk member_id -> members(id) on delete cascade on update no action
+  index member_consents_by_member (member_id, created_at)
+table member_engagement
+  member_id TEXT PK1
+  channel_id TEXT NOT NULL
+  score INTEGER
+  band TEXT NOT NULL
+  sent_count INTEGER NOT NULL
+  opened_count INTEGER NOT NULL
+  clicked_count INTEGER NOT NULL
+  last_engaged_at INTEGER
+  computed_at INTEGER NOT NULL
+  CHECK (score IS NULL OR score BETWEEN 0 AND 100)
+  CHECK (band IN ('very_engaged', 'engaged', 'slipping', 'cold', 'too_few_posts', 'opens_hidden'))
+  fk channel_id -> channels(id) on delete cascade on update no action
+  fk member_id -> members(id) on delete cascade on update no action
+  index member_engagement_by_band (channel_id, band)
+  index member_engagement_by_score (channel_id, score)
+  index (pk) UNIQUE (member_id)
+table member_entitlements
+  member_id TEXT NOT NULL PK1
+  channel_id TEXT NOT NULL
+  kind TEXT NOT NULL PK2
+  source TEXT NOT NULL
+  starts_at INTEGER NOT NULL
+  expires_at INTEGER
+  level_id TEXT
+  CHECK (kind IN ('paid'))
+  CHECK (length(source) <= 60)
+  fk level_id -> membership_levels(id) on delete set null on update no action
+  fk channel_id -> channels(id) on delete cascade on update no action
+  fk member_id -> members(id) on delete cascade on update no action
+  index (pk) UNIQUE (member_id, kind)
+table member_events
+  seq INTEGER PK1
+  channel_id TEXT NOT NULL
+  member_id TEXT NOT NULL
+  type TEXT NOT NULL
+  payload_json TEXT NOT NULL DEFAULT '{}'
+  created_at INTEGER NOT NULL
+  processed_at INTEGER
+  CHECK (length(type) <= 40)
+  CHECK (json_valid(payload_json))
+  fk member_id -> members(id) on delete cascade on update no action
+  fk channel_id -> channels(id) on delete cascade on update no action
+  index member_events_by_member (member_id, created_at)
+  index member_events_processed PARTIAL (processed_at)
+  index member_events_unprocessed PARTIAL (seq)
+table member_field_values
+  member_id TEXT NOT NULL PK1
+  field_id TEXT NOT NULL PK2
+  value_text TEXT
+  value_num REAL
+  value_enc TEXT
+  updated_at INTEGER NOT NULL
+  CHECK (value_text IS NULL OR length(value_text) <= 2000)
+  fk field_id -> member_fields(id) on delete cascade on update no action
+  fk member_id -> members(id) on delete cascade on update no action
+  index member_field_values_num (field_id, value_num)
+  index member_field_values_text (field_id, value_text)
+  index (pk) UNIQUE (member_id, field_id)
+table member_fields
+  id TEXT PK1
+  channel_id TEXT NOT NULL
+  key TEXT NOT NULL
+  label TEXT NOT NULL
+  type TEXT NOT NULL
+  options_json TEXT NOT NULL DEFAULT '[]'
+  encrypted INTEGER NOT NULL DEFAULT 0
+  position INTEGER NOT NULL DEFAULT 0
+  created_at INTEGER NOT NULL
+  updated_at INTEGER NOT NULL
+  deleted_at INTEGER
+  CHECK (key GLOB '[a-z]*' AND length(key) BETWEEN 1 AND 40)
+  CHECK (length(label) BETWEEN 1 AND 80)
+  CHECK (type IN ('text', 'number', 'date', 'boolean', 'select', 'multi_select'))
+  CHECK (json_valid(options_json))
+  CHECK (encrypted IN (0, 1))
+  fk channel_id -> channels(id) on delete cascade on update no action
+  index member_fields_key UNIQUE PARTIAL (channel_id, key)
+  index (pk) UNIQUE (id)
+table member_send_hours
+  member_id TEXT PK1
+  channel_id TEXT NOT NULL
+  best_hour_utc INTEGER NOT NULL
+  samples INTEGER NOT NULL
+  computed_at INTEGER NOT NULL
+  CHECK (best_hour_utc BETWEEN 0 AND 23)
+  fk channel_id -> channels(id) on delete cascade on update no action
+  fk member_id -> members(id) on delete cascade on update no action
+  index member_send_hours_by_age (computed_at)
+  index (pk) UNIQUE (member_id)
+table member_subscriptions
+  id TEXT PK1
+  channel_id TEXT NOT NULL
+  member_id TEXT NOT NULL
+  level_id TEXT
+  price_id TEXT
+  source TEXT NOT NULL
+  status TEXT NOT NULL
+  stripe_subscription_id TEXT
+  stripe_customer_id TEXT
+  interval TEXT
+  currency TEXT
+  amount INTEGER
+  current_period_end INTEGER
+  trial_end INTEGER
+  cancel_at INTEGER
+  cancel_at_period_end INTEGER NOT NULL DEFAULT 0
+  canceled_at INTEGER
+  grace_until INTEGER
+  revoked_at INTEGER
+  revoke_reason TEXT
+  stripe_updated_at INTEGER
+  created_at INTEGER NOT NULL
+  updated_at INTEGER NOT NULL
+  discounted_amount INTEGER
+  discount_end INTEGER
+  expiry_reminded_at INTEGER
+  paypal_subscription_id TEXT
+  CHECK (source IN ('stripe', 'lifetime', 'gift', 'comp'))
+  CHECK (status IN ( 'incomplete', 'incomplete_expired', 'trialing', 'active', 'past_due', 'unpaid', 'canceled', 'paused', 'lifetime', 'ended'))
+  CHECK (interval IS NULL OR interval IN ('month', 'year', 'lifetime'))
+  CHECK (currency IS NULL OR length(currency) = 3)
+  CHECK (amount IS NULL OR amount >= 0)
+  CHECK (cancel_at_period_end IN (0, 1))
+  CHECK (revoke_reason IS NULL OR revoke_reason IN ( 'refund', 'dispute', 'grace_expired', 'canceled', 'operator', 'expired'))
+  CHECK (discounted_amount IS NULL OR discounted_amount >= 0)
+  fk price_id -> level_prices(id) on delete set null on update no action
+  fk level_id -> membership_levels(id) on delete set null on update no action
+  fk member_id -> members(id) on delete cascade on update no action
+  fk channel_id -> channels(id) on delete cascade on update no action
+  index member_subscriptions_by_channel (channel_id, status, created_at)
+  index member_subscriptions_by_member (member_id, status)
+  index member_subscriptions_gift_end PARTIAL (current_period_end)
+  index member_subscriptions_grace PARTIAL (grace_until)
+  index member_subscriptions_paypal UNIQUE PARTIAL (paypal_subscription_id)
+  index (pk) UNIQUE (id)
+  index (u) UNIQUE (stripe_subscription_id)
+table member_tags
+  member_id TEXT NOT NULL PK1
+  tag_id TEXT NOT NULL PK2
+  created_at INTEGER NOT NULL
+  fk tag_id -> tags(id) on delete cascade on update no action
+  fk member_id -> members(id) on delete cascade on update no action
+  index member_tags_by_tag (tag_id, member_id)
+  index (pk) UNIQUE (member_id, tag_id)
+table member_views
+  id TEXT PK1
+  channel_id TEXT NOT NULL
+  name TEXT NOT NULL
+  filters_json TEXT NOT NULL
+  created_by TEXT
+  created_at INTEGER NOT NULL
+  updated_at INTEGER NOT NULL
+  CHECK (length(name) BETWEEN 1 AND 60)
+  CHECK (json_valid(filters_json))
+  fk created_by -> operators(id) on delete set null on update no action
+  fk channel_id -> channels(id) on delete cascade on update no action
+  index (pk) UNIQUE (id)
+  index (u) UNIQUE (channel_id, name)
+table members
+  id TEXT PK1
+  channel_id TEXT NOT NULL
+  email TEXT NOT NULL
+  first_name TEXT
+  last_name TEXT
+  status TEXT NOT NULL DEFAULT 'active'
+  source_json TEXT NOT NULL DEFAULT '{}'
+  form_id TEXT
+  import_id TEXT
+  referred_by TEXT
+  digest TEXT NOT NULL DEFAULT 'every'
+  consent_at INTEGER
+  confirmed_at INTEGER
+  paused_until INTEGER
+  unsubscribe_reason TEXT
+  created_at INTEGER NOT NULL
+  updated_at INTEGER NOT NULL
+  unsubscribed_at INTEGER
+  champion_code TEXT
+  tracking_opt_out_at INTEGER
+  bounced_from TEXT
+  member_links_after INTEGER
+  sunset_notice_at INTEGER
+  sunset_kept_at INTEGER
+  reduced_at INTEGER
+  emails_off_at INTEGER
+  CHECK (length(email) BETWEEN 3 AND 254)
+  CHECK (first_name IS NULL OR length(first_name) <= 80)
+  CHECK (last_name IS NULL OR length(last_name) <= 80)
+  CHECK (status IN ('pending', 'active', 'paused', 'unsubscribed', 'bounced', 'complained'))
+  CHECK (json_valid(source_json))
+  CHECK (digest IN ('every', 'weekly', 'monthly'))
+  CHECK (unsubscribe_reason IS NULL OR length(unsubscribe_reason) <= 500)
+  CHECK (champion_code IS NULL OR length(champion_code) BETWEEN 6 AND 16)
+  CHECK (bounced_from IS NULL OR bounced_from IN ('pending', 'active', 'paused', 'unsubscribed'))
+  fk referred_by -> members(id) on delete set null on update no action
+  fk import_id -> import_jobs(id) on delete set null on update no action
+  fk form_id -> capture_forms(id) on delete set null on update no action
+  fk channel_id -> channels(id) on delete cascade on update no action
+  index members_active_by_channel PARTIAL (channel_id, id)
+  index members_by_channel_created (channel_id, created_at)
+  index members_by_channel_status (channel_id, status, id)
+  index members_by_channel_updated (channel_id, updated_at, id)
+  index members_by_email (email)
+  index members_by_form PARTIAL (form_id)
+  index members_by_referrer PARTIAL (referred_by)
+  index members_champion_code UNIQUE PARTIAL (channel_id, champion_code)
+  index members_departed PARTIAL (status, unsubscribed_at)
+  index members_paused_until PARTIAL (paused_until)
+  index members_pending_imports PARTIAL (created_at)
+  index (pk) UNIQUE (id)
+  index (u) UNIQUE (channel_id, email)
+table membership_levels
+  id TEXT PK1
+  channel_id TEXT NOT NULL
+  name TEXT NOT NULL
+  description TEXT
+  benefits_json TEXT NOT NULL DEFAULT '[]'
+  founding INTEGER NOT NULL DEFAULT 0
+  visibility TEXT NOT NULL DEFAULT 'public'
+  trial_days INTEGER NOT NULL DEFAULT 0
+  status TEXT NOT NULL DEFAULT 'active'
+  position INTEGER NOT NULL DEFAULT 0
+  stripe_product_id TEXT
+  created_by TEXT
+  created_at INTEGER NOT NULL
+  updated_at INTEGER NOT NULL
+  CHECK (length(name) BETWEEN 1 AND 60)
+  CHECK (description IS NULL OR length(description) <= 500)
+  CHECK (json_valid(benefits_json))
+  CHECK (founding IN (0, 1))
+  CHECK (visibility IN ('public', 'hidden'))
+  CHECK (trial_days BETWEEN 0 AND 365)
+  CHECK (status IN ('active', 'archived'))
+  fk created_by -> operators(id) on delete set null on update no action
+  fk channel_id -> channels(id) on delete cascade on update no action
+  index membership_levels_by_channel (channel_id, status, position)
+  index (pk) UNIQUE (id)
+table message_send_log
+  dedupe_key TEXT PK1
+  created_at INTEGER NOT NULL
+  index (pk) UNIQUE (dedupe_key)
+table mfa_attempts
+  id INTEGER PK1
+  operator_id TEXT NOT NULL
+  session_id TEXT NOT NULL
+  method TEXT NOT NULL
+  created_at INTEGER NOT NULL
+  CHECK (method IN ('passkey', 'totp', 'recovery'))
+  fk operator_id -> operators(id) on delete cascade on update no action
+  index mfa_attempts_by_operator (operator_id, created_at)
+  index mfa_attempts_by_session (session_id, created_at)
+table oauth_apps
+  id TEXT PK1
+  workspace_id TEXT NOT NULL
+  name TEXT NOT NULL
+  client_id TEXT NOT NULL
+  client_secret_hash TEXT
+  redirect_uris_json TEXT NOT NULL
+  scopes_json TEXT NOT NULL
+  homepage_url TEXT
+  created_by TEXT
+  created_at INTEGER NOT NULL
+  updated_at INTEGER NOT NULL
+  revoked_at INTEGER
+  metadata_url TEXT
+  CHECK (length(name) BETWEEN 1 AND 80)
+  CHECK (json_valid(redirect_uris_json))
+  CHECK (json_valid(scopes_json))
+  fk created_by -> operators(id) on delete set null on update no action
+  fk workspace_id -> workspaces(id) on delete cascade on update no action
+  index oauth_apps_by_metadata_url UNIQUE PARTIAL (workspace_id, metadata_url)
+  index oauth_apps_by_workspace (workspace_id)
+  index (pk) UNIQUE (id)
+  index (u) UNIQUE (client_id)
+table oauth_client_documents
+  url TEXT PK1
+  status TEXT NOT NULL
+  name TEXT
+  client_uri TEXT
+  redirect_uris_json TEXT
+  error TEXT
+  fetched_by TEXT
+  fetched_at INTEGER NOT NULL
+  expires_at INTEGER NOT NULL
+  CHECK (length(url) <= 2000)
+  CHECK (status IN ('ok', 'error'))
+  CHECK (name IS NULL OR length(name) BETWEEN 1 AND 80)
+  CHECK (redirect_uris_json IS NULL OR json_valid(redirect_uris_json))
+  fk fetched_by -> operators(id) on delete set null on update no action
+  index oauth_client_documents_by_expiry (expires_at)
+  index oauth_client_documents_by_operator (fetched_by, fetched_at)
+  index (pk) UNIQUE (url)
+table oauth_grants
+  id TEXT PK1
+  app_id TEXT NOT NULL
+  workspace_id TEXT NOT NULL
+  operator_id TEXT
+  channel_ids_json TEXT
+  scopes_json TEXT NOT NULL
+  code_hash TEXT
+  code_challenge TEXT
+  redirect_uri TEXT
+  code_expires_at INTEGER
+  code_consumed_at INTEGER
+  created_at INTEGER NOT NULL
+  revoked_at INTEGER
+  resource TEXT NOT NULL DEFAULT 'v2'
+  CHECK (channel_ids_json IS NULL OR json_valid(channel_ids_json))
+  CHECK (json_valid(scopes_json))
+  CHECK (resource IN ('v2', 'mcp'))
+  fk operator_id -> operators(id) on delete set null on update no action
+  fk workspace_id -> workspaces(id) on delete cascade on update no action
+  fk app_id -> oauth_apps(id) on delete cascade on update no action
+  index oauth_grants_by_app (app_id)
+  index oauth_grants_by_operator PARTIAL (operator_id, workspace_id)
+  index oauth_grants_by_workspace (workspace_id)
+  index (pk) UNIQUE (id)
+  index (u) UNIQUE (code_hash)
+table oauth_identities
+  id TEXT PK1
+  provider TEXT NOT NULL
+  subject TEXT NOT NULL
+  operator_id TEXT NOT NULL
+  email TEXT NOT NULL
+  email_verified INTEGER NOT NULL
+  sso_connection_id TEXT
+  created_at INTEGER NOT NULL
+  CHECK (provider IN ('google', 'sso'))
+  CHECK (email_verified IN (0, 1))
+  fk sso_connection_id -> sso_connections(id) on delete cascade on update no action
+  fk operator_id -> operators(id) on delete cascade on update no action
+  index oauth_identities_by_operator (operator_id)
+  index oauth_identities_unique_subject UNIQUE (provider, <expr>, subject)
+  index (pk) UNIQUE (id)
+table oauth_tokens
+  id TEXT PK1
+  grant_id TEXT NOT NULL
+  family_id TEXT NOT NULL
+  kind TEXT NOT NULL
+  token_hash TEXT NOT NULL
+  expires_at INTEGER NOT NULL
+  used_at INTEGER
+  last_used_at INTEGER
+  created_at INTEGER NOT NULL
+  revoked_at INTEGER
+  scopes_json TEXT
+  CHECK (kind IN ('access', 'refresh'))
+  CHECK (scopes_json IS NULL OR json_valid(scopes_json))
+  fk grant_id -> oauth_grants(id) on delete cascade on update no action
+  index oauth_tokens_by_family (family_id)
+  index oauth_tokens_by_grant (grant_id)
+  index (pk) UNIQUE (id)
+  index (u) UNIQUE (token_hash)
+table opens
+  id TEXT PK1
+  delivery_id TEXT NOT NULL
+  broadcast_id TEXT NOT NULL
+  classification TEXT NOT NULL
+  ua_family TEXT
+  ip_prefix TEXT
+  asn INTEGER
+  created_at INTEGER NOT NULL
+  CHECK (classification IN ('human', 'machine_open', 'bot'))
+  fk broadcast_id -> broadcasts(id) on delete cascade on update no action
+  fk delivery_id -> deliveries(id) on delete cascade on update no action
+  index opens_by_broadcast (broadcast_id)
+  index opens_by_delivery (delivery_id)
+  index (pk) UNIQUE (id)
+table operators
+  id TEXT PK1
+  email TEXT NOT NULL
+  name TEXT
+  created_at INTEGER NOT NULL
+  updated_at INTEGER NOT NULL
+  mfa_required_since INTEGER
+  email_signin_required_at INTEGER
+  CHECK (name IS NULL OR length(name) <= 80)
+  index (pk) UNIQUE (id)
+  index (u) UNIQUE (email)
+table partner_picks
+  id TEXT PK1
+  channel_id TEXT NOT NULL
+  name TEXT NOT NULL
+  description TEXT NOT NULL DEFAULT ''
+  url TEXT NOT NULL
+  on_site INTEGER NOT NULL DEFAULT 1
+  on_signup INTEGER NOT NULL DEFAULT 1
+  position INTEGER NOT NULL DEFAULT 0
+  site_clicks INTEGER NOT NULL DEFAULT 0
+  signup_clicks INTEGER NOT NULL DEFAULT 0
+  created_at INTEGER NOT NULL
+  updated_at INTEGER NOT NULL
+  CHECK (length(name) BETWEEN 1 AND 80)
+  CHECK (length(description) <= 280)
+  CHECK (length(url) <= 2048 AND (url LIKE 'https://%' OR url LIKE 'http://%'))
+  CHECK (on_site IN (0, 1))
+  CHECK (on_signup IN (0, 1))
+  fk channel_id -> channels(id) on delete cascade on update no action
+  index partner_picks_by_channel (channel_id, position)
+  index (pk) UNIQUE (id)
+table passkeys
+  id TEXT PK1
+  operator_id TEXT NOT NULL
+  credential_id TEXT NOT NULL
+  public_key TEXT NOT NULL
+  counter INTEGER NOT NULL DEFAULT 0
+  transports_json TEXT
+  name TEXT NOT NULL
+  backed_up INTEGER NOT NULL DEFAULT 0
+  created_at INTEGER NOT NULL
+  last_used_at INTEGER
+  CHECK (transports_json IS NULL OR json_valid(transports_json))
+  CHECK (length(name) BETWEEN 1 AND 80)
+  CHECK (backed_up IN (0, 1))
+  fk operator_id -> operators(id) on delete cascade on update no action
+  index passkeys_by_operator (operator_id)
+  index (pk) UNIQUE (id)
+  index (u) UNIQUE (credential_id)
+table payments
+  id TEXT PK1
+  channel_id TEXT NOT NULL
+  member_id TEXT
+  subscription_id TEXT
+  kind TEXT NOT NULL
+  stripe_object_id TEXT NOT NULL
+  currency TEXT NOT NULL
+  amount INTEGER NOT NULL
+  occurred_at INTEGER NOT NULL
+  detached_at INTEGER
+  CHECK (kind IN ('invoice', 'one_time', 'refund'))
+  CHECK (length(currency) = 3)
+  fk subscription_id -> member_subscriptions(id) on delete set null on update no action
+  fk member_id -> members(id) on delete set null on update no action
+  fk channel_id -> channels(id) on delete cascade on update no action
+  index payments_by_channel (channel_id, occurred_at)
+  index payments_detached PARTIAL (occurred_at)
+  index (pk) UNIQUE (id)
+  index (u) UNIQUE (channel_id, stripe_object_id)
+table paypal_accounts
+  channel_id TEXT PK1
+  workspace_id TEXT NOT NULL
+  mode TEXT NOT NULL
+  client_id TEXT NOT NULL
+  secret_enc TEXT NOT NULL
+  secret_last4 TEXT NOT NULL
+  webhook_id TEXT NOT NULL
+  connected_by TEXT
+  connected_at INTEGER NOT NULL
+  updated_at INTEGER NOT NULL
+  CHECK (mode IN ('live', 'sandbox'))
+  fk connected_by -> operators(id) on delete set null on update no action
+  fk workspace_id -> workspaces(id) on delete cascade on update no action
+  fk channel_id -> channels(id) on delete cascade on update no action
+  index (pk) UNIQUE (channel_id)
+table paypal_events
+  event_id TEXT NOT NULL PK2
+  channel_id TEXT NOT NULL PK1
+  type TEXT NOT NULL
+  status TEXT NOT NULL
+  error TEXT
+  received_at INTEGER NOT NULL
+  processed_at INTEGER
+  CHECK (status IN ('received', 'processed', 'ignored', 'failed'))
+  fk channel_id -> channels(id) on delete cascade on update no action
+  index paypal_events_unfinished PARTIAL (channel_id, status, received_at)
+  index (pk) UNIQUE (channel_id, event_id)
+table platform_events
+  seq INTEGER PK1
+  workspace_id TEXT NOT NULL
+  channel_id TEXT
+  member_id TEXT
+  type TEXT NOT NULL
+  payload_json TEXT NOT NULL
+  created_at INTEGER NOT NULL
+  CHECK (json_valid(payload_json))
+  index platform_events_by_channel (channel_id, type, seq)
+  index platform_events_by_member PARTIAL (member_id)
+  index platform_events_by_time (created_at)
+table platform_staff
+  operator_id TEXT PK1
+  note TEXT
+  created_at INTEGER NOT NULL
+  CHECK (note IS NULL OR length(note) <= 200)
+  fk operator_id -> operators(id) on delete cascade on update no action
+  index (pk) UNIQUE (operator_id)
+table pledges
+  id TEXT PK1
+  channel_id TEXT NOT NULL
+  member_id TEXT NOT NULL
+  level_id TEXT
+  interval TEXT NOT NULL
+  currency TEXT NOT NULL
+  amount INTEGER NOT NULL
+  status TEXT NOT NULL DEFAULT 'open'
+  created_at INTEGER NOT NULL
+  notified_at INTEGER
+  converted_at INTEGER
+  CHECK (interval IN ('month', 'year'))
+  CHECK (length(currency) = 3)
+  CHECK (amount > 0)
+  CHECK (status IN ('open', 'notified', 'converted', 'withdrawn'))
+  fk level_id -> membership_levels(id) on delete set null on update no action
+  fk member_id -> members(id) on delete cascade on update no action
+  fk channel_id -> channels(id) on delete cascade on update no action
+  index (pk) UNIQUE (id)
+  index (u) UNIQUE (channel_id, member_id)
+table provider_suppression_sync
+  email TEXT PK1
+  action TEXT NOT NULL
+  reason TEXT
+  status TEXT NOT NULL DEFAULT 'pending'
+  attempts INTEGER NOT NULL DEFAULT 0
+  next_attempt_at INTEGER NOT NULL
+  last_error TEXT
+  created_at INTEGER NOT NULL
+  updated_at INTEGER NOT NULL
+  CHECK (action IN ('put', 'delete'))
+  CHECK (reason IS NULL OR reason IN ('BOUNCE', 'COMPLAINT'))
+  CHECK (status IN ('pending', 'failed'))
+  index provider_suppression_sync_due PARTIAL (next_attempt_at)
+  index (pk) UNIQUE (email)
+table quickpass_tokens
+  id TEXT PK1
+  token_hash TEXT NOT NULL
+  email TEXT NOT NULL
+  ip_prefix TEXT
+  created_at INTEGER NOT NULL
+  expires_at INTEGER NOT NULL
+  consumed_at INTEGER
+  index quickpass_tokens_by_email (email, created_at)
+  index quickpass_tokens_recent (created_at)
+  index (pk) UNIQUE (id)
+  index (u) UNIQUE (token_hash)
+table reader_sessions
+  id_hash TEXT PK1
+  channel_id TEXT NOT NULL
+  member_id TEXT NOT NULL
+  created_at INTEGER NOT NULL
+  last_seen_at INTEGER NOT NULL
+  expires_at INTEGER NOT NULL
+  fk member_id -> members(id) on delete cascade on update no action
+  fk channel_id -> channels(id) on delete cascade on update no action
+  index reader_sessions_by_member (member_id)
+  index (pk) UNIQUE (id_hash)
+table reader_tokens
+  token_hash TEXT PK1
+  channel_id TEXT NOT NULL
+  member_id TEXT NOT NULL
+  return_path TEXT NOT NULL DEFAULT '/'
+  created_at INTEGER NOT NULL
+  expires_at INTEGER NOT NULL
+  consumed_at INTEGER
+  CHECK (return_path GLOB '/*' AND length(return_path) <= 512)
+  fk member_id -> members(id) on delete cascade on update no action
+  fk channel_id -> channels(id) on delete cascade on update no action
+  index reader_tokens_by_member (member_id, created_at)
+  index (pk) UNIQUE (token_hash)
+table recipe_submissions
+  id TEXT PK1
+  workspace_id TEXT NOT NULL
+  channel_id TEXT
+  flow_id TEXT
+  status TEXT NOT NULL DEFAULT 'draft'
+  name TEXT NOT NULL
+  description TEXT NOT NULL
+  trigger_type TEXT NOT NULL
+  email_count INTEGER NOT NULL
+  setup_steps INTEGER NOT NULL
+  recipe_json TEXT NOT NULL
+  removed_json TEXT NOT NULL
+  review_note TEXT
+  submitted_at INTEGER
+  reviewed_at INTEGER
+  reviewed_by TEXT
+  created_by TEXT
+  created_at INTEGER NOT NULL
+  updated_at INTEGER NOT NULL
+  CHECK (status IN ('draft', 'submitted', 'approved', 'rejected', 'delisted'))
+  CHECK (length(name) BETWEEN 1 AND 80)
+  CHECK (length(description) <= 500)
+  CHECK (json_valid(recipe_json))
+  CHECK (json_valid(removed_json))
+  CHECK (review_note IS NULL OR length(review_note) <= 1000)
+  fk created_by -> operators(id) on delete set null on update no action
+  fk reviewed_by -> operators(id) on delete set null on update no action
+  fk flow_id -> flows(id) on delete set null on update no action
+  fk channel_id -> channels(id) on delete set null on update no action
+  fk workspace_id -> workspaces(id) on delete cascade on update no action
+  index recipe_submissions_by_channel (channel_id, created_at)
+  index recipe_submissions_by_status (status, reviewed_at)
+  index (pk) UNIQUE (id)
+table recovery_codes
+  id TEXT PK1
+  operator_id TEXT NOT NULL
+  code_hash TEXT NOT NULL
+  created_at INTEGER NOT NULL
+  used_at INTEGER
+  fk operator_id -> operators(id) on delete cascade on update no action
+  index recovery_codes_by_operator (operator_id)
+  index (pk) UNIQUE (id)
+  index (u) UNIQUE (code_hash)
+table referrals
+  id TEXT PK1
+  channel_id TEXT NOT NULL
+  referrer_id TEXT NOT NULL
+  referred_id TEXT NOT NULL
+  created_at INTEGER NOT NULL
+  status TEXT NOT NULL DEFAULT 'pending'
+  review_reason TEXT
+  ip_prefix TEXT
+  counted_at INTEGER
+  reviewed_by TEXT
+  reviewed_at INTEGER
+  CHECK (status IN ('pending', 'counted', 'held', 'rejected'))
+  CHECK (review_reason IS NULL OR review_reason IN ('disposable_domain', 'ip_cluster', 'not_engaged', 'operator', 'unsubscribed'))
+  CHECK (ip_prefix IS NULL OR length(ip_prefix) <= 64)
+  CHECK (referrer_id <> referred_id)
+  fk reviewed_by -> operators(id) on delete set null on update no action
+  fk referred_id -> members(id) on delete cascade on update no action
+  fk referrer_id -> members(id) on delete cascade on update no action
+  fk channel_id -> channels(id) on delete cascade on update no action
+  index referrals_by_referrer (referrer_id)
+  index referrals_by_status (channel_id, status, created_at)
+  index referrals_cluster PARTIAL (referrer_id, ip_prefix, created_at)
+  index (pk) UNIQUE (id)
+  index (u) UNIQUE (referred_id)
+table reputation_ramp_days
+  ramp_id TEXT NOT NULL PK1
+  day TEXT NOT NULL PK2
+  cap INTEGER NOT NULL
+  sent INTEGER NOT NULL
+  bounces INTEGER NOT NULL
+  complaints INTEGER NOT NULL
+  fk ramp_id -> reputation_ramps(id) on delete cascade on update no action
+  index (pk) UNIQUE (ramp_id, day)
+table reputation_ramps
+  id TEXT PK1
+  channel_id TEXT NOT NULL
+  sending_domain_id TEXT
+  status TEXT NOT NULL DEFAULT 'warming'
+  day TEXT NOT NULL
+  cap_today INTEGER NOT NULL
+  sent_today INTEGER NOT NULL DEFAULT 0
+  last_reserved INTEGER NOT NULL DEFAULT 0
+  start_cap INTEGER NOT NULL
+  growth REAL NOT NULL
+  max_cap INTEGER NOT NULL
+  bounce_threshold REAL NOT NULL
+  complaint_threshold REAL NOT NULL
+  paused_reason TEXT
+  created_at INTEGER NOT NULL
+  updated_at INTEGER NOT NULL
+  pause_notice TEXT
+  skipped_at INTEGER
+  started_day TEXT
+  paused_by TEXT
+  CHECK (status IN ('warming', 'paused', 'complete'))
+  CHECK (cap_today >= 0)
+  CHECK (sent_today >= 0)
+  CHECK (start_cap > 0)
+  CHECK (growth >= 1 AND growth <= 3)
+  CHECK (max_cap > 0)
+  CHECK (bounce_threshold > 0 AND bounce_threshold < 1)
+  CHECK (complaint_threshold > 0 AND complaint_threshold < 1)
+  CHECK (pause_notice IS NULL OR pause_notice IN ('due', 'sent'))
+  CHECK (paused_by IS NULL OR paused_by IN ('system', 'person'))
+  fk sending_domain_id -> sending_domains(id) on delete cascade on update no action
+  fk channel_id -> channels(id) on delete cascade on update no action
+  index reputation_ramps_pause_notice_due PARTIAL (id)
+  index reputation_ramps_scope UNIQUE (channel_id, <expr>)
+  index (pk) UNIQUE (id)
+table roster_members
+  roster_id TEXT NOT NULL PK1
+  member_id TEXT NOT NULL PK2
+  status TEXT NOT NULL
+  source TEXT NOT NULL
+  subscribed_at INTEGER
+  unsubscribed_at INTEGER
+  created_at INTEGER NOT NULL
+  updated_at INTEGER NOT NULL
+  CHECK (status IN ('subscribed', 'unsubscribed'))
+  CHECK (source IN ('operator', 'form', 'member', 'import', 'api', 'unsubscribe'))
+  fk member_id -> members(id) on delete cascade on update no action
+  fk roster_id -> rosters(id) on delete cascade on update no action
+  index roster_members_by_member (member_id, status)
+  index roster_members_by_roster (roster_id, status, updated_at)
+  index (pk) UNIQUE (roster_id, member_id)
+table rosters
+  id TEXT PK1
+  channel_id TEXT NOT NULL
+  name TEXT NOT NULL
+  description TEXT
+  member_center INTEGER NOT NULL DEFAULT 1
+  created_at INTEGER NOT NULL
+  updated_at INTEGER NOT NULL
+  deleted_at INTEGER
+  CHECK (length(name) BETWEEN 1 AND 80)
+  CHECK (description IS NULL OR length(description) <= 500)
+  CHECK (member_center IN (0, 1))
+  fk channel_id -> channels(id) on delete cascade on update no action
+  index rosters_by_channel PARTIAL (channel_id, created_at)
+  index rosters_name UNIQUE PARTIAL (channel_id, name)
+  index (pk) UNIQUE (id)
+table seats
+  id TEXT PK1
+  workspace_id TEXT NOT NULL
+  operator_id TEXT NOT NULL
+  role TEXT NOT NULL
+  created_at INTEGER NOT NULL
+  updated_at INTEGER NOT NULL
+  CHECK (role IN ('owner', 'admin', 'editor', 'author', 'viewer'))
+  fk operator_id -> operators(id) on delete cascade on update no action
+  fk workspace_id -> workspaces(id) on delete cascade on update no action
+  index seats_by_operator (operator_id)
+  index (pk) UNIQUE (id)
+  index (u) UNIQUE (workspace_id, operator_id)
+table sender_identities
+  id TEXT PK1
+  channel_id TEXT NOT NULL
+  sending_domain_id TEXT
+  from_name TEXT NOT NULL
+  from_local TEXT NOT NULL
+  reply_to TEXT
+  is_default INTEGER NOT NULL DEFAULT 0
+  created_at INTEGER NOT NULL
+  updated_at INTEGER NOT NULL
+  CHECK (length(from_name) BETWEEN 1 AND 80)
+  CHECK (length(from_local) BETWEEN 1 AND 64)
+  CHECK (is_default IN (0, 1))
+  fk sending_domain_id -> sending_domains(id) on delete cascade on update no action
+  fk channel_id -> channels(id) on delete cascade on update no action
+  index sender_identities_one_default UNIQUE PARTIAL (channel_id)
+  index (pk) UNIQUE (id)
+  index (u) UNIQUE (channel_id, sending_domain_id, from_local)
+table sending_domains
+  id TEXT PK1
+  workspace_id TEXT NOT NULL
+  channel_id TEXT NOT NULL
+  domain TEXT NOT NULL
+  kind TEXT NOT NULL
+  status TEXT NOT NULL DEFAULT 'pending'
+  dkim_status TEXT NOT NULL DEFAULT 'pending'
+  mail_from_domain TEXT
+  mail_from_status TEXT NOT NULL DEFAULT 'pending'
+  dmarc_policy TEXT
+  records_json TEXT NOT NULL DEFAULT '[]'
+  provider_ref TEXT
+  last_checked_at INTEGER
+  verified_at INTEGER
+  created_at INTEGER NOT NULL
+  updated_at INTEGER NOT NULL
+  provider TEXT
+  provider_changed_at INTEGER
+  pending_provider TEXT
+  pending_records_json TEXT
+  pending_provider_ref TEXT
+  proven_at INTEGER
+  CHECK (kind IN ('email', 'link'))
+  CHECK (status IN ('pending', 'verified', 'failed'))
+  CHECK (dkim_status IN ('pending', 'success', 'failed', 'not_started'))
+  CHECK (mail_from_status IN ('pending', 'success', 'failed', 'not_started'))
+  CHECK (dmarc_policy IS NULL OR dmarc_policy IN ('none', 'quarantine', 'reject'))
+  CHECK (json_valid(records_json))
+  CHECK (pending_records_json IS NULL OR json_valid(pending_records_json))
+  fk channel_id -> channels(id) on delete cascade on update no action
+  fk workspace_id -> workspaces(id) on delete cascade on update no action
+  index sending_domains_by_channel (channel_id, created_at)
+  index sending_domains_unverified PARTIAL (last_checked_at)
+  index (pk) UNIQUE (id)
+  index (u) UNIQUE (domain, kind)
+table sending_limits
+  id INTEGER PK1
+  per_second REAL
+  per_hour INTEGER
+  per_day INTEGER
+  per_month INTEGER
+  updated_by TEXT
+  updated_at INTEGER NOT NULL
+  CHECK (id = 1)
+  CHECK (per_second IS NULL OR (per_second >= 0.1 AND per_second <= 1000))
+  CHECK (per_hour IS NULL OR per_hour BETWEEN 10 AND 100000000)
+  CHECK (per_day IS NULL OR per_day BETWEEN 10 AND 100000000)
+  CHECK (per_month IS NULL OR per_month BETWEEN 10 AND 100000000)
+  fk updated_by -> operators(id) on delete set null on update no action
+table series
+  id TEXT PK1
+  channel_id TEXT NOT NULL
+  name TEXT NOT NULL
+  slug TEXT NOT NULL
+  description TEXT
+  created_at INTEGER NOT NULL
+  updated_at INTEGER NOT NULL
+  deleted_at INTEGER
+  CHECK (length(name) BETWEEN 1 AND 80)
+  CHECK (length(slug) BETWEEN 1 AND 80)
+  CHECK (description IS NULL OR length(description) <= 500)
+  fk channel_id -> channels(id) on delete cascade on update no action
+  index series_slug UNIQUE PARTIAL (channel_id, slug)
+  index (pk) UNIQUE (id)
+table series_dispatches
+  series_id TEXT NOT NULL PK1
+  dispatch_id TEXT NOT NULL PK2
+  position INTEGER NOT NULL
+  fk dispatch_id -> dispatches(id) on delete cascade on update no action
+  fk series_id -> series(id) on delete cascade on update no action
+  index (u) UNIQUE (dispatch_id)
+  index (pk) UNIQUE (series_id, dispatch_id)
+  index (u) UNIQUE (series_id, position)
+table sessions
+  id TEXT PK1
+  token_hash TEXT NOT NULL
+  operator_id TEXT NOT NULL
+  user_agent TEXT
+  ip_prefix TEXT
+  created_at INTEGER NOT NULL
+  last_seen_at INTEGER NOT NULL
+  expires_at INTEGER NOT NULL
+  revoked_at INTEGER
+  mfa_pending INTEGER NOT NULL DEFAULT 0
+  mfa_method TEXT
+  mfa_verified_at INTEGER
+  auth_method TEXT
+  sso_connection_id TEXT
+  CHECK (mfa_pending IN (0, 1))
+  CHECK (mfa_method IS NULL OR mfa_method IN ('passkey', 'totp', 'recovery', 'sso'))
+  CHECK (auth_method IS NULL OR auth_method IN ('quickpass', 'google', 'sso'))
+  fk sso_connection_id -> sso_connections(id) on delete set null on update no action
+  fk operator_id -> operators(id) on delete cascade on update no action
+  index sessions_active_by_operator PARTIAL (operator_id, expires_at)
+  index sessions_by_operator (operator_id, created_at)
+  index sessions_by_operator_seen (operator_id, last_seen_at)
+  index (pk) UNIQUE (id)
+  index (u) UNIQUE (token_hash)
+table signup_journey_daily
+  journey_id TEXT NOT NULL PK1
+  variant_key TEXT NOT NULL PK2
+  step INTEGER NOT NULL PK3
+  day TEXT NOT NULL PK4
+  views INTEGER NOT NULL DEFAULT 0
+  completions INTEGER NOT NULL DEFAULT 0
+  skips INTEGER NOT NULL DEFAULT 0
+  CHECK (step BETWEEN 0 AND 2)
+  CHECK (length(day) = 10)
+  fk journey_id -> signup_journeys(id) on delete cascade on update no action
+  index (pk) UNIQUE (journey_id, variant_key, step, day)
+table signup_journeys
+  id TEXT PK1
+  channel_id TEXT NOT NULL
+  name TEXT NOT NULL
+  status TEXT NOT NULL DEFAULT 'draft'
+  form_id TEXT
+  variants_json TEXT NOT NULL
+  winner_key TEXT
+  created_by TEXT
+  created_at INTEGER NOT NULL
+  updated_at INTEGER NOT NULL
+  CHECK (length(name) BETWEEN 1 AND 80)
+  CHECK (status IN ('draft', 'live', 'paused', 'archived'))
+  CHECK (json_valid(variants_json))
+  CHECK (winner_key IS NULL OR length(winner_key) <= 8)
+  fk created_by -> operators(id) on delete set null on update no action
+  fk form_id -> capture_forms(id) on delete cascade on update no action
+  fk channel_id -> channels(id) on delete cascade on update no action
+  index signup_journeys_live_form UNIQUE PARTIAL (channel_id, <expr>)
+  index (pk) UNIQUE (id)
+table site_code_held
+  workspace_id TEXT PK1
+  held_at INTEGER NOT NULL
+  fk workspace_id -> workspaces(id) on delete cascade on update no action
+  index (pk) UNIQUE (workspace_id)
+table site_code_rules
+  id INTEGER PK1
+  every_workspace INTEGER NOT NULL DEFAULT 0
+  updated_by TEXT
+  updated_at INTEGER NOT NULL
+  CHECK (id = 1)
+  CHECK (every_workspace IN (0, 1))
+  fk updated_by -> operators(id) on delete set null on update no action
+table site_code_workspaces
+  workspace_id TEXT PK1
+  allowed_by TEXT
+  created_at INTEGER NOT NULL
+  fk allowed_by -> operators(id) on delete set null on update no action
+  fk workspace_id -> workspaces(id) on delete cascade on update no action
+  index (pk) UNIQUE (workspace_id)
+table site_design_schedules
+  channel_id TEXT PK1
+  design_json TEXT NOT NULL
+  publish_at INTEGER NOT NULL
+  scheduled_by TEXT
+  created_at INTEGER NOT NULL
+  status TEXT NOT NULL DEFAULT 'scheduled'
+  problems_json TEXT
+  failed_at INTEGER
+  cancelled_at INTEGER
+  claim_token TEXT
+  claimed_until INTEGER
+  CHECK (json_valid(design_json))
+  CHECK (status IN ('scheduled', 'failed', 'cancelled'))
+  CHECK (problems_json IS NULL OR json_valid(problems_json))
+  fk scheduled_by -> operators(id) on delete set null on update no action
+  fk channel_id -> channels(id) on delete cascade on update no action
+  index site_design_schedules_due PARTIAL (publish_at)
+  index (pk) UNIQUE (channel_id)
+table site_design_versions
+  id TEXT PK1
+  channel_id TEXT NOT NULL
+  design_json TEXT NOT NULL
+  theme TEXT NOT NULL
+  published_by TEXT
+  published_at INTEGER NOT NULL
+  CHECK (json_valid(design_json))
+  fk published_by -> operators(id) on delete set null on update no action
+  fk channel_id -> channels(id) on delete cascade on update no action
+  index site_design_versions_channel (channel_id, published_at)
+  index (pk) UNIQUE (id)
+table site_designs
+  channel_id TEXT PK1
+  draft_json TEXT NOT NULL
+  draft_updated_by TEXT
+  draft_updated_at INTEGER NOT NULL
+  published_json TEXT
+  published_version INTEGER NOT NULL DEFAULT 0
+  published_by TEXT
+  published_at INTEGER
+  published_tests TEXT
+  CHECK (json_valid(draft_json))
+  CHECK (published_json IS NULL OR json_valid(published_json))
+  CHECK (published_tests IS NULL OR json_valid(published_tests))
+  fk published_by -> operators(id) on delete set null on update no action
+  fk draft_updated_by -> operators(id) on delete set null on update no action
+  fk channel_id -> channels(id) on delete cascade on update no action
+  index (pk) UNIQUE (channel_id)
+table site_page_views_daily
+  channel_id TEXT NOT NULL PK1
+  day TEXT NOT NULL PK2
+  path TEXT NOT NULL PK3
+  source TEXT NOT NULL PK4
+  device TEXT NOT NULL PK5
+  country TEXT NOT NULL PK6
+  views INTEGER NOT NULL DEFAULT 0
+  visitors INTEGER NOT NULL DEFAULT 0
+  CHECK (length(day) = 10)
+  CHECK (length(path) <= 512)
+  CHECK (length(source) <= 120)
+  CHECK (device IN ('desktop', 'mobile', 'tablet', 'bot', 'other'))
+  CHECK (length(country) <= 2)
+  fk channel_id -> channels(id) on delete cascade on update no action
+  index (pk) UNIQUE (channel_id, day, path, source, device, country)
+table site_pages
+  id TEXT PK1
+  channel_id TEXT NOT NULL
+  slug TEXT NOT NULL
+  title TEXT NOT NULL
+  content_json TEXT NOT NULL
+  status TEXT NOT NULL DEFAULT 'draft'
+  in_nav INTEGER NOT NULL DEFAULT 0
+  position INTEGER NOT NULL DEFAULT 0
+  created_at INTEGER NOT NULL
+  updated_at INTEGER NOT NULL
+  landing_form_id TEXT
+  CHECK (slug GLOB '[a-z0-9]*' AND length(slug) BETWEEN 1 AND 60)
+  CHECK (length(title) BETWEEN 1 AND 120)
+  CHECK (json_valid(content_json))
+  CHECK (status IN ('draft', 'published'))
+  CHECK (in_nav IN (0, 1))
+  fk landing_form_id -> capture_forms(id) on delete set null on update no action
+  fk channel_id -> channels(id) on delete cascade on update no action
+  index (pk) UNIQUE (id)
+  index (u) UNIQUE (channel_id, slug)
+table site_redirects
+  id TEXT PK1
+  channel_id TEXT NOT NULL
+  from_path TEXT NOT NULL
+  to_location TEXT NOT NULL
+  status_code INTEGER NOT NULL DEFAULT 301
+  created_at INTEGER NOT NULL
+  CHECK (from_path GLOB '/*' AND length(from_path) <= 512)
+  CHECK (length(to_location) <= 2048)
+  CHECK (status_code IN (301, 302, 307, 308))
+  fk channel_id -> channels(id) on delete cascade on update no action
+  index (pk) UNIQUE (id)
+  index (u) UNIQUE (channel_id, from_path)
+table site_section_daily
+  channel_id TEXT NOT NULL PK1
+  day TEXT NOT NULL PK2
+  section_id TEXT NOT NULL PK3
+  variant TEXT NOT NULL PK4
+  reached INTEGER NOT NULL DEFAULT 0
+  signups INTEGER NOT NULL DEFAULT 0
+  CHECK (length(day) = 10)
+  CHECK (length(section_id) BETWEEN 1 AND 40)
+  CHECK (variant IN ('a', 'b'))
+  fk channel_id -> channels(id) on delete cascade on update no action
+  index (pk) UNIQUE (channel_id, day, section_id, variant)
+table site_sections
+  id TEXT PK1
+  channel_id TEXT NOT NULL
+  slug TEXT NOT NULL
+  name TEXT NOT NULL
+  description TEXT
+  position INTEGER NOT NULL DEFAULT 0
+  created_at INTEGER NOT NULL
+  updated_at INTEGER NOT NULL
+  CHECK (slug GLOB '[a-z0-9]*' AND length(slug) BETWEEN 1 AND 60)
+  CHECK (length(name) BETWEEN 1 AND 60)
+  CHECK (description IS NULL OR length(description) <= 280)
+  fk channel_id -> channels(id) on delete cascade on update no action
+  index (pk) UNIQUE (id)
+  index (u) UNIQUE (channel_id, slug)
+table site_settings
+  channel_id TEXT PK1
+  layout TEXT NOT NULL DEFAULT 'magazine'
+  pinned_json TEXT NOT NULL DEFAULT '[]'
+  about_json TEXT NOT NULL DEFAULT '{"type":"doc","content":[]}'
+  nav_json TEXT NOT NULL DEFAULT '[]'
+  seo_json TEXT NOT NULL DEFAULT '{}'
+  theme_json TEXT NOT NULL DEFAULT '{}'
+  ai_bots TEXT NOT NULL DEFAULT 'unset'
+  expose_gated INTEGER NOT NULL DEFAULT 0
+  prev_next_nav INTEGER NOT NULL DEFAULT 1
+  cache_version INTEGER NOT NULL DEFAULT 1
+  updated_by TEXT
+  updated_at INTEGER NOT NULL
+  custom_css TEXT NOT NULL DEFAULT ''
+  consent_json TEXT NOT NULL DEFAULT '{}'
+  code_json TEXT NOT NULL DEFAULT '[]'
+  CHECK (layout IN ('magazine', 'newspaper'))
+  CHECK (json_valid(pinned_json))
+  CHECK (json_valid(about_json))
+  CHECK (json_valid(nav_json))
+  CHECK (json_valid(seo_json))
+  CHECK (json_valid(theme_json))
+  CHECK (ai_bots IN ('unset', 'allow', 'block', 'custom'))
+  CHECK (expose_gated IN (0, 1))
+  CHECK (prev_next_nav IN (0, 1))
+  fk updated_by -> operators(id) on delete set null on update no action
+  fk channel_id -> channels(id) on delete cascade on update no action
+  index (pk) UNIQUE (channel_id)
+table site_visitors
+  channel_id TEXT NOT NULL PK1
+  day TEXT NOT NULL PK2
+  visitor_hash TEXT NOT NULL PK3
+  CHECK (length(day) = 10)
+  CHECK (length(visitor_hash) = 32)
+  fk channel_id -> channels(id) on delete cascade on update no action
+  index (pk) UNIQUE (channel_id, day, visitor_hash)
+table snippets
+  id TEXT PK1
+  channel_id TEXT NOT NULL
+  name TEXT NOT NULL
+  content_json TEXT NOT NULL
+  created_by TEXT
+  created_at INTEGER NOT NULL
+  updated_at INTEGER NOT NULL
+  CHECK (length(name) BETWEEN 1 AND 80)
+  fk channel_id -> channels(id) on delete cascade on update no action
+  index snippets_by_channel (channel_id, name)
+  index (pk) UNIQUE (id)
+table soft_bounces
+  workspace_id TEXT NOT NULL
+  email TEXT NOT NULL
+  created_at INTEGER NOT NULL
+  fk workspace_id -> workspaces(id) on delete cascade on update no action
+  index soft_bounces_by_email (workspace_id, email, created_at)
+table split_test_variants
+  id TEXT PK1
+  split_test_id TEXT NOT NULL
+  label TEXT NOT NULL
+  subject TEXT
+  preheader TEXT
+  content_json TEXT
+  html TEXT
+  text TEXT
+  created_at INTEGER NOT NULL
+  CHECK (label IN ('A', 'B', 'C', 'D'))
+  CHECK (subject IS NULL OR length(subject) <= 200)
+  CHECK (preheader IS NULL OR length(preheader) <= 200)
+  CHECK (content_json IS NULL OR json_valid(content_json))
+  fk split_test_id -> split_tests(id) on delete cascade on update no action
+  index (pk) UNIQUE (id)
+  index (u) UNIQUE (split_test_id, label)
+table split_tests
+  id TEXT PK1
+  channel_id TEXT NOT NULL
+  dispatch_id TEXT NOT NULL
+  broadcast_id TEXT
+  variable TEXT NOT NULL
+  test_percent INTEGER NOT NULL
+  metric TEXT NOT NULL
+  goal_json TEXT
+  window_minutes INTEGER NOT NULL
+  status TEXT NOT NULL DEFAULT 'draft'
+  winner_variant_id TEXT
+  decision_json TEXT
+  started_at INTEGER
+  decide_at INTEGER
+  decided_at INTEGER
+  created_at INTEGER NOT NULL
+  updated_at INTEGER NOT NULL
+  CHECK (variable IN ('subject', 'content'))
+  CHECK (test_percent BETWEEN 5 AND 100)
+  CHECK (metric IN ('opens', 'clicks', 'goal'))
+  CHECK (goal_json IS NULL OR json_valid(goal_json))
+  CHECK (window_minutes BETWEEN 30 AND 10080)
+  CHECK (status IN ('draft', 'testing', 'promoted', 'canceled'))
+  CHECK (decision_json IS NULL OR json_valid(decision_json))
+  fk broadcast_id -> broadcasts(id) on delete set null on update no action
+  fk dispatch_id -> dispatches(id) on delete cascade on update no action
+  fk channel_id -> channels(id) on delete cascade on update no action
+  index split_tests_due PARTIAL (decide_at)
+  index (pk) UNIQUE (id)
+  index (u) UNIQUE (dispatch_id)
+table sponsor_bookings
+  id TEXT PK1
+  channel_id TEXT NOT NULL
+  slot_id TEXT NOT NULL
+  run_on TEXT NOT NULL
+  sponsor_name TEXT NOT NULL
+  sponsor_email TEXT NOT NULL
+  ad_title TEXT NOT NULL
+  ad_body TEXT NOT NULL DEFAULT ''
+  ad_url TEXT NOT NULL
+  status TEXT NOT NULL DEFAULT 'requested'
+  paid INTEGER NOT NULL DEFAULT 0
+  clicks INTEGER NOT NULL DEFAULT 0
+  created_at INTEGER NOT NULL
+  updated_at INTEGER NOT NULL
+  report_link_sent_at INTEGER
+  CHECK (run_on GLOB '[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]')
+  CHECK (length(sponsor_name) BETWEEN 1 AND 120)
+  CHECK (length(ad_title) BETWEEN 1 AND 120)
+  CHECK (length(ad_body) <= 280)
+  CHECK (length(ad_url) <= 2048 AND ad_url LIKE 'https://%')
+  CHECK (status IN ('requested', 'accepted', 'declined', 'canceled'))
+  CHECK (paid IN (0, 1))
+  fk slot_id -> sponsor_slots(id) on delete restrict on update no action
+  fk channel_id -> channels(id) on delete cascade on update no action
+  index sponsor_bookings_by_channel (channel_id, id)
+  index sponsor_bookings_one_per_slot_day UNIQUE PARTIAL (slot_id, run_on)
+  index (pk) UNIQUE (id)
+table sponsor_settings
+  channel_id TEXT PK1
+  accepting INTEGER NOT NULL DEFAULT 0
+  headline TEXT NOT NULL DEFAULT ''
+  pitch TEXT NOT NULL DEFAULT ''
+  updated_at INTEGER NOT NULL
+  CHECK (accepting IN (0, 1))
+  CHECK (length(headline) <= 120)
+  CHECK (length(pitch) <= 2000)
+  fk channel_id -> channels(id) on delete cascade on update no action
+  index (pk) UNIQUE (channel_id)
+table sponsor_slots
+  id TEXT PK1
+  channel_id TEXT NOT NULL
+  name TEXT NOT NULL
+  description TEXT NOT NULL DEFAULT ''
+  amount INTEGER NOT NULL
+  currency TEXT NOT NULL
+  position INTEGER NOT NULL DEFAULT 0
+  archived_at INTEGER
+  CHECK (length(name) BETWEEN 1 AND 80)
+  CHECK (length(description) <= 280)
+  CHECK (amount >= 0)
+  CHECK (length(currency) = 3 AND currency = lower(currency))
+  fk channel_id -> channels(id) on delete cascade on update no action
+  index sponsor_slots_by_channel (channel_id, position)
+  index (pk) UNIQUE (id)
+table sso_connections
+  id TEXT PK1
+  workspace_id TEXT NOT NULL
+  protocol TEXT NOT NULL
+  domains_json TEXT NOT NULL
+  config_json TEXT NOT NULL
+  jit_role TEXT
+  enforced INTEGER NOT NULL DEFAULT 0
+  status TEXT NOT NULL DEFAULT 'draft'
+  created_at INTEGER NOT NULL
+  updated_at INTEGER NOT NULL
+  CHECK (protocol IN ('oidc', 'saml'))
+  CHECK (json_valid(domains_json))
+  CHECK (json_valid(config_json))
+  CHECK (jit_role IS NULL OR jit_role IN ('admin', 'editor', 'author', 'viewer'))
+  CHECK (enforced IN (0, 1))
+  CHECK (status IN ('draft', 'active', 'disabled'))
+  fk workspace_id -> workspaces(id) on delete cascade on update no action
+  index (pk) UNIQUE (id)
+  index sso_connections_by_workspace (workspace_id)
+table sso_domains
+  id TEXT PK1
+  connection_id TEXT NOT NULL
+  workspace_id TEXT NOT NULL
+  domain TEXT NOT NULL
+  verification_token TEXT NOT NULL
+  verified_at INTEGER
+  created_at INTEGER NOT NULL
+  checked_at INTEGER
+  failing_since INTEGER
+  fk workspace_id -> workspaces(id) on delete cascade on update no action
+  fk connection_id -> sso_connections(id) on delete cascade on update no action
+  index (pk) UNIQUE (id)
+  index (u) UNIQUE (connection_id, domain)
+  index sso_domains_by_workspace (workspace_id)
+  index sso_domains_verified UNIQUE PARTIAL (domain)
+table sso_released_domains
+  id INTEGER PK1
+  workspace_id TEXT NOT NULL
+  domain TEXT NOT NULL
+  issuer TEXT NOT NULL
+  client_id TEXT NOT NULL
+  released_at INTEGER NOT NULL
+  released_by TEXT
+  fk released_by -> operators(id) on delete set null on update no action
+  fk workspace_id -> workspaces(id) on delete cascade on update no action
+  index sso_released_domains_by_workspace (workspace_id, domain, released_at)
+table stripe_accounts
+  channel_id TEXT PK1
+  workspace_id TEXT NOT NULL
+  stripe_account_id TEXT NOT NULL
+  status TEXT NOT NULL DEFAULT 'connected'
+  charges_enabled INTEGER NOT NULL DEFAULT 0
+  payouts_enabled INTEGER NOT NULL DEFAULT 0
+  details_submitted INTEGER NOT NULL DEFAULT 0
+  livemode INTEGER NOT NULL DEFAULT 0
+  default_currency TEXT
+  tax_enabled INTEGER NOT NULL DEFAULT 0
+  grace_days INTEGER NOT NULL DEFAULT 7
+  connected_by TEXT
+  connected_at INTEGER NOT NULL
+  disconnected_at INTEGER
+  updated_at INTEGER NOT NULL
+  own_key_enc TEXT
+  own_key_last4 TEXT
+  webhook_endpoint_id TEXT
+  webhook_secret_enc TEXT
+  CHECK (stripe_account_id GLOB 'acct_*')
+  CHECK (status IN ('connected', 'disconnected'))
+  CHECK (charges_enabled IN (0, 1))
+  CHECK (payouts_enabled IN (0, 1))
+  CHECK (details_submitted IN (0, 1))
+  CHECK (livemode IN (0, 1))
+  CHECK (default_currency IS NULL OR length(default_currency) = 3)
+  CHECK (tax_enabled IN (0, 1))
+  CHECK (grace_days BETWEEN 0 AND 30)
+  fk connected_by -> operators(id) on delete set null on update no action
+  fk workspace_id -> workspaces(id) on delete cascade on update no action
+  fk channel_id -> channels(id) on delete cascade on update no action
+  index (pk) UNIQUE (channel_id)
+  index (u) UNIQUE (stripe_account_id)
+table stripe_customers
+  member_id TEXT PK1
+  channel_id TEXT NOT NULL
+  stripe_customer_id TEXT NOT NULL
+  created_at INTEGER NOT NULL
+  fk channel_id -> channels(id) on delete cascade on update no action
+  fk member_id -> members(id) on delete cascade on update no action
+  index (pk) UNIQUE (member_id)
+  index (u) UNIQUE (channel_id, stripe_customer_id)
+table stripe_events
+  event_id TEXT NOT NULL PK2
+  stripe_account_id TEXT NOT NULL DEFAULT '' PK1
+  channel_id TEXT
+  type TEXT NOT NULL
+  livemode INTEGER NOT NULL DEFAULT 0
+  status TEXT NOT NULL DEFAULT 'received'
+  error TEXT
+  created_at INTEGER NOT NULL
+  received_at INTEGER NOT NULL
+  processed_at INTEGER
+  CHECK (event_id GLOB 'evt_*')
+  CHECK (length(type) <= 120)
+  CHECK (livemode IN (0, 1))
+  CHECK (status IN ('received', 'processed', 'ignored', 'failed'))
+  CHECK (error IS NULL OR length(error) <= 1000)
+  fk channel_id -> channels(id) on delete set null on update no action
+  index (pk) UNIQUE (stripe_account_id, event_id)
+  index stripe_events_by_channel (channel_id, received_at)
+  index stripe_events_unfinished PARTIAL (status, received_at)
+table suppressions
+  id TEXT PK1
+  workspace_id TEXT NOT NULL
+  channel_id TEXT
+  email TEXT NOT NULL
+  email_hash TEXT
+  reason TEXT NOT NULL
+  detail TEXT
+  created_at INTEGER NOT NULL
+  bounce_rule TEXT
+  bounce_cause TEXT
+  bounce_counted INTEGER
+  bounce_days INTEGER
+  CHECK (reason IN ('hard_bounce', 'soft_bounce', 'complaint', 'manual'))
+  CHECK (bounce_rule IS NULL OR bounce_rule IN ('hard', 'hard_repeat', 'soft_streak', 'soft_window'))
+  CHECK (bounce_cause IS NULL OR bounce_cause IN ( 'no_mailbox', 'no_domain', 'provider_list', 'rejected', 'mailbox_full', 'mailbox_unavailable', 'too_large', 'greylisted', 'temporary', 'unknown'))
+  CHECK (channel_id IS NULL OR reason = 'manual')
+  fk channel_id -> channels(id) on delete cascade on update no action
+  fk workspace_id -> workspaces(id) on delete cascade on update no action
+  index (pk) UNIQUE (id)
+  index suppressions_by_address (workspace_id, email)
+  index suppressions_by_email (email)
+  index suppressions_by_hash UNIQUE PARTIAL (workspace_id, email_hash)
+  index suppressions_channel_scoped UNIQUE PARTIAL (channel_id, email)
+  index suppressions_workspace_wide UNIQUE PARTIAL (workspace_id, email)
+table svix_webhook_ids
+  id TEXT NOT NULL PK1
+  expires_at INTEGER NOT NULL
+  index (pk) UNIQUE (id)
+  index svix_webhook_ids_expires (expires_at)
+table tags
+  id TEXT PK1
+  channel_id TEXT NOT NULL
+  name TEXT NOT NULL
+  created_at INTEGER NOT NULL
+  CHECK (length(name) BETWEEN 1 AND 60)
+  fk channel_id -> channels(id) on delete cascade on update no action
+  index (pk) UNIQUE (id)
+  index (u) UNIQUE (channel_id, name)
+table teammate_redactions
+  workspace_id TEXT NOT NULL PK1
+  operator_id TEXT NOT NULL PK2
+  placeholder TEXT NOT NULL
+  redacted_by TEXT
+  created_at INTEGER NOT NULL
+  fk redacted_by -> operators(id) on delete set null on update no action
+  fk workspace_id -> workspaces(id) on delete cascade on update no action
+  index (pk) UNIQUE (workspace_id, operator_id)
+table templates
+  id TEXT PK1
+  workspace_id TEXT NOT NULL
+  channel_id TEXT
+  name TEXT NOT NULL
+  description TEXT
+  kind TEXT NOT NULL DEFAULT 'dispatch'
+  subject TEXT NOT NULL DEFAULT ''
+  preheader TEXT NOT NULL DEFAULT ''
+  content_json TEXT NOT NULL
+  thumbnail_media_id TEXT
+  created_by TEXT
+  created_at INTEGER NOT NULL
+  updated_at INTEGER NOT NULL
+  deleted_at INTEGER
+  cover_media_id TEXT
+  cover_alt TEXT NOT NULL DEFAULT ''
+  CHECK (length(name) BETWEEN 1 AND 80)
+  CHECK (description IS NULL OR length(description) <= 280)
+  CHECK (kind IN ('dispatch', 'design'))
+  CHECK (length(subject) <= 200)
+  CHECK (length(preheader) <= 200)
+  CHECK (json_valid(content_json))
+  CHECK (length(cover_alt) <= 300)
+  fk cover_media_id -> media(id) on delete set null on update no action
+  fk created_by -> operators(id) on delete set null on update no action
+  fk thumbnail_media_id -> media(id) on delete set null on update no action
+  fk channel_id -> channels(id) on delete cascade on update no action
+  fk workspace_id -> workspaces(id) on delete cascade on update no action
+  index (pk) UNIQUE (id)
+  index templates_by_workspace PARTIAL (workspace_id, channel_id, updated_at)
+table totp_secrets
+  operator_id TEXT NOT NULL PK1
+  secret_enc TEXT NOT NULL
+  confirmed_at INTEGER
+  last_step INTEGER
+  created_at INTEGER NOT NULL
+  fk operator_id -> operators(id) on delete cascade on update no action
+  index (pk) UNIQUE (operator_id)
+table trial_claims
+  channel_id TEXT NOT NULL PK1
+  email TEXT NOT NULL PK2
+  level_id TEXT
+  created_at INTEGER NOT NULL
+  fk level_id -> membership_levels(id) on delete set null on update no action
+  fk channel_id -> channels(id) on delete cascade on update no action
+  index (pk) UNIQUE (channel_id, email)
+table unsubscribe_refs
+  delivery_id TEXT PK1
+  member_id TEXT NOT NULL
+  expires_at INTEGER NOT NULL
+  fk member_id -> members(id) on delete cascade on update no action
+  fk delivery_id -> deliveries(id) on delete cascade on update no action
+  index (pk) UNIQUE (delivery_id)
+  index unsubscribe_refs_by_expiry (expires_at)
+  index unsubscribe_refs_by_member (member_id)
+table usage_windows
+  scope TEXT PK1
+  window_start INTEGER NOT NULL
+  count INTEGER NOT NULL
+  CHECK (length(scope) <= 120)
+  CHECK (count >= 0)
+  index (pk) UNIQUE (scope)
+table vault_audit
+  id INTEGER PK1
+  created_at INTEGER NOT NULL
+  caller TEXT NOT NULL
+  op TEXT NOT NULL
+  principal_kind TEXT NOT NULL
+  principal_id TEXT
+  workspace_id TEXT
+  channel_id TEXT
+  decision TEXT NOT NULL
+  reason TEXT
+  count INTEGER NOT NULL DEFAULT 0
+  CHECK (caller IN ('api', 'capture', 'site', 'jobs', 'vault'))
+  CHECK (length(op) BETWEEN 1 AND 60)
+  CHECK (length(principal_kind) BETWEEN 1 AND 40)
+  CHECK (principal_id IS NULL OR length(principal_id) <= 120)
+  CHECK (decision IN ('allowed', 'refused', 'rate_limited', 'failed'))
+  CHECK (reason IS NULL OR length(reason) <= 120)
+  CHECK (count >= 0)
+  index vault_audit_by_time (created_at)
+  index vault_audit_by_workspace (workspace_id, created_at)
+table vault_mints
+  id INTEGER PK1
+  created_at INTEGER NOT NULL
+  caller TEXT NOT NULL
+  kind TEXT NOT NULL
+  evidence TEXT NOT NULL
+  subject TEXT NOT NULL
+  channel_id TEXT NOT NULL
+  CHECK (caller IN ('api', 'capture', 'site', 'jobs'))
+  CHECK (kind IN ('member', 'goods-library', 'goods-order'))
+  CHECK (length(evidence) BETWEEN 1 AND 40)
+  CHECK (length(subject) BETWEEN 1 AND 120)
+  index vault_mints_by_channel (channel_id, kind, created_at)
+  index vault_mints_by_subject (subject, kind, created_at)
+  index vault_mints_by_time (created_at)
+table vault_rate
+  scope TEXT NOT NULL PK1
+  subject_hash TEXT NOT NULL PK2
+  window_start INTEGER NOT NULL
+  used INTEGER NOT NULL DEFAULT 0
+  CHECK (length(scope) BETWEEN 1 AND 60)
+  CHECK (length(subject_hash) = 64)
+  index (pk) UNIQUE (scope, subject_hash)
+  index vault_rate_by_window (window_start)
+table webauthn_challenges
+  id TEXT PK1
+  operator_id TEXT
+  purpose TEXT NOT NULL
+  challenge TEXT NOT NULL
+  expires_at INTEGER NOT NULL
+  consumed_at INTEGER
+  CHECK (purpose IN ('register', 'authenticate'))
+  fk operator_id -> operators(id) on delete cascade on update no action
+  index (pk) UNIQUE (id)
+table webhook_attempts
+  delivery_id TEXT NOT NULL PK1
+  attempt INTEGER NOT NULL PK2
+  started_at INTEGER NOT NULL
+  response_status INTEGER
+  latency_ms INTEGER
+  error TEXT
+  response_excerpt TEXT
+  fk delivery_id -> webhook_deliveries(id) on delete cascade on update no action
+  index (pk) UNIQUE (delivery_id, attempt)
+table webhook_deliveries
+  id TEXT PK1
+  endpoint_id TEXT NOT NULL
+  workspace_id TEXT NOT NULL
+  event_id TEXT NOT NULL
+  event_type TEXT NOT NULL
+  payload_json TEXT NOT NULL
+  status TEXT NOT NULL DEFAULT 'pending'
+  attempts INTEGER NOT NULL DEFAULT 0
+  next_attempt_at INTEGER
+  response_status INTEGER
+  response_excerpt TEXT
+  latency_ms INTEGER
+  error TEXT
+  created_at INTEGER NOT NULL
+  updated_at INTEGER NOT NULL
+  member_id TEXT
+  test INTEGER NOT NULL DEFAULT 0
+  attempts_base INTEGER NOT NULL DEFAULT 0
+  last_attempt_at INTEGER
+  CHECK (json_valid(payload_json))
+  CHECK (status IN ('pending', 'succeeded', 'failed', 'retrying', 'canceled'))
+  CHECK (test IN (0, 1))
+  fk workspace_id -> workspaces(id) on delete cascade on update no action
+  fk endpoint_id -> webhook_endpoints(id) on delete cascade on update no action
+  index (pk) UNIQUE (id)
+  index (u) UNIQUE (endpoint_id, event_id)
+  index webhook_deliveries_by_endpoint (endpoint_id, created_at)
+  index webhook_deliveries_by_endpoint_status (endpoint_id, status, created_at)
+  index webhook_deliveries_by_member PARTIAL (member_id)
+  index webhook_deliveries_due PARTIAL (next_attempt_at)
+  index webhook_deliveries_finished PARTIAL (updated_at)
+  index webhook_deliveries_open PARTIAL (next_attempt_at)
+table webhook_endpoint_leases
+  id TEXT PK1
+  endpoint_id TEXT NOT NULL
+  expires_at INTEGER NOT NULL
+  fk endpoint_id -> webhook_endpoints(id) on delete cascade on update no action
+  index (pk) UNIQUE (id)
+  index webhook_endpoint_leases_by_endpoint (endpoint_id, expires_at)
+table webhook_endpoints
+  id TEXT PK1
+  workspace_id TEXT NOT NULL
+  channel_id TEXT
+  url TEXT NOT NULL
+  description TEXT
+  events_json TEXT NOT NULL
+  secret_enc TEXT NOT NULL
+  previous_secret_enc TEXT
+  previous_expires_at INTEGER
+  status TEXT NOT NULL DEFAULT 'active'
+  disabled_reason TEXT
+  failure_count INTEGER NOT NULL DEFAULT 0
+  first_failure_at INTEGER
+  created_by TEXT
+  created_at INTEGER NOT NULL
+  updated_at INTEGER NOT NULL
+  proposed_via TEXT
+  proposed_by_id TEXT
+  confirmed_by TEXT
+  confirmed_at INTEGER
+  CHECK (json_valid(events_json))
+  CHECK (status IN ('active', 'paused', 'disabled'))
+  CHECK (proposed_via IS NULL OR proposed_via IN ('key', 'oauth'))
+  fk confirmed_by -> operators(id) on delete set null on update no action
+  fk created_by -> operators(id) on delete set null on update no action
+  fk channel_id -> channels(id) on delete cascade on update no action
+  fk workspace_id -> workspaces(id) on delete cascade on update no action
+  index (pk) UNIQUE (id)
+  index webhook_endpoints_by_workspace (workspace_id, status)
+table worker_heartbeats
+  worker TEXT PK1
+  checked_at INTEGER NOT NULL
+  ok INTEGER NOT NULL
+  ok_at INTEGER
+  CHECK (worker IN ('jobs'))
+  CHECK (ok IN (0, 1))
+  index (pk) UNIQUE (worker)
+table workspaces
+  id TEXT PK1
+  name TEXT NOT NULL
+  plan TEXT NOT NULL DEFAULT 'free'
+  region TEXT NOT NULL DEFAULT 'global'
+  created_at INTEGER NOT NULL
+  updated_at INTEGER NOT NULL
+  require_2fa TEXT NOT NULL DEFAULT 'admins'
+  engagement_retention_months INTEGER NOT NULL DEFAULT 13
+  marker_salt TEXT
+  left_member_retention_months INTEGER NOT NULL DEFAULT 24
+  payment_record_years INTEGER NOT NULL DEFAULT 10
+  audit_retention_months INTEGER NOT NULL DEFAULT 24
+  CHECK (length(name) BETWEEN 1 AND 80)
+  CHECK (plan IN ('free', 'pro', 'scale', 'enterprise'))
+  CHECK (region IN ('global', 'eu'))
+  CHECK (require_2fa IN ('admins', 'all'))
+  CHECK (engagement_retention_months IN (6, 13, 24, 36))
+  CHECK (left_member_retention_months IN (12, 24, 36, 60))
+  CHECK (payment_record_years IN (6, 7, 8, 10))
+  CHECK (audit_retention_months IN (12, 24, 36, 60))
+  index (pk) UNIQUE (id)
+index account_events_by_age: CREATE INDEX account_events_by_age ON account_events (created_at)
+index account_events_by_operator: CREATE INDEX account_events_by_operator ON account_events (operator_id, created_at)
+index address_confirmations_by_expiry: CREATE INDEX address_confirmations_by_expiry ON address_confirmations (expires_at)
+index address_confirmations_by_hash: CREATE INDEX address_confirmations_by_hash ON address_confirmations (workspace_id, email_hash, created_at)
+index agent_actions_by_principal: CREATE INDEX agent_actions_by_principal ON agent_actions (principal_id, seq)
+index agent_actions_by_workspace_time: CREATE INDEX agent_actions_by_workspace_time ON agent_actions (workspace_id, created_at)
+index agent_approvals_by_principal: CREATE INDEX agent_approvals_by_principal ON agent_approvals (principal_id, status)
+index agent_approvals_by_workspace: CREATE INDEX agent_approvals_by_workspace ON agent_approvals (workspace_id, status, created_at)
+index agent_approvals_pending_expiry: CREATE INDEX agent_approvals_pending_expiry ON agent_approvals (expires_at) WHERE status = 'pending'
+index api_idempotency_by_time: CREATE INDEX api_idempotency_by_time ON api_idempotency (created_at)
+index api_keys_by_creator: CREATE INDEX api_keys_by_creator ON api_keys (created_by, workspace_id) WHERE revoked_at IS NULL
+index api_keys_by_workspace: CREATE INDEX api_keys_by_workspace ON api_keys (workspace_id, created_at)
+index app_listings_by_status: CREATE INDEX app_listings_by_status ON app_listings (status, reviewed_at)
+index app_listings_by_workspace: CREATE INDEX app_listings_by_workspace ON app_listings (workspace_id, created_at)
+index app_short_links_short_url: CREATE INDEX app_short_links_short_url ON app_short_links (short_url)
+index app_short_links_url: CREATE INDEX app_short_links_url ON app_short_links (url)
+index ask_responses_by_member: CREATE INDEX ask_responses_by_member ON ask_responses (member_id)
+index ask_responses_by_option: CREATE INDEX ask_responses_by_option ON ask_responses (question_id, option_id)
+index asks_by_channel: CREATE INDEX asks_by_channel ON asks (channel_id, created_at) WHERE deleted_at IS NULL
+index audit_events_by_workspace_time: CREATE INDEX audit_events_by_workspace_time ON audit_events (workspace_id, created_at)
+index audit_verifications_due: CREATE INDEX audit_verifications_due ON audit_verifications (chain, verified_at)
+index bounce_events_by_age: CREATE INDEX bounce_events_by_age ON bounce_events (created_at)
+index bounce_events_by_email: CREATE INDEX bounce_events_by_email ON bounce_events (workspace_id, email, created_at)
+index bounce_events_once: CREATE UNIQUE INDEX bounce_events_once ON bounce_events (workspace_id, email, send_id, kind) WHERE send_id IS NOT NULL
+index bounce_states_by_age: CREATE INDEX bounce_states_by_age ON bounce_states (updated_at)
+index bounce_states_held: CREATE INDEX bounce_states_held ON bounce_states (workspace_id, held_at) WHERE held_at IS NOT NULL
+index bounce_states_notice: CREATE INDEX bounce_states_notice ON bounce_states (hold_notice) WHERE hold_notice = 'due'
+index broadcast_recipients_by_status: CREATE INDEX broadcast_recipients_by_status ON broadcast_recipients (broadcast_id, status)
+index broadcast_recipients_by_tier: CREATE INDEX broadcast_recipients_by_tier ON broadcast_recipients (broadcast_id, send_tier, member_id) WHERE send_tier > 0
+index broadcast_recipients_held: CREATE INDEX broadcast_recipients_held ON broadcast_recipients (broadcast_id, member_id) WHERE held = 1
+index broadcast_recipients_identified: CREATE INDEX broadcast_recipients_identified ON broadcast_recipients (broadcast_id, claimed_at) WHERE email <> 'erased'
+index broadcast_recipients_slots: CREATE INDEX broadcast_recipients_slots ON broadcast_recipients (broadcast_id, send_after) WHERE held = 1 AND send_after IS NOT NULL
+index broadcasts_active: CREATE INDEX broadcasts_active ON broadcasts (last_progress_at) WHERE status IN ('queued', 'sending')
+index broadcasts_best_time_open: CREATE INDEX broadcasts_best_time_open ON broadcasts (last_progress_at) WHERE best_time = 1 AND status = 'sending'
+index broadcasts_by_channel: CREATE INDEX broadcasts_by_channel ON broadcasts (channel_id, created_at)
+index broadcasts_one_active_per_dispatch: CREATE UNIQUE INDEX broadcasts_one_active_per_dispatch ON broadcasts (dispatch_id) WHERE status IN ('queued', 'sending') AND kind = 'broadcast'
+index broadcasts_test_copy: CREATE UNIQUE INDEX broadcasts_test_copy ON broadcasts (test_run_id, dispatch_id) WHERE test_run_id IS NOT NULL
+index broadcasts_waiting: CREATE INDEX broadcasts_waiting ON broadcasts (resume_at) WHERE waiting_for IS NOT NULL AND status IN ('queued', 'sending')
+index bulk_jobs_by_channel: CREATE INDEX bulk_jobs_by_channel ON bulk_jobs (channel_id, created_at)
+index capture_forms_by_channel: CREATE INDEX capture_forms_by_channel ON capture_forms (channel_id, created_at) WHERE deleted_at IS NULL
+index champion_awards_by_channel: CREATE INDEX champion_awards_by_channel ON champion_awards (channel_id, created_at)
+index champion_milestones_threshold: CREATE UNIQUE INDEX champion_milestones_threshold ON champion_milestones (channel_id, referrals_required) WHERE status = 'active'
+index champion_rewards_by_channel: CREATE INDEX champion_rewards_by_channel ON champion_rewards (channel_id, status)
+index channel_roles_by_operator: CREATE INDEX channel_roles_by_operator ON channel_roles (operator_id)
+index channels_by_workspace: CREATE INDEX channels_by_workspace ON channels (workspace_id, created_at) WHERE deleted_at IS NULL
+index channels_dedicated_ip_pending: CREATE INDEX channels_dedicated_ip_pending ON channels (dedicated_ip_status) WHERE dedicated_ip_status IN ('requested', 'warming')
+index channels_files_unpurged: CREATE INDEX channels_files_unpurged ON channels (purged_at) WHERE purged_at IS NOT NULL AND files_purged_at IS NULL
+index checkout_sessions_by_channel: CREATE INDEX checkout_sessions_by_channel ON checkout_sessions (channel_id, created_at)
+index checkout_sessions_detached: CREATE INDEX checkout_sessions_detached ON checkout_sessions (created_at) WHERE detached_at IS NOT NULL AND stripe_session_id IS NOT NULL
+index circle_members_by_member: CREATE INDEX circle_members_by_member ON circle_members (member_id)
+index circles_by_channel: CREATE INDEX circles_by_channel ON circles (channel_id, created_at) WHERE deleted_at IS NULL
+index clicks_by_broadcast: CREATE INDEX clicks_by_broadcast ON clicks (broadcast_id, link_target_id)
+index clicks_by_delivery: CREATE INDEX clicks_by_delivery ON clicks (delivery_id, created_at)
+index cohort_samples_due: CREATE INDEX cohort_samples_due ON cohort_samples (decide_at) WHERE status = 'sampling'
+index comp_grants_by_member: CREATE INDEX comp_grants_by_member ON comp_grants (member_id)
+index confirm_requests_by_member: CREATE INDEX confirm_requests_by_member ON confirm_requests (member_id, created_at)
+index confirm_requests_open: CREATE INDEX confirm_requests_open ON confirm_requests (last_sent_at) WHERE confirmed_at IS NULL AND reminded_at IS NULL
+index copilot_requests_by_operator: CREATE INDEX copilot_requests_by_operator ON copilot_requests (operator_id, created_at)
+index copilot_requests_by_workspace: CREATE INDEX copilot_requests_by_workspace ON copilot_requests (workspace_id, key_source, created_at)
+index coupons_code: CREATE UNIQUE INDEX coupons_code ON coupons (channel_id, code) WHERE status = 'active'
+index custom_hostnames_by_channel: CREATE INDEX custom_hostnames_by_channel ON custom_hostnames (channel_id)
+index custom_hostnames_primary: CREATE UNIQUE INDEX custom_hostnames_primary ON custom_hostnames (channel_id) WHERE is_primary = 1
+index deliveries_by_broadcast_status: CREATE INDEX deliveries_by_broadcast_status ON deliveries (broadcast_id, status)
+index deliveries_by_member: CREATE INDEX deliveries_by_member ON deliveries (member_id, sent_at)
+index deliveries_by_message: CREATE INDEX deliveries_by_message ON deliveries (provider_message_id)
+index deliveries_human_clicked_by_channel: CREATE INDEX deliveries_human_clicked_by_channel ON deliveries (channel_id, human_clicked_at, member_id) WHERE human_clicked_at IS NOT NULL
+index deliveries_human_opened_by_channel: CREATE INDEX deliveries_human_opened_by_channel ON deliveries (channel_id, human_opened_at, member_id) WHERE human_opened_at IS NOT NULL
+index deliveries_identified: CREATE INDEX deliveries_identified ON deliveries (channel_id, sent_at) WHERE email <> 'erased'
+index deliveries_recent_by_channel: CREATE INDEX deliveries_recent_by_channel ON deliveries (channel_id, sent_at)
+index direct_sends_by_channel: CREATE INDEX direct_sends_by_channel ON direct_sends (channel_id, created_at)
+index direct_sends_by_message: CREATE INDEX direct_sends_by_message ON direct_sends (provider_message_id)
+index direct_sends_by_workspace: CREATE INDEX direct_sends_by_workspace ON direct_sends (workspace_id, created_at)
+index dispatch_revisions_by_dispatch: CREATE INDEX dispatch_revisions_by_dispatch ON dispatch_revisions (dispatch_id, created_at)
+index dispatch_slugs_current: CREATE UNIQUE INDEX dispatch_slugs_current ON dispatch_slugs (dispatch_id) WHERE is_current = 1
+index dispatches_by_channel: CREATE INDEX dispatches_by_channel ON dispatches (channel_id, updated_at)
+index dispatches_by_creator: CREATE INDEX dispatches_by_creator ON dispatches (channel_id, created_by) WHERE created_by IS NOT NULL
+index dispatches_by_flow: CREATE INDEX dispatches_by_flow ON dispatches (flow_id) WHERE flow_id IS NOT NULL
+index dispatches_due: CREATE INDEX dispatches_due ON dispatches (publish_at) WHERE status = 'scheduled'
+index dispatches_on_web: CREATE INDEX dispatches_on_web ON dispatches (channel_id, web_published_at) WHERE web_published_at IS NOT NULL AND web_visibility <> 'hidden'
+index dmarc_records_by_report: CREATE INDEX dmarc_records_by_report ON dmarc_records (report_id)
+index dmarc_reports_by_domain: CREATE INDEX dmarc_reports_by_domain ON dmarc_reports (sending_domain_id, begin_at)
+index dmarc_reports_by_reporter: CREATE INDEX dmarc_reports_by_reporter ON dmarc_reports (sending_domain_id, reporter_domain, created_at)
+index dsr_confirmations_by_member: CREATE INDEX dsr_confirmations_by_member ON dsr_confirmations (member_id, created_at)
+index dsr_requests_by_hash: CREATE INDEX dsr_requests_by_hash ON dsr_requests (workspace_id, email_hash)
+index dsr_requests_by_workspace: CREATE INDEX dsr_requests_by_workspace ON dsr_requests (workspace_id, status, due_at)
+index dsr_requests_exports: CREATE INDEX dsr_requests_exports ON dsr_requests (export_expires_at) WHERE export_key IS NOT NULL
+index dsr_requests_runnable: CREATE INDEX dsr_requests_runnable ON dsr_requests (status, created_at) WHERE status = 'processing'
+index email_check_items_by_part: CREATE INDEX email_check_items_by_part ON email_check_items (run_id, part, done)
+index email_check_requests_by_age: CREATE INDEX email_check_requests_by_age ON email_check_requests (created_at)
+index email_check_requests_by_member: CREATE INDEX email_check_requests_by_member ON email_check_requests (member_id)
+index email_check_runs_active: CREATE INDEX email_check_runs_active ON email_check_runs (status) WHERE status IN ('planning', 'running', 'stopping')
+index email_check_runs_by_workspace: CREATE INDEX email_check_runs_by_workspace ON email_check_runs (workspace_id, created_at)
+index email_checks_by_state: CREATE INDEX email_checks_by_state ON email_checks (workspace_id, state, code)
+index export_destinations_by_channel: CREATE INDEX export_destinations_by_channel ON export_destinations (channel_id)
+index export_jobs_by_channel: CREATE INDEX export_jobs_by_channel ON export_jobs (channel_id, created_at)
+index factor_undo_tokens_by_operator: CREATE INDEX factor_undo_tokens_by_operator ON factor_undo_tokens (operator_id)
+index feature_flags_by_scope: CREATE INDEX feature_flags_by_scope ON feature_flags (scope, scope_id)
+index feature_flags_unique_scope: CREATE UNIQUE INDEX feature_flags_unique_scope ON feature_flags (key, scope, ifnull(scope_id, ''))
+index feed_items_by_source: CREATE INDEX feed_items_by_source ON feed_items (feed_source_id, status, created_at)
+index feed_items_dispatched: CREATE INDEX feed_items_dispatched ON feed_items (feed_source_id, dispatched_at) WHERE dispatched_at IS NOT NULL
+index feed_items_waiting: CREATE INDEX feed_items_waiting ON feed_items (feed_source_id) WHERE status = 'new'
+index feed_sources_by_channel: CREATE INDEX feed_sources_by_channel ON feed_sources (channel_id, created_at)
+index feed_sources_due: CREATE INDEX feed_sources_due ON feed_sources (next_check_at) WHERE status = 'active'
+index flow_email_ledger_by_age: CREATE INDEX flow_email_ledger_by_age ON flow_email_ledger (sent_at)
+index flow_email_ledger_by_member: CREATE INDEX flow_email_ledger_by_member ON flow_email_ledger (member_id, sent_at)
+index flow_enrol_decisions_by_flow: CREATE INDEX flow_enrol_decisions_by_flow ON flow_enrol_decisions (flow_id)
+index flow_holds_by_step: CREATE INDEX flow_holds_by_step ON flow_holds (flow_id, version, node_id)
+index flow_holds_line: CREATE INDEX flow_holds_line ON flow_holds (member_id, held_at) WHERE released_at IS NULL
+index flow_holds_open_by_channel: CREATE INDEX flow_holds_open_by_channel ON flow_holds (channel_id) WHERE released_at IS NULL
+index flow_run_steps_by_node: CREATE INDEX flow_run_steps_by_node ON flow_run_steps (flow_id, version, node_id, status)
+index flow_runs_by_flow: CREATE INDEX flow_runs_by_flow ON flow_runs (flow_id, version, status)
+index flow_runs_by_member: CREATE INDEX flow_runs_by_member ON flow_runs (member_id, started_at)
+index flow_runs_due: CREATE INDEX flow_runs_due ON flow_runs (next_at) WHERE status IN ('running', 'waiting')
+index flow_runs_one_open: CREATE UNIQUE INDEX flow_runs_one_open ON flow_runs (flow_id, member_id) WHERE status IN ('running', 'waiting', 'paused') AND test = 0
+index flow_runs_one_open_test: CREATE UNIQUE INDEX flow_runs_one_open_test ON flow_runs (flow_id, member_id) WHERE status IN ('running', 'waiting', 'paused') AND test = 1
+index flows_by_channel: CREATE INDEX flows_by_channel ON flows (channel_id, created_at) WHERE deleted_at IS NULL
+index flows_live_by_trigger: CREATE INDEX flows_live_by_trigger ON flows (channel_id, trigger_type) WHERE status = 'live' AND deleted_at IS NULL
+index funnel_members_by_channel: CREATE INDEX funnel_members_by_channel ON funnel_members (channel_id)
+index gate_meter_grants_by_member: CREATE INDEX gate_meter_grants_by_member ON gate_meter_grants (member_id, period)
+index gate_meter_reads_by_time: CREATE INDEX gate_meter_reads_by_time ON gate_meter_reads (read_at)
+index gift_article_links_by_member: CREATE INDEX gift_article_links_by_member ON gift_article_links (member_id, period)
+index gift_passes_by_channel: CREATE INDEX gift_passes_by_channel ON gift_passes (channel_id, status)
+index gift_passes_claim_due: CREATE INDEX gift_passes_claim_due ON gift_passes (claim_by) WHERE status = 'paid'
+index gift_passes_reminder_token: CREATE UNIQUE INDEX gift_passes_reminder_token ON gift_passes (reminder_token_hash) WHERE reminder_token_hash IS NOT NULL
+index good_files_by_media: CREATE INDEX good_files_by_media ON good_files (media_id)
+index good_orders_by_channel: CREATE INDEX good_orders_by_channel ON good_orders (channel_id, id)
+index good_orders_by_email: CREATE INDEX good_orders_by_email ON good_orders (channel_id, email, status)
+index good_orders_by_payment: CREATE INDEX good_orders_by_payment ON good_orders (channel_id, payment_intent_id)
+index good_prices_by_good: CREATE INDEX good_prices_by_good ON good_prices (good_id, position)
+index hub_links_by_channel: CREATE INDEX hub_links_by_channel ON hub_links (channel_id, position)
+index import_jobs_by_channel: CREATE INDEX import_jobs_by_channel ON import_jobs (channel_id, created_at)
+index invites_by_workspace: CREATE INDEX invites_by_workspace ON invites (workspace_id, created_at)
+index level_prices_active: CREATE UNIQUE INDEX level_prices_active ON level_prices (level_id, interval) WHERE status = 'active'
+index level_prices_by_level: CREATE INDEX level_prices_by_level ON level_prices (level_id, interval, status)
+index level_prices_due: CREATE INDEX level_prices_due ON level_prices (effective_at) WHERE status = 'scheduled'
+index mail_allowances_by_window: CREATE INDEX mail_allowances_by_window ON mail_allowances (window_start)
+index mail_service_changes_one_open: CREATE UNIQUE INDEX mail_service_changes_one_open ON mail_service_changes ((1)) WHERE state IN ('prepared', 'cut_over')
+index mailgun_webhook_tokens_expires: CREATE INDEX mailgun_webhook_tokens_expires ON mailgun_webhook_tokens (expires_at)
+index media_by_channel: CREATE INDEX media_by_channel ON media (channel_id, created_at) WHERE deleted_at IS NULL
+index media_by_workspace: CREATE INDEX media_by_workspace ON media (workspace_id, created_at) WHERE deleted_at IS NULL
+index member_consents_by_member: CREATE INDEX member_consents_by_member ON member_consents (member_id, created_at)
+index member_engagement_by_band: CREATE INDEX member_engagement_by_band ON member_engagement (channel_id, band)
+index member_engagement_by_score: CREATE INDEX member_engagement_by_score ON member_engagement (channel_id, score)
+index member_events_by_member: CREATE INDEX member_events_by_member ON member_events (member_id, created_at)
+index member_events_processed: CREATE INDEX member_events_processed ON member_events (processed_at) WHERE processed_at IS NOT NULL
+index member_events_unprocessed: CREATE INDEX member_events_unprocessed ON member_events (seq) WHERE processed_at IS NULL
+index member_field_values_num: CREATE INDEX member_field_values_num ON member_field_values (field_id, value_num)
+index member_field_values_text: CREATE INDEX member_field_values_text ON member_field_values (field_id, value_text)
+index member_fields_key: CREATE UNIQUE INDEX member_fields_key ON member_fields (channel_id, key) WHERE deleted_at IS NULL
+index member_send_hours_by_age: CREATE INDEX member_send_hours_by_age ON member_send_hours (computed_at)
+index member_subscriptions_by_channel: CREATE INDEX member_subscriptions_by_channel ON member_subscriptions (channel_id, status, created_at)
+index member_subscriptions_by_member: CREATE INDEX member_subscriptions_by_member ON member_subscriptions (member_id, status)
+index member_subscriptions_gift_end: CREATE INDEX member_subscriptions_gift_end ON member_subscriptions (current_period_end) WHERE source = 'gift' AND status = 'active'
+index member_subscriptions_grace: CREATE INDEX member_subscriptions_grace ON member_subscriptions (grace_until) WHERE grace_until IS NOT NULL
+index member_subscriptions_paypal: CREATE UNIQUE INDEX member_subscriptions_paypal ON member_subscriptions (paypal_subscription_id) WHERE paypal_subscription_id IS NOT NULL
+index member_tags_by_tag: CREATE INDEX member_tags_by_tag ON member_tags (tag_id, member_id)
+index members_active_by_channel: CREATE INDEX members_active_by_channel ON members (channel_id, id) WHERE status = 'active'
+index members_by_channel_created: CREATE INDEX members_by_channel_created ON members (channel_id, created_at)
+index members_by_channel_status: CREATE INDEX members_by_channel_status ON members (channel_id, status, id)
+index members_by_channel_updated: CREATE INDEX members_by_channel_updated ON members (channel_id, updated_at, id)
+index members_by_email: CREATE INDEX members_by_email ON members (email)
+index members_by_form: CREATE INDEX members_by_form ON members (form_id) WHERE form_id IS NOT NULL
+index members_by_referrer: CREATE INDEX members_by_referrer ON members (referred_by) WHERE referred_by IS NOT NULL
+index members_champion_code: CREATE UNIQUE INDEX members_champion_code ON members (channel_id, champion_code) WHERE champion_code IS NOT NULL
+index members_departed: CREATE INDEX members_departed ON members (status, unsubscribed_at) WHERE status IN ('unsubscribed', 'bounced', 'complained') AND reduced_at IS NULL
+index members_paused_until: CREATE INDEX members_paused_until ON members (paused_until) WHERE status = 'paused'
+index members_pending_imports: CREATE INDEX members_pending_imports ON members (created_at) WHERE status = 'pending' AND import_id IS NOT NULL
+index membership_levels_by_channel: CREATE INDEX membership_levels_by_channel ON membership_levels (channel_id, status, position)
+index mfa_attempts_by_operator: CREATE INDEX mfa_attempts_by_operator ON mfa_attempts (operator_id, created_at)
+index mfa_attempts_by_session: CREATE INDEX mfa_attempts_by_session ON mfa_attempts (session_id, created_at)
+index oauth_apps_by_metadata_url: CREATE UNIQUE INDEX oauth_apps_by_metadata_url ON oauth_apps (workspace_id, metadata_url) WHERE metadata_url IS NOT NULL
+index oauth_apps_by_workspace: CREATE INDEX oauth_apps_by_workspace ON oauth_apps (workspace_id)
+index oauth_client_documents_by_expiry: CREATE INDEX oauth_client_documents_by_expiry ON oauth_client_documents (expires_at)
+index oauth_client_documents_by_operator: CREATE INDEX oauth_client_documents_by_operator ON oauth_client_documents (fetched_by, fetched_at)
+index oauth_grants_by_app: CREATE INDEX oauth_grants_by_app ON oauth_grants (app_id)
+index oauth_grants_by_operator: CREATE INDEX oauth_grants_by_operator ON oauth_grants (operator_id, workspace_id) WHERE revoked_at IS NULL
+index oauth_grants_by_workspace: CREATE INDEX oauth_grants_by_workspace ON oauth_grants (workspace_id)
+index oauth_identities_by_operator: CREATE INDEX oauth_identities_by_operator ON oauth_identities (operator_id)
+index oauth_identities_unique_subject: CREATE UNIQUE INDEX oauth_identities_unique_subject ON oauth_identities (provider, ifnull(sso_connection_id, ''), subject)
+index oauth_tokens_by_family: CREATE INDEX oauth_tokens_by_family ON oauth_tokens (family_id)
+index oauth_tokens_by_grant: CREATE INDEX oauth_tokens_by_grant ON oauth_tokens (grant_id)
+index opens_by_broadcast: CREATE INDEX opens_by_broadcast ON opens (broadcast_id)
+index opens_by_delivery: CREATE INDEX opens_by_delivery ON opens (delivery_id)
+index partner_picks_by_channel: CREATE INDEX partner_picks_by_channel ON partner_picks (channel_id, position)
+index passkeys_by_operator: CREATE INDEX passkeys_by_operator ON passkeys (operator_id)
+index payments_by_channel: CREATE INDEX payments_by_channel ON payments (channel_id, occurred_at)
+index payments_detached: CREATE INDEX payments_detached ON payments (occurred_at) WHERE detached_at IS NOT NULL AND stripe_object_id NOT LIKE 'expired:%'
+index paypal_events_unfinished: CREATE INDEX paypal_events_unfinished ON paypal_events (channel_id, status, received_at) WHERE status IN ('received', 'failed')
+index platform_events_by_channel: CREATE INDEX platform_events_by_channel ON platform_events (channel_id, type, seq)
+index platform_events_by_member: CREATE INDEX platform_events_by_member ON platform_events (member_id) WHERE member_id IS NOT NULL
+index platform_events_by_time: CREATE INDEX platform_events_by_time ON platform_events (created_at)
+index provider_suppression_sync_due: CREATE INDEX provider_suppression_sync_due ON provider_suppression_sync (next_attempt_at) WHERE status = 'pending'
+index quickpass_tokens_by_email: CREATE INDEX quickpass_tokens_by_email ON quickpass_tokens (email, created_at)
+index quickpass_tokens_recent: CREATE INDEX quickpass_tokens_recent ON quickpass_tokens (created_at)
+index reader_sessions_by_member: CREATE INDEX reader_sessions_by_member ON reader_sessions (member_id)
+index reader_tokens_by_member: CREATE INDEX reader_tokens_by_member ON reader_tokens (member_id, created_at)
+index recipe_submissions_by_channel: CREATE INDEX recipe_submissions_by_channel ON recipe_submissions (channel_id, created_at)
+index recipe_submissions_by_status: CREATE INDEX recipe_submissions_by_status ON recipe_submissions (status, reviewed_at)
+index recovery_codes_by_operator: CREATE INDEX recovery_codes_by_operator ON recovery_codes (operator_id)
+index referrals_by_referrer: CREATE INDEX referrals_by_referrer ON referrals (referrer_id)
+index referrals_by_status: CREATE INDEX referrals_by_status ON referrals (channel_id, status, created_at)
+index referrals_cluster: CREATE INDEX referrals_cluster ON referrals (referrer_id, ip_prefix, created_at) WHERE ip_prefix IS NOT NULL
+index reputation_ramps_pause_notice_due: CREATE INDEX reputation_ramps_pause_notice_due ON reputation_ramps (id) WHERE pause_notice = 'due'
+index reputation_ramps_scope: CREATE UNIQUE INDEX reputation_ramps_scope ON reputation_ramps (channel_id, ifnull(sending_domain_id, ''))
+index roster_members_by_member: CREATE INDEX roster_members_by_member ON roster_members (member_id, status)
+index roster_members_by_roster: CREATE INDEX roster_members_by_roster ON roster_members (roster_id, status, updated_at)
+index rosters_by_channel: CREATE INDEX rosters_by_channel ON rosters (channel_id, created_at) WHERE deleted_at IS NULL
+index rosters_name: CREATE UNIQUE INDEX rosters_name ON rosters (channel_id, name COLLATE NOCASE) WHERE deleted_at IS NULL
+index seats_by_operator: CREATE INDEX seats_by_operator ON seats (operator_id)
+index sender_identities_one_default: CREATE UNIQUE INDEX sender_identities_one_default ON sender_identities (channel_id) WHERE is_default = 1
+index sending_domains_by_channel: CREATE INDEX sending_domains_by_channel ON sending_domains (channel_id, created_at)
+index sending_domains_unverified: CREATE INDEX sending_domains_unverified ON sending_domains (last_checked_at) WHERE status <> 'verified'
+index series_slug: CREATE UNIQUE INDEX series_slug ON series (channel_id, slug) WHERE deleted_at IS NULL
+index sessions_active_by_operator: CREATE INDEX sessions_active_by_operator ON sessions (operator_id, expires_at) WHERE revoked_at IS NULL
+index sessions_by_operator: CREATE INDEX sessions_by_operator ON sessions (operator_id, created_at)
+index sessions_by_operator_seen: CREATE INDEX sessions_by_operator_seen ON sessions (operator_id, last_seen_at)
+index signup_journeys_live_form: CREATE UNIQUE INDEX signup_journeys_live_form ON signup_journeys (channel_id, ifnull(form_id, '')) WHERE status = 'live'
+index site_design_schedules_due: CREATE INDEX site_design_schedules_due ON site_design_schedules (publish_at) WHERE status = 'scheduled'
+index site_design_versions_channel: CREATE INDEX site_design_versions_channel ON site_design_versions (channel_id, published_at DESC)
+index snippets_by_channel: CREATE INDEX snippets_by_channel ON snippets (channel_id, name)
+index soft_bounces_by_email: CREATE INDEX soft_bounces_by_email ON soft_bounces (workspace_id, email, created_at)
+index split_tests_due: CREATE INDEX split_tests_due ON split_tests (decide_at) WHERE status = 'testing'
+index sponsor_bookings_by_channel: CREATE INDEX sponsor_bookings_by_channel ON sponsor_bookings (channel_id, id)
+index sponsor_bookings_one_per_slot_day: CREATE UNIQUE INDEX sponsor_bookings_one_per_slot_day ON sponsor_bookings (slot_id, run_on) WHERE status = 'accepted'
+index sponsor_slots_by_channel: CREATE INDEX sponsor_slots_by_channel ON sponsor_slots (channel_id, position)
+index sso_connections_by_workspace: CREATE INDEX sso_connections_by_workspace ON sso_connections (workspace_id)
+index sso_domains_by_workspace: CREATE INDEX sso_domains_by_workspace ON sso_domains (workspace_id)
+index sso_domains_verified: CREATE UNIQUE INDEX sso_domains_verified ON sso_domains (domain) WHERE verified_at IS NOT NULL
+index sso_released_domains_by_workspace: CREATE INDEX sso_released_domains_by_workspace ON sso_released_domains (workspace_id, domain, released_at)
+index stripe_events_by_channel: CREATE INDEX stripe_events_by_channel ON stripe_events (channel_id, received_at)
+index stripe_events_unfinished: CREATE INDEX stripe_events_unfinished ON stripe_events (status, received_at) WHERE status IN ('received', 'failed')
+index suppressions_by_address: CREATE INDEX suppressions_by_address ON suppressions (workspace_id, email)
+index suppressions_by_email: CREATE INDEX suppressions_by_email ON suppressions (email)
+index suppressions_by_hash: CREATE UNIQUE INDEX suppressions_by_hash ON suppressions (workspace_id, email_hash) WHERE email_hash IS NOT NULL
+index suppressions_channel_scoped: CREATE UNIQUE INDEX suppressions_channel_scoped ON suppressions (channel_id, email) WHERE channel_id IS NOT NULL
+index suppressions_workspace_wide: CREATE UNIQUE INDEX suppressions_workspace_wide ON suppressions (workspace_id, email) WHERE channel_id IS NULL
+index svix_webhook_ids_expires: CREATE INDEX svix_webhook_ids_expires ON svix_webhook_ids (expires_at)
+index templates_by_workspace: CREATE INDEX templates_by_workspace ON templates (workspace_id, channel_id, updated_at) WHERE deleted_at IS NULL
+index unsubscribe_refs_by_expiry: CREATE INDEX unsubscribe_refs_by_expiry ON unsubscribe_refs (expires_at)
+index unsubscribe_refs_by_member: CREATE INDEX unsubscribe_refs_by_member ON unsubscribe_refs (member_id)
+index vault_audit_by_time: CREATE INDEX vault_audit_by_time ON vault_audit (created_at)
+index vault_audit_by_workspace: CREATE INDEX vault_audit_by_workspace ON vault_audit (workspace_id, created_at)
+index vault_mints_by_channel: CREATE INDEX vault_mints_by_channel ON vault_mints (channel_id, kind, created_at)
+index vault_mints_by_subject: CREATE INDEX vault_mints_by_subject ON vault_mints (subject, kind, created_at)
+index vault_mints_by_time: CREATE INDEX vault_mints_by_time ON vault_mints (created_at)
+index vault_rate_by_window: CREATE INDEX vault_rate_by_window ON vault_rate (window_start)
+index webhook_deliveries_by_endpoint: CREATE INDEX webhook_deliveries_by_endpoint ON webhook_deliveries (endpoint_id, created_at)
+index webhook_deliveries_by_endpoint_status: CREATE INDEX webhook_deliveries_by_endpoint_status ON webhook_deliveries (endpoint_id, status, created_at)
+index webhook_deliveries_by_member: CREATE INDEX webhook_deliveries_by_member ON webhook_deliveries (member_id) WHERE member_id IS NOT NULL
+index webhook_deliveries_due: CREATE INDEX webhook_deliveries_due ON webhook_deliveries (next_attempt_at) WHERE status = 'retrying'
+index webhook_deliveries_finished: CREATE INDEX webhook_deliveries_finished ON webhook_deliveries (updated_at) WHERE status IN ('succeeded', 'failed', 'canceled')
+index webhook_deliveries_open: CREATE INDEX webhook_deliveries_open ON webhook_deliveries (next_attempt_at) WHERE status IN ('pending', 'retrying')
+index webhook_endpoint_leases_by_endpoint: CREATE INDEX webhook_endpoint_leases_by_endpoint ON webhook_endpoint_leases (endpoint_id, expires_at)
+index webhook_endpoints_by_workspace: CREATE INDEX webhook_endpoints_by_workspace ON webhook_endpoints (workspace_id, status)
+trigger instance_admins_allow_own_workspaces: CREATE TRIGGER instance_admins_allow_own_workspaces AFTER INSERT ON instance_admins BEGIN INSERT INTO site_code_workspaces (workspace_id, allowed_by, created_at) SELECT s.workspace_id, NEW.operator_id, NEW.created_at FROM seats s WHERE s.operator_id = NEW.operator_id AND s.role = 'owner' AND EXISTS (SELECT 1 FROM audit_events a WHERE a.workspace_id = s.workspace_id AND a.action = 'workspace.created' AND a.actor_operator_id = NEW.operator_id) ON CONFLICT (workspace_id) DO NOTHING; INSERT INTO email_check_workspaces (workspace_id, allowed_by, created_at) SELECT s.workspace_id, NEW.operator_id, NEW.created_at FROM seats s WHERE s.operator_id = NEW.operator_id AND s.role = 'owner' AND EXISTS (SELECT 1 FROM audit_events a WHERE a.workspace_id = s.workspace_id AND a.action = 'workspace.created' AND a.actor_operator_id = NEW.operator_id) ON CONFLICT (workspace_id) DO NOTHING; END
+trigger members_deleted_meter_reads: CREATE TRIGGER members_deleted_meter_reads AFTER DELETE ON members BEGIN -- By the primary key's prefix, so deleting many Members never scans the table. DELETE FROM gate_meter_reads WHERE channel_id = OLD.channel_id AND reader_key = OLD.id; END
+trigger members_left_end_reader_sessions: CREATE TRIGGER members_left_end_reader_sessions AFTER UPDATE OF status ON members WHEN NEW.status NOT IN ('active', 'paused') AND OLD.status IN ('active', 'paused') BEGIN DELETE FROM reader_sessions WHERE member_id = NEW.id; END
+trigger operators_delete_revokes_access: CREATE TRIGGER operators_delete_revokes_access BEFORE DELETE ON operators BEGIN UPDATE api_keys SET revoked_at = CAST(strftime('%s', 'now') AS INTEGER) * 1000 WHERE created_by = OLD.id AND revoked_at IS NULL; UPDATE oauth_tokens SET revoked_at = CAST(strftime('%s', 'now') AS INTEGER) * 1000 WHERE revoked_at IS NULL AND grant_id IN (SELECT id FROM oauth_grants WHERE operator_id = OLD.id); UPDATE oauth_grants SET revoked_at = CAST(strftime('%s', 'now') AS INTEGER) * 1000 WHERE operator_id = OLD.id AND revoked_at IS NULL; END

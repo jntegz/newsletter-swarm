@@ -1,0 +1,63 @@
+name: Install report
+description: You installed Swarm (or tried to). Tell us what worked and what didn't.
+labels: [install-report]
+body:
+  - type: markdown
+    attributes:
+      value: Thank you for trying Swarm. Remove keys, tokens, domains you want to keep private and real subscriber data from anything you paste. Report security problems through SECURITY.md, not here.
+  - type: dropdown
+    id: result
+    attributes:
+      label: How far did you get?
+      options:
+        - The install finished and I sent a post
+        - The install finished, but something didn't work
+        - The install stopped
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Commit
+      description: The output of `git rev-parse --short HEAD` in your clone.
+    validations:
+      required: true
+  - type: dropdown
+    id: how
+    attributes:
+      label: How did you install?
+      options:
+        - pnpm swarm (terminal)
+        - pnpm swarm with --answers
+        - Browser setup page
+    validations:
+      required: true
+  - type: dropdown
+    id: email-service
+    attributes:
+      label: Email service
+      options:
+        - Resend
+        - Amazon SES
+        - Mailgun
+        - Postmark
+        - Own mail server (SMTP)
+  - type: input
+    id: system
+    attributes:
+      label: Your computer
+      description: Operating system, Node.js version (`node -v`) and pnpm version (`pnpm -v`).
+  - type: textarea
+    id: worked
+    attributes:
+      label: What worked
+  - type: textarea
+    id: failed
+    attributes:
+      label: What didn't work
+      description: The step where it stopped or what looked wrong, and what you did about it.
+  - type: textarea
+    id: doctor
+    attributes:
+      label: Output of `pnpm swarm doctor`
+      render: text

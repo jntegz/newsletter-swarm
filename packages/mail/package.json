@@ -1,0 +1,30 @@
+{
+  "name": "@swarm/mail",
+  "private": true,
+  "license": "AGPL-3.0-only",
+  "type": "module",
+  "version": "0.0.0",
+  "exports": {
+    ".": "./src/index.ts",
+    "./highlight": "./src/highlight.ts",
+    "./click-map-scale": "./src/click-map-scale.ts",
+    "./click-map": "./src/click-map.ts",
+    "./css": "./src/css.ts",
+    "./dark-preview": "./src/dark-preview.ts",
+    "./snippets": "./src/snippets.ts",
+    "./embeds": "./src/embeds.ts",
+    "./dns-check": "./src/dns-check.ts",
+    "./service-change": "./src/service-change.ts",
+    "./sigv4": "./src/sigv4.ts",
+    "./xml": "./src/xml.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  }
+}

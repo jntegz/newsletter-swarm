@@ -1,0 +1,434 @@
+@import 'tailwindcss';
+@import '@swarm/ui/theme.css';
+@import './theme-line.css';
+
+/* Shared components live outside this app's folder. */
+@source '../../../packages/ui/src';
+
+/* Dispatch editor: mirrors the email renderer's typography in @swarm/mail. */
+.dispatch-prose {
+  min-height: 320px;
+  font-size: 17px;
+  line-height: 1.65;
+  color: var(--ink);
+  outline: none;
+}
+.dispatch-prose:focus-visible {
+  outline: none;
+}
+.dispatch-prose > * + * {
+  margin-top: 16px;
+}
+.dispatch-prose h1,
+.dispatch-prose h2,
+.dispatch-prose h3 {
+  color: var(--ink);
+  letter-spacing: -0.005em;
+  line-height: 1.3;
+  font-weight: 650;
+  margin-top: 28px;
+}
+.dispatch-prose h1 {
+  font-size: 28px;
+}
+.dispatch-prose h2 {
+  font-size: 22px;
+}
+.dispatch-prose h3 {
+  font-size: 18px;
+}
+.dispatch-prose a {
+  color: var(--purple);
+  text-decoration: underline;
+}
+.dispatch-prose ul,
+.dispatch-prose ol {
+  padding-left: 24px;
+}
+.dispatch-prose ul {
+  list-style: disc;
+}
+.dispatch-prose ol {
+  list-style: decimal;
+}
+.dispatch-prose blockquote {
+  border-left: 1px solid var(--ink);
+  padding: 2px 0 2px 22px;
+  font-size: 20px;
+  line-height: 1.45;
+  font-style: italic;
+}
+.dispatch-prose code {
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+  background: var(--surface-alt);
+  padding: 1px 4px;
+  border-radius: 4px;
+}
+.dispatch-prose pre {
+  background: var(--surface-alt);
+  border-radius: 8px;
+  padding: 12px 14px;
+  white-space: pre-wrap;
+}
+.dispatch-prose pre code {
+  background: none;
+  padding: 0;
+}
+/* Code embeds (flag code_embeds): the token colours of email and the site (CODE_THEME in
+   @swarm/mail/highlight), each at least 4.5:1 on the code background. */
+.dispatch-prose .sw-tk-kw,
+.dispatch-prose .sw-tk-tag {
+  color: #5636e8;
+}
+.dispatch-prose .sw-tk-str,
+.dispatch-prose .sw-tk-ins {
+  color: #1a6b43;
+}
+.dispatch-prose .sw-tk-com,
+.dispatch-prose .sw-tk-meta {
+  color: #64646e;
+}
+.dispatch-prose .sw-tk-com {
+  font-style: italic;
+}
+.dispatch-prose .sw-tk-num,
+.dispatch-prose .sw-tk-lit,
+.dispatch-prose .sw-tk-del {
+  color: #a23a1c;
+}
+.dispatch-prose .sw-tk-fn,
+.dispatch-prose .sw-tk-prop {
+  color: #1d5a9e;
+}
+.dispatch-prose .sw-tk-type,
+.dispatch-prose .sw-tk-attr {
+  color: #7a4400;
+}
+.dispatch-prose .sw-tk-op {
+  color: #3a3a44;
+}
+/* The table of contents block: a frame listing the headings it will link to. */
+.editor-toc {
+  margin: 12px 0;
+  padding: 12px 16px;
+  border: 1px dashed var(--lavender-line);
+  border-radius: 12px;
+}
+.editor-toc-tag {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--purple-deep);
+}
+.editor-toc ol {
+  margin: 0;
+  padding-left: 20px;
+  font-size: 14px;
+  color: var(--text-sub);
+}
+.editor-toc .editor-toc-sub {
+  margin-left: 16px;
+}
+.editor-toc-empty {
+  margin: 0;
+  font-size: 13px;
+  color: var(--text-sub);
+}
+.dispatch-prose hr {
+  border: 0;
+  border-top: 1px solid var(--line);
+  margin: 24px 0;
+}
+.dispatch-prose img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+}
+/* A block kept to the email or the website: the label above it. */
+.editor-show-on {
+  display: block;
+  width: fit-content;
+  margin: 10px 0 -4px;
+  padding: 1px 8px;
+  border: 1px solid currentColor;
+  border-radius: var(--r-pill);
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.5;
+  color: var(--scheduled);
+  user-select: none;
+}
+.dispatch-prose[contenteditable='true'] .editor-show-on {
+  cursor: pointer;
+}
+.dispatch-prose .ProseMirror-selectednode {
+  outline: 2px solid var(--purple);
+  outline-offset: 2px;
+}
+.dispatch-prose p.is-editor-empty:first-child::before,
+.dispatch-prose[contenteditable='true'] p.is-empty:not(.is-editor-empty)::before {
+  content: attr(data-placeholder);
+  color: var(--text-muted);
+  float: left;
+  height: 0;
+  pointer-events: none;
+}
+
+/* The post's header, drawn as the post: the subject is its title, the preview text the line under
+   it. No boxes; a short night rule in the gutter marks the field being written in. */
+.post-field {
+  position: relative;
+}
+.post-field::before {
+  content: '';
+  position: absolute;
+  top: 6px;
+  bottom: 6px;
+  left: -16px;
+  width: 3px;
+  border-radius: 2px;
+  background: transparent;
+  transition: background-color var(--duration-hover);
+}
+.post-field:focus-within::before {
+  background: var(--purple);
+}
+.post-title,
+.post-dek {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+  resize: none;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+  field-sizing: content;
+}
+.post-title:focus,
+.post-dek:focus {
+  outline: none;
+}
+.post-title {
+  font-size: 34px;
+  line-height: 1.2;
+  font-weight: 650;
+  letter-spacing: -0.015em;
+}
+.post-dek {
+  font-size: 19px;
+  line-height: 1.45;
+  color: var(--text-sub);
+}
+.post-title::placeholder,
+.post-dek::placeholder {
+  color: var(--text-muted);
+  opacity: 1;
+}
+@media (max-width: 639px) {
+  .post-title {
+    font-size: 28px;
+  }
+  .post-dek {
+    font-size: 17px;
+  }
+  .post-field::before {
+    left: -10px;
+  }
+}
+.editor-button span {
+  display: inline-block;
+  padding: 12px 24px;
+  border-radius: var(--r-control);
+  background: var(--purple);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 600;
+}
+.editor-link-card {
+  display: grid;
+  gap: 4px;
+  padding: 14px 16px;
+  border: 1px solid var(--line-app);
+  border-radius: var(--r-card);
+}
+.editor-link-card strong {
+  color: var(--ink);
+  font-size: 15px;
+}
+.editor-link-card span {
+  font-size: 14px;
+  color: var(--text-muted);
+}
+.editor-link-card small {
+  font-size: 12px;
+  color: var(--purple);
+}
+.editor-attachment {
+  display: grid;
+  gap: 4px;
+  padding: 12px 16px;
+  border: 1px solid var(--line-app);
+  border-radius: var(--r-card);
+}
+.editor-attachment strong {
+  color: var(--ink);
+  font-size: 15px;
+}
+.editor-attachment small {
+  font-size: 12px;
+  color: var(--purple);
+}
+.editor-html {
+  padding: 10px 14px;
+  border: 1px dashed var(--line-app);
+  border-radius: 12px;
+  background: var(--surface-alt);
+}
+.editor-html small {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+.editor-html pre {
+  margin: 0;
+  max-height: 160px;
+  overflow: auto;
+  font-size: 12.5px;
+  white-space: pre-wrap;
+}
+/* Paywall break: a drawn rule; what follows is for paid subscribers. */
+.editor-gate {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 28px 0;
+  color: var(--purple);
+  font-size: 14px;
+  font-weight: 650;
+}
+.editor-gate::before,
+.editor-gate::after {
+  content: '';
+  flex: 1;
+  height: 2px;
+  background: var(--purple);
+}
+.editor-gate span {
+  padding: 4px 12px;
+  border: 2px solid var(--purple);
+  border-radius: 999px;
+  background: var(--surface);
+}
+/* Smart Blocks and polls (Phase 6): a dashed lavender frame with a labelled head, so the
+   conditional part stands out from the rest of the Dispatch. */
+.editor-smart-block,
+.editor-snippet,
+.editor-ask-poll {
+  margin: 12px 0;
+  border: 1px dashed var(--line-control);
+  border-radius: var(--r-card);
+  background: var(--surface-alt);
+}
+.editor-ask-poll.is-selected,
+.editor-snippet.is-selected,
+.editor-smart-block:focus-within {
+  border-color: var(--purple);
+}
+.editor-smart-block-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-bottom: 1px dashed var(--lavender-line);
+  color: var(--text-sub);
+  font-size: 12.5px;
+  line-height: 1.4;
+  user-select: none;
+}
+.editor-smart-block-tag {
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: var(--lavender);
+  color: var(--purple-deep);
+  font-size: 11.5px;
+  font-weight: 600;
+}
+.editor-smart-block-edit {
+  min-height: 32px;
+  padding: 0 12px;
+  border: 1px solid var(--line-control);
+  border-radius: var(--r-control);
+  background: var(--surface);
+  color: var(--ink);
+  font-size: 12.5px;
+  font-weight: 600;
+}
+.editor-smart-block-edit:hover {
+  border-color: var(--line-control-hover);
+}
+.editor-smart-block-edit:focus-visible {
+  outline: 2px solid var(--purple);
+  outline-offset: 2px;
+}
+.editor-smart-block-body {
+  padding: 4px 14px;
+}
+.editor-snippet-body {
+  padding: 8px 14px;
+}
+.editor-snippet-note {
+  padding: 10px 14px 12px;
+  font-size: 14px;
+}
+.editor-ask-poll-body {
+  padding: 10px 14px 12px;
+  font-size: 14px;
+}
+.editor-ask-poll-body p {
+  margin: 0 0 8px;
+  font-weight: 600;
+}
+.editor-ask-poll-body ul {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.editor-ask-poll-body li {
+  padding: 8px 12px;
+  border: 1px solid var(--line-app);
+  border-radius: 10px;
+}
+
+.dispatch-prose .editor-callout {
+  margin: 0 0 1em;
+  padding: 12px 16px;
+  background: var(--lavender, #f3f0ff);
+  border-left: 3px solid var(--purple, #6c4cf1);
+  border-radius: 6px;
+}
+.dispatch-prose .editor-columns {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin: 0 0 1em;
+}
+.dispatch-prose .editor-column {
+  min-height: 2.5em;
+  padding: 8px 10px;
+  border: 1px dashed var(--line-control, #dcdae6);
+  border-radius: 6px;
+}
+.dispatch-prose .editor-footnote {
+  padding: 0 3px;
+  color: var(--purple-deep, #4a2fc4);
+  cursor: help;
+}

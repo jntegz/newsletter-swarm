@@ -1,0 +1,87 @@
+{
+  "$schema": "../../node_modules/wrangler/config-schema.json",
+  // SES events over SNS, and Email Routing for unsub+<code>@ addresses (UNSUBSCRIBE_MAIL_DOMAIN)
+  // and DMARC aggregate reports to dmarc+<sendingDomainId>@ (DMARC_MAIL_DOMAIN), kept in R2
+  // REPORTS. SNS_TOPIC_ARNS must list the real topics (docs/deployment.md); UNSUBSCRIBE_KEYS is a
+  // secret shared with the send and track workers.
+  // Not the production name: a deploy that names no environment makes a separate, harmless
+  // "-local" script, never a production one with these development settings.
+  "name": "swarm-events-local",
+  // No provider default hostname and no preview URLs: a worker answers only on the routes
+  // the installer gives it (docs/deployment.md, "Public surface"). Stated here, in each
+  // environment too, so nothing rests on a platform default.
+  "workers_dev": false,
+  "preview_urls": false,
+  "main": "src/index.ts",
+  "compatibility_date": "2026-10-01",
+  "observability": { "enabled": true },
+  "vars": {
+    "ENVIRONMENT": "development",
+    // Links are signed per family (docs/security.md "Keys"). Locally there are no old links to
+    // keep: v2 from the start, and no v1 link is taken.
+    "LINK_SIGNING_MODE": "v2",
+    "LINK_LEGACY_CUTOFF": "0",
+    "SNS_TOPIC_ARNS": "arn:aws:sns:us-east-1:000000000000:swarm-dev-ses-events",
+    "DMARC_MAIL_DOMAIN": "dmarc.swarm.localhost",
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "swarm",
+      "database_id": "local",
+      "migrations_dir": "../../migrations",
+    },
+  ],
+  "r2_buckets": [{ "binding": "REPORTS", "bucket_name": "swarm-reports" }],
+  // The public queue only (never the jobs queue): Circles re-evaluate when a bounce or complaint
+  // changes a Member.
+  "queues": { "producers": [{ "binding": "PUBLIC_QUEUE", "queue": "swarm-public" }] },
+  "env": {
+    "staging": {
+      "name": "swarm-events-staging",
+      "workers_dev": false,
+      "preview_urls": false,
+      "vars": {
+        "ENVIRONMENT": "staging",
+        // The installer sets both: v1 until the cutover, then v2 and its time.
+        "LINK_SIGNING_MODE": "v1",
+        "SNS_TOPIC_ARNS": "arn:aws:sns:eu-west-1:000000000000:swarm-staging-ses-events",
+        "DMARC_MAIL_DOMAIN": "dmarc.staging.swarm.example",
+      },
+      "d1_databases": [
+        {
+          "binding": "DB",
+          "database_name": "swarm-staging",
+          "database_id": "unprovisioned",
+          "migrations_dir": "../../migrations",
+        },
+      ],
+      "r2_buckets": [{ "binding": "REPORTS", "bucket_name": "swarm-staging-reports" }],
+      "queues": { "producers": [{ "binding": "PUBLIC_QUEUE", "queue": "swarm-staging-public" }] },
+    },
+    "production": {
+      "name": "swarm-events",
+      "workers_dev": false,
+      "preview_urls": false,
+      "vars": {
+        "ENVIRONMENT": "production",
+        // The installer sets both: v1 until the cutover, then v2 and its time.
+        "LINK_SIGNING_MODE": "v1",
+        "SNS_TOPIC_ARNS": "arn:aws:sns:eu-west-1:000000000000:swarm-production-ses-events",
+        "DMARC_MAIL_DOMAIN": "dmarc.swarm.example",
+      },
+      "d1_databases": [
+        {
+          "binding": "DB",
+          "database_name": "swarm-production",
+          "database_id": "unprovisioned",
+          "migrations_dir": "../../migrations",
+        },
+      ],
+      "r2_buckets": [{ "binding": "REPORTS", "bucket_name": "swarm-production-reports" }],
+      "queues": {
+        "producers": [{ "binding": "PUBLIC_QUEUE", "queue": "swarm-production-public" }],
+      },
+    },
+  },
+}

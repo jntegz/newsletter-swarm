@@ -1,0 +1,11 @@
+-- Sending limits fixes: which warm-up capacity a recipient holds.
+--
+-- The UTC day (YYYY-MM-DD) whose Reputation Ramp capacity this recipient holds: set when the
+-- fan-out (or a Flow email's run) reserved it, given back and cleared when a pause puts the
+-- recipient back, and used up when it is sent. NULL: it holds none (never handed out, given back,
+-- or a row from before this column). A fan-out that walks a send again (a resume, a best-time
+-- release) reserves only for recipients that hold nothing for today, so a recipient waiting in a
+-- delayed or duplicated batch message is never counted twice, and one whose reservation ended
+-- with its day is counted again on the day it really goes. Code: packages/engine/src/pipeline.ts
+-- (fanout, sendBatch, giveBack) and packages/engine/src/send-waits.ts.
+ALTER TABLE broadcast_recipients ADD COLUMN reserved_on TEXT;

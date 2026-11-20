@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Home · Field Notes · Swarm</title>
+<style>
+@font-face{font-family:"Archivo";src:url(../fonts/archivo-latin-standard-normal.woff2) format("woff2");font-weight:100 900;font-stretch:62% 125%;font-display:swap}
+@font-face{font-family:"JetBrains Mono";src:url(../fonts/jetbrains-mono-latin-wght-normal.woff2) format("woff2");font-weight:100 800;font-display:swap}
+:root{
+  --ground:#E8EBEE;--paper:#fff;--line:#CCD2D9;--rule:#E1E5E9;--ink:#0E1116;--ink-2:#4E5764;
+  --cyan:#0077B6;--cyan-h:#00609A;--cyan-t:#DCEFFA;--mag:#C1006A;--mag-t:#FBE4F0;--ok:#18794E;--danger:#B42318;
+  --mono:"JetBrains Mono",ui-monospace,Consolas,monospace;
+  --pg-shadow:0 1px 0 rgba(14,17,22,.06),0 6px 14px -8px rgba(14,17,22,.25);
+  --pop-shadow:0 2px 4px rgba(14,17,22,.06),0 16px 36px -12px rgba(14,17,22,.3);
+}
+*{box-sizing:border-box}
+html{scrollbar-color:#B9C1CA #E8EBEE;scrollbar-width:thin}
+body{margin:0;font:400 14px/1.5 "Archivo",system-ui,sans-serif;font-stretch:100%;color:var(--ink);background:var(--ground);font-variant-numeric:tabular-nums;caret-color:var(--cyan);accent-color:var(--cyan);-webkit-font-smoothing:antialiased}
+::selection{background:#CDE8F7;color:var(--ink)}
+:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
+a{color:var(--cyan);text-underline-offset:3px;text-decoration-thickness:1px}
+a:hover{color:var(--cyan-h)}
+h1,h2,h3,p{margin:0}
+button,input,select{font:inherit;color:inherit}
+.ic{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.n{font-stretch:78%;font-weight:600}
+.m{font-family:var(--mono);font-size:12px;letter-spacing:-.01em}
+.muted{color:var(--ink-2)}
+.small{font-size:12.5px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;height:32px;padding:0 12px;border-radius:4px;border:1px solid var(--line);background:#fff;color:var(--ink);font-weight:550;font-size:13.5px;cursor:pointer;text-decoration:none;white-space:nowrap;transition:background-color .15s,border-color .15s,color .15s}
+.btn:hover{background:#F3F5F7;border-color:#B4BCC6;color:var(--ink)}
+.btn .ic{width:16px;height:16px}
+.btn-p{background:var(--cyan);border-color:var(--cyan);color:#fff}
+.btn-p:hover{background:var(--cyan-h);border-color:var(--cyan-h);color:#fff}
+.btn-sm{height:28px;padding:0 10px;font-size:13px}
+.app{display:grid;grid-template-columns:88px minmax(0,1fr);min-height:100vh}
+.rail{position:sticky;top:0;height:100vh;background:#fff;border-right:1px solid var(--line);display:flex;flex-direction:column;align-items:center;padding:10px 0;overflow-y:auto;scrollbar-width:thin;scrollbar-color:#B9C1CA transparent;z-index:20}
+.rail-top{display:flex;align-items:center;gap:6px;margin-bottom:8px;flex:none}
+.rgrp{display:flex;flex-direction:column;align-items:center;flex:none}
+.rg{width:76px;margin:6px 0 2px;padding-top:7px;border-top:1px solid var(--rule);text-align:center;font-size:11.5px;line-height:1.2;font-weight:600;color:var(--ink-2)}
+.logo{display:grid;place-items:center;width:34px;height:34px;border-radius:6px;flex:none}
+.pub{display:flex;align-items:center;justify-content:center;width:36px;height:36px;border:1px solid var(--line);border-radius:4px;background:#fff;font-stretch:80%;font-weight:700;font-size:14px;letter-spacing:.02em;cursor:pointer;flex:none;position:relative;transition:border-color .15s}
+.pub:hover{border-color:#9AA4AF}
+.pub::after{content:"";position:absolute;right:3px;bottom:3px;border:3px solid transparent;border-right-color:var(--ink-2);border-bottom-color:var(--ink-2)}
+.ri{display:flex;flex-direction:column;align-items:center;gap:2px;width:82px;padding:5px 3px 4px;border-radius:4px;color:var(--ink-2);text-decoration:none;flex:none;transition:background-color .15s,color .15s}
+.ri span{font-size:12px;line-height:1.25;font-stretch:100%;font-weight:550;text-align:center}
+.ri:hover{background:#F1F3F5;color:var(--ink)}
+.ri[aria-current="page"]{background:var(--cyan-t);color:var(--cyan-h)}
+.ri[aria-current="page"] .ic{color:var(--cyan)}
+.rail-end{margin-top:auto;display:flex;flex-direction:column;align-items:center;gap:6px;padding-top:10px}
+.avatar{width:32px;height:32px;border-radius:50%;border:1px solid var(--line);background:var(--ground);display:grid;place-items:center;font-size:12px;font-weight:700;font-stretch:80%;cursor:pointer;padding:0}
+.main{min-width:0;display:flex;flex-direction:column}
+.topbar{position:sticky;top:0;z-index:15;height:56px;display:grid;grid-template-columns:minmax(0,1fr) minmax(280px,560px) minmax(0,1fr);align-items:center;gap:16px;padding:0 24px;background:#fff;border-bottom:1px solid var(--line)}
+.crumbs{display:flex;align-items:center;gap:6px;min-width:0;font-size:13.5px;color:var(--ink-2);white-space:nowrap}
+.crumbs a{color:var(--ink-2);text-decoration:none}
+.crumbs a:hover{color:var(--ink);text-decoration:underline}
+.crumbs .sep{color:#9AA4AF}
+.crumbs [aria-current]{color:var(--ink);font-weight:600;overflow:hidden;text-overflow:ellipsis}
+.cmd{display:flex;align-items:center;gap:10px;width:100%;height:38px;padding:0 8px 0 12px;border:1px solid var(--line);border-radius:4px;background:#F6F7F9;color:var(--ink-2);cursor:text;text-align:left;transition:border-color .15s,background-color .15s}
+.cmd:hover{border-color:#9AA4AF;background:#fff}
+.cmd span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+kbd{font-family:var(--mono);font-size:11px;padding:2px 6px;border:1px solid var(--line);border-bottom-width:2px;border-radius:4px;background:#fff;color:var(--ink-2);white-space:nowrap}
+.tb-end{display:flex;justify-content:flex-end;align-items:center;gap:8px}
+.np{position:relative}
+.icon-btn{display:none;width:36px;height:36px;border:1px solid var(--line);border-radius:4px;background:#fff;place-items:center;cursor:pointer;color:var(--ink)}
+.pub-tb{display:none}
+.pop{position:absolute;z-index:40;background:#fff;border:1px solid var(--line);border-radius:8px;box-shadow:var(--pop-shadow);padding:6px;min-width:260px;opacity:0;transform:translateY(-4px);visibility:hidden;transition:opacity .15s,transform .15s,visibility 0s .15s}
+.pop.open{opacity:1;transform:none;visibility:visible;transition:opacity .15s,transform .15s}
+.pop-h{padding:6px 10px 4px;font-size:12px;color:var(--ink-2);font-stretch:80%;font-weight:600}
+.pop a,.pop button.mi{display:flex;align-items:center;gap:10px;width:100%;padding:7px 10px;border-radius:4px;border:0;background:none;color:var(--ink);text-decoration:none;text-align:left;cursor:pointer;font-size:13.5px}
+.pop a:hover,.pop button.mi:hover,.pop a:focus-visible{background:var(--cyan-t);color:var(--ink)}
+.pop .ic{width:16px;height:16px;color:var(--ink-2)}
+.pop hr{border:0;border-top:1px solid var(--rule);margin:6px 0}
+.pop small{display:block;color:var(--ink-2);font-size:12px}
+#npMenu{right:0;top:calc(100% + 6px);width:300px}
+#pubMenu{position:fixed;width:280px}
+.pubrow{display:flex;align-items:center;gap:10px;flex:1}
+.pubsq{width:28px;height:28px;border-radius:4px;border:1px solid var(--line);display:grid;place-items:center;font-size:11px;font-weight:700;font-stretch:80%;flex:none}
+.page{padding:22px 24px 48px;display:flex;flex-direction:column;gap:16px;flex:1}
+.ph{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.ph h1{font-size:24px;line-height:1.2;font-weight:700;letter-spacing:-.01em}
+.ph p{margin-top:4px;color:var(--ink-2)}
+.ph-end{display:flex;align-items:center;gap:12px}
+.sample{font-size:12px;color:var(--ink-2);border:1px dashed #9AA4AF;border-radius:4px;padding:2px 7px;font-stretch:85%;font-weight:600}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:4px;background:#fff;padding:2px}
+.seg label{position:relative;cursor:pointer}
+.seg input{position:absolute;opacity:0;inset:0;margin:0;cursor:pointer}
+.seg span{display:block;padding:4px 12px;border-radius:3px;font-size:13px;font-weight:550;color:var(--ink-2);transition:background-color .15s,color .15s}
+.seg input:checked+span{background:var(--cyan-t);color:var(--cyan-h)}
+.seg input:focus-visible+span{outline:2px solid var(--cyan);outline-offset:1px}
+.panel{background:#fff;border:1px solid var(--line);border-radius:8px;min-width:0}
+.pn-h{display:flex;align-items:baseline;justify-content:space-between;gap:12px;padding:14px 16px 0}
+.pn-h h2{font-size:15px;font-weight:650;letter-spacing:-.005em}
+.pn-h .meta{color:var(--ink-2);font-size:12.5px}
+.pn-b{padding:12px 16px 16px}
+.run-h{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:12px 16px;border-bottom:1px solid var(--rule)}
+.run-h h2{font-size:15px;font-weight:650}
+.legend{display:flex;gap:14px;flex-wrap:wrap;list-style:none;margin:0 0 0 auto;padding:0;font-size:12.5px;color:var(--ink-2)}
+.legend li{display:flex;align-items:center;gap:6px}
+.sw{width:10px;height:13px;border-radius:1px;border:1px solid #8D97A3;background:#fff}
+.sw.s{border:2px solid var(--cyan)}
+.sw.d{border-style:dashed}
+.legend .ic{width:14px;height:14px;color:var(--mag)}
+.strip{overflow-x:auto;scroll-snap-type:x proximity;scrollbar-width:thin}
+.weeks{display:flex;list-style:none;margin:0;padding:0;min-width:100%;width:max-content}
+.wk{position:relative;flex:1 0 auto;min-width:116px;border-left:1px solid var(--rule);scroll-snap-align:start}
+.wk:first-child{border-left:0}
+.wk-h{height:30px;display:flex;align-items:center;padding:0 8px;font-size:11.5px;font-stretch:78%;font-weight:600;color:var(--ink-2);border-bottom:1px solid var(--rule);white-space:nowrap}
+.wk-b{display:flex;gap:24px;padding:26px 8px 14px}
+.it{width:100px;flex:none;display:flex;flex-direction:column;gap:8px}
+.pg{position:relative;display:flex;flex-direction:column;gap:4px;width:100px;height:133px;padding:8px 7px;background:#fff;border:1px solid var(--line);border-radius:2px;box-shadow:var(--pg-shadow);color:var(--ink);text-decoration:none;overflow:visible;transition:transform .15s,box-shadow .15s,border-color .15s}
+a.pg:hover{transform:translateY(-1px);box-shadow:0 1px 0 rgba(14,17,22,.06),0 9px 16px -8px rgba(14,17,22,.32);color:var(--ink)}
+.pg-pub{font-size:5.5px;letter-spacing:.14em;text-transform:uppercase;font-weight:700;font-stretch:80%;color:var(--ink-2);padding-bottom:3px;border-bottom:1px solid var(--ink);line-height:1}
+.pg-t{font-size:10.5px;line-height:1.14;font-stretch:72%;font-weight:650;letter-spacing:-.005em;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.pg-img{display:block;height:24px;background:#DCE2E8;border-radius:1px;flex:none}
+.pg-img.tall{height:34px}
+.pg-l{display:flex;flex-direction:column;gap:3px}
+.pg-l i{display:block;height:3px;background:#D3D9DF;border-radius:1px}
+.pg-q{display:block;height:9px;border-left:2px solid #AEB7C1;margin-left:2px;background:linear-gradient(#D3D9DF,#D3D9DF) 4px 2px/70% 3px no-repeat}
+.pg-row{display:flex;gap:4px}
+.pg-row .pg-img{width:30px;height:26px}
+.pg-row .pg-l{flex:1}
+.pg.sched{border:2px solid var(--cyan);padding:7px 6px}
+.pg.draft{border:1px dashed #6F7A87;box-shadow:none}
+.pg.empty{border:1px dashed #B4BCC6;box-shadow:none;background:transparent;align-items:center;justify-content:center;text-align:center;font-size:11px;font-stretch:80%;font-weight:600;color:var(--ink-2);padding:10px}
+.pg.first{border:1px dashed #6F7A87;box-shadow:none;align-items:center;justify-content:center;text-align:center;gap:6px;font-size:11.5px;font-stretch:80%;font-weight:650;color:var(--ink)}
+.pg.first .ic{width:18px;height:18px;color:var(--cyan)}
+.ring{position:absolute;left:3px;right:6px;border:1.5px solid var(--mag);border-radius:50%;pointer-events:none}
+.mark{position:absolute;top:-9px;right:-9px;width:20px;height:20px;border-radius:50%;background:#fff;color:var(--mag);display:grid;place-items:center}
+.mark .ic{width:20px;height:20px}
+.pg-m{font-size:11.5px;line-height:1.35}
+.pg-m b{display:block;font-stretch:78%;font-weight:650}
+.pg-m .m{font-size:10.5px;color:var(--ink-2);display:block;line-height:1.45}
+.pg-m .sch{color:var(--cyan);font-stretch:78%;font-weight:650}
+.pg-m .fix{display:inline-flex;align-items:center;gap:4px;color:var(--mag);font-stretch:78%;font-weight:650;text-decoration:underline;margin-top:2px}
+.pg-m .fix:hover{color:#97004F}
+.pg-m .fix .ic{width:13px;height:13px}
+.now{position:absolute;top:30px;bottom:0;width:0;border-left:2px solid var(--cyan);pointer-events:none}
+.now span{position:absolute;top:0;left:-2px;white-space:nowrap;background:var(--cyan);color:#fff;font-size:11.5px;line-height:18px;padding:0 6px;border-radius:0 0 2px 0;font-weight:600}
+.run-f{border-top:1px solid var(--rule);display:grid;grid-template-columns:96px minmax(0,1fr);font-size:13.5px}
+.run-f dt{padding:10px 0 10px 16px;font-stretch:78%;font-weight:650;color:var(--ink-2);font-size:12.5px}
+.run-f dd{margin:0;padding:10px 16px 10px 0;display:flex;align-items:center;gap:10px;flex-wrap:wrap;min-width:0}
+.run-f dt,.run-f dd{border-bottom:1px solid var(--rule)}
+.run-f>:nth-last-child(-n+2){border-bottom:0}
+.run-f .attn{color:var(--ink)}
+.run-f dd>span{flex:1 1 240px;min-width:0}
+.run-f .attn .ic{width:16px;height:16px;color:var(--mag)}
+.run-f .dot{color:#9AA4AF}
+.grid{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:16px}
+.c7{grid-column:span 7}.c5{grid-column:span 5}.c4{grid-column:span 4}.c3{grid-column:span 3}.c12{grid-column:span 12}
+.split{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:0}
+.split>div+div{border-left:1px solid var(--rule);padding-left:16px;margin-left:16px}
+table{border-collapse:collapse;width:100%}
+th{font-size:11.5px;font-stretch:78%;font-weight:650;color:var(--ink-2);text-align:left;padding:0 0 6px;border-bottom:1px solid var(--rule)}
+td{padding:7px 0;border-bottom:1px solid var(--rule);vertical-align:middle}
+tr:last-child td{border-bottom:0}
+.num{text-align:right;font-family:var(--mono);font-size:12px;white-space:nowrap;padding-left:10px}
+th.num{font-family:inherit;font-size:11.5px}
+.bar{height:8px;background:#EEF1F4;border-radius:1px;overflow:hidden;min-width:60px}
+.bar i{display:block;height:100%;background:var(--cyan)}
+.bar i.q{background:#9AA4AF}
+.funnel td:first-child{font-weight:550;width:84px}
+.funnel td.b{width:38%;padding-left:12px}
+.aside-stats{display:flex;gap:18px;flex-wrap:wrap;margin-top:12px;font-size:12.5px;color:var(--ink-2)}
+.aside-stats b{color:var(--ink);font-family:var(--mono);font-weight:500;font-size:12px}
+.cap{margin-top:8px;font-size:12.5px;color:var(--ink-2)}
+.chart{display:block;width:100%;height:auto;overflow:visible}
+.chart text{font-family:var(--mono);font-size:11px;fill:var(--ink-2)}
+.chart .tt{font-family:"Archivo",sans-serif;font-weight:600;font-size:12px;fill:var(--ink)}
+.chart .dl{fill:var(--ink);font-weight:600}
+.big{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.big strong{font-size:26px;line-height:1.1;font-weight:650;letter-spacing:-.01em}
+.up{color:var(--ok);font-size:13px;font-weight:550}
+.kv{display:grid;grid-template-columns:minmax(0,1fr) auto;margin:12px 0 0;font-size:13.5px}
+.kv dt,.kv dd{padding:6px 0;border-top:1px solid var(--rule);margin:0}
+.kv dd{text-align:right;font-family:var(--mono);font-size:12px;display:flex;align-items:center;justify-content:flex-end}
+.kv dd.t{font-family:inherit;font-size:13.5px}
+.auto-row{padding:8px 0;border-bottom:1px solid var(--rule)}
+.auto-row:first-child{padding-top:0}
+.auto-row .top{display:flex;justify-content:space-between;gap:8px;margin-bottom:6px}
+.auto-row .top span{font-weight:550}
+.auto-row .m{color:var(--ink-2)}
+.sub-h{font-size:13px;font-weight:650;margin:12px 0 4px}
+.pn-f{padding:0 16px 14px;font-size:13px}
+.health{display:flex;align-items:center;gap:8px 22px;flex-wrap:wrap;padding:11px 16px;font-size:13.5px}
+.health h2{font-size:13px;font-stretch:78%;font-weight:650;color:var(--ink-2)}
+.health span{display:inline-flex;align-items:center;gap:6px}
+.health .ic{width:16px;height:16px}
+.okc{color:var(--ok)}
+.magc{color:var(--mag)}
+.health a{margin-left:auto;font-size:13px}
+.empty-note{color:var(--ink-2);font-size:13.5px;max-width:52ch}
+.empty-note+.empty-note{margin-top:6px}
+.ghost-rows{margin-top:14px;display:grid;gap:8px}
+.ghost-rows i{display:block;height:8px;border:1px dashed #C3CAD2;border-radius:1px}
+.steps{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border-top:1px solid var(--rule)}
+.step{padding:12px 16px 14px;display:flex;gap:10px;border-left:1px solid var(--rule);min-width:0}
+.step:first-child{border-left:0}
+.step.cur{background:var(--mag-t)}
+.step .ic{width:20px;height:20px;margin-top:1px}
+.step h3{font-size:13.5px;font-weight:650;line-height:1.35}
+.step p{font-size:12.5px;color:var(--ink-2);margin-top:2px}
+.step.cur p{color:#5C3048}
+.step .btn{margin-top:8px}
+.todo{color:#8D97A3}
+.dns{border-top:1px solid var(--rule);padding:14px 16px 16px;display:grid;gap:10px}
+.dns-lead{display:flex;align-items:center;gap:8px;font-size:13.5px}
+.dns-lead .ic{width:16px;height:16px;color:var(--mag)}
+.dns table{max-width:880px}
+.dns td{padding:8px 12px 8px 0}
+.dns td.v{font-family:var(--mono);font-size:12px;word-break:break-all}
+.dns td.k{width:64px;font-size:12px;font-stretch:78%;font-weight:650;color:var(--ink-2)}
+.dns td.a{width:1%;white-space:nowrap;text-align:right;padding-right:0}
+.dns-act{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.dns-act p{font-size:12.5px;color:var(--ink-2)}
+#checkMsg{font-size:12.5px;color:var(--ink-2)}
+body[data-state="established"] [data-show="setup"],body[data-state="setup"] [data-show="established"]{display:none}
+.tip{position:fixed;z-index:60;pointer-events:none;background:var(--ink);color:#fff;font-size:12px;line-height:1.3;padding:5px 8px;border-radius:4px;white-space:nowrap;opacity:0;transition:opacity .12s}
+.tip.on{opacity:1}
+dialog{border:0;padding:0;background:transparent;color:inherit;max-width:none;max-height:none}
+dialog::backdrop{background:rgba(14,17,22,.32)}
+.cmdk{width:min(620px,calc(100vw - 24px));margin:12vh auto auto}
+.cmdk-in{background:#fff;border:1px solid var(--line);border-radius:8px;box-shadow:var(--pop-shadow);overflow:hidden}
+.cmdk-q{display:flex;align-items:center;gap:10px;padding:0 14px;border-bottom:1px solid var(--rule)}
+.cmdk-q input{flex:1;height:50px;border:0;outline:0;font-size:15px;background:none;min-width:0}
+.cmdk-l{max-height:min(420px,60vh);overflow-y:auto;padding:6px}
+.cmdk-g{padding:8px 10px 4px;font-size:12px;font-stretch:78%;font-weight:650;color:var(--ink-2)}
+.cmdk-l a{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:4px;color:var(--ink);text-decoration:none;font-size:13.5px}
+.cmdk-l a .ic{width:16px;height:16px;color:var(--ink-2)}
+.cmdk-l a.act,.cmdk-l a:hover{background:var(--cyan-t)}
+.cmdk-l a small{margin-left:auto;color:var(--ink-2);font-size:12px}
+.cmdk-none{padding:16px 10px;color:var(--ink-2);font-size:13.5px}
+.cmdk-f{display:flex;gap:16px;padding:8px 14px;border-top:1px solid var(--rule);font-size:12px;color:var(--ink-2)}
+.tabbar{display:none}
+.sheet{width:100%;margin:auto 0 0;max-height:85vh}
+.sheet-in{background:#fff;border-radius:8px 8px 0 0;padding:8px 16px 24px;overflow-y:auto;max-height:85vh}
+.sheet-h{display:flex;justify-content:space-between;align-items:center;padding:6px 0 10px}
+.sheet-h h2{font-size:15px;font-weight:650}
+.sheet .grp{padding:8px 0;border-top:1px solid var(--rule)}
+.sheet .grp h3{font-size:12px;font-stretch:78%;font-weight:650;color:var(--ink-2);margin-bottom:2px}
+.sheet .grp a{display:flex;align-items:center;gap:10px;padding:8px 0;color:var(--ink);text-decoration:none}
+.sheet .grp .ic{color:var(--ink-2)}
+.switcher{position:fixed;right:12px;bottom:12px;z-index:30;display:flex;align-items:center;gap:8px;padding:5px 10px;background:#fff;border:1px solid var(--line);border-radius:999px;font-size:12px;color:var(--ink-2);box-shadow:var(--pg-shadow)}
+.switcher b{font-weight:650;color:var(--ink);font-stretch:85%}
+.switcher a{color:var(--ink-2)}
+.switcher a[aria-current]{color:var(--ink);font-weight:600;text-decoration:none}
+@media (max-width:1180px){
+  .c7,.c12{grid-column:span 12}.c5,.c4,.c3{grid-column:span 6}
+}
+@media (max-width:760px){
+  .app{grid-template-columns:minmax(0,1fr)}
+  .rail{display:none}
+  .topbar{grid-template-columns:auto minmax(0,1fr) auto;padding:0 12px;gap:10px}
+  .cmd{display:none}
+  .icon-btn{display:grid}
+  .pub-tb{display:flex;margin:0;width:36px;height:36px}
+  .crumbs .hide-n{display:none}
+  .np .lbl{display:none}
+  .np .btn{padding:0 10px}
+  .page{padding:16px 12px 92px}
+  .ph{align-items:flex-start}
+  .ph-end{width:100%;justify-content:space-between}
+  .c7,.c5,.c4,.c3,.c12{grid-column:span 12}
+  .split{grid-template-columns:minmax(0,1fr)}
+  .split>div+div{border-left:0;padding-left:0;margin-left:0;border-top:1px solid var(--rule);padding-top:12px;margin-top:12px}
+  .steps{grid-template-columns:minmax(0,1fr)}
+  .step{border-left:0;border-top:1px solid var(--rule)}
+  .step:first-child{border-top:0}
+  .run-f{grid-template-columns:minmax(0,1fr)}
+  .run-f dt{padding:10px 16px 0;border-bottom:0}
+  .run-f dd{padding:2px 16px 10px}
+  .legend{margin:0;gap:10px}
+  .dns td{display:block;padding:2px 0}
+  .dns td.k{padding-top:8px}
+  .dns td.a{text-align:left;padding-bottom:6px}
+  .health a{margin-left:0}
+  .tabbar{display:grid;grid-template-columns:repeat(5,1fr);position:fixed;left:0;right:0;bottom:0;z-index:25;height:60px;background:#fff;border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom)}
+  .tabbar a,.tabbar button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;border:0;background:none;color:var(--ink-2);text-decoration:none;font-size:11px;font-stretch:78%;font-weight:600;cursor:pointer}
+  .tabbar [aria-current]{color:var(--cyan-h)}
+  .tabbar [aria-current] .ic{color:var(--cyan)}
+  .switcher{position:static;align-self:center;margin-top:8px;box-shadow:none}
+  #npMenu{width:min(300px,calc(100vw - 24px))}
+}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important;scroll-behavior:auto!important}}
+</style>
+</head>
+<body data-state="established">
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-home" viewBox="0 0 24 24"><path d="M4 10.2 12 4l8 6.2V19a1 1 0 0 1-1 1h-4.5v-5.5h-5V20H5a1 1 0 0 1-1-1z"/></symbol>
+  <symbol id="i-posts" viewBox="0 0 24 24"><path d="M7 3h7l5 5v12a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z"/><path d="M14 3v5h5M9.5 13h6M9.5 16.5h4"/></symbol>
+  <symbol id="i-templates" viewBox="0 0 24 24"><rect x="3.5" y="4" width="17" height="16" rx="1.5"/><path d="M3.5 9h17M10 9v11"/></symbol>
+  <symbol id="i-subscribers" viewBox="0 0 24 24"><circle cx="9" cy="8.5" r="3.5"/><path d="M2.5 20c.6-3.6 3.2-5.5 6.5-5.5s5.9 1.9 6.5 5.5M15.5 5.2a3.5 3.5 0 0 1 0 6.6M18 14.8c1.9.7 3.1 2.4 3.5 5.2"/></symbol>
+  <symbol id="i-segments" viewBox="0 0 24 24"><path d="M11 4a8.5 8.5 0 1 0 9 9h-9z"/><path d="M14.5 2.8A8 8 0 0 1 21.2 9.5h-6.7z"/></symbol>
+  <symbol id="i-forms" viewBox="0 0 24 24"><rect x="3.5" y="4" width="17" height="16" rx="1.5"/><path d="M7 8.5h10M7 12h10M7 16h4"/></symbol>
+  <symbol id="i-automations" viewBox="0 0 24 24"><circle cx="6" cy="6" r="2.5"/><circle cx="18" cy="6" r="2.5"/><circle cx="18" cy="18" r="2.5"/><path d="M8.5 6h7M6 8.5V15a3 3 0 0 0 3 3h6.5"/></symbol>
+  <symbol id="i-referrals" viewBox="0 0 24 24"><circle cx="18" cy="5.5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="18.5" r="2.5"/><path d="m8.2 10.8 7.6-4.1M8.2 13.2l7.6 4.1"/></symbol>
+  <symbol id="i-paid" viewBox="0 0 24 24"><rect x="2.5" y="5.5" width="19" height="13" rx="1.5"/><path d="M2.5 9.5h19M6 15h4"/></symbol>
+  <symbol id="i-website" viewBox="0 0 24 24"><rect x="2.5" y="4" width="19" height="16" rx="1.5"/><path d="M2.5 8.5h19M6 6.25h.01M8.5 6.25h.01"/></symbol>
+  <symbol id="i-sending" viewBox="0 0 24 24"><path d="M21 3 10.5 13.5M21 3l-6.5 18-4-7.5L3 9.5z"/></symbol>
+  <symbol id="i-settings" viewBox="0 0 24 24"><path d="M4 6h9M17 6h3M4 12h3M11 12h9M4 18h11M19 18h1"/><circle cx="15" cy="6" r="2"/><circle cx="9" cy="12" r="2"/><circle cx="17" cy="18" r="2"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.4-4.4"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></symbol>
+  <symbol id="i-check-c" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m8 12.3 2.7 2.7L16.2 9.5"/></symbol>
+  <symbol id="i-todo" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" stroke-dasharray="3 3"/></symbol>
+  <symbol id="i-mark" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7.5V13M12 16.5h.01"/></symbol>
+  <symbol id="i-chev" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
+  <symbol id="i-chev-r" viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></symbol>
+  <symbol id="i-copy" viewBox="0 0 24 24"><rect x="8.5" y="8.5" width="12" height="12" rx="1.5"/><path d="M15.5 8.5V5A1.5 1.5 0 0 0 14 3.5H5A1.5 1.5 0 0 0 3.5 5v9A1.5 1.5 0 0 0 5 15.5h3.5"/></symbol>
+  <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M20 11a8 8 0 0 0-14.3-4.5L4 8.5M4 4v4.5h4.5M4 13a8 8 0 0 0 14.3 4.5l1.7-2M20 20v-4.5h-4.5"/></symbol>
+  <symbol id="i-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
+  <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
+  <symbol id="i-upload" viewBox="0 0 24 24"><path d="M12 15V4M7.5 8.5 12 4l4.5 4.5M4 15v3.5A1.5 1.5 0 0 0 5.5 20h13a1.5 1.5 0 0 0 1.5-1.5V15"/></symbol>
+  <symbol id="i-dup" viewBox="0 0 24 24"><rect x="7.5" y="7.5" width="13" height="13" rx="1.5"/><path d="M14 11v6M11 14h6M16.5 7.5V5A1.5 1.5 0 0 0 15 3.5H5A1.5 1.5 0 0 0 3.5 5v10A1.5 1.5 0 0 0 5 16.5h2.5"/></symbol>
+</svg>
+
+<div class="app">
+  <nav class="rail" aria-label="Main">
+    <div class="rail-top">
+      <a class="logo" href="home.html" aria-label="Swarm, home">
+        <svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="7" fill="#0E1116"/><path d="M21.5 10.5h-10v5.5h9v5.5h-10" fill="none" stroke="#fff" stroke-width="2.6" stroke-linejoin="miter"/><rect x="23" y="5" width="4" height="4" fill="#0077B6"/></svg>
+      </a>
+      <button class="pub" id="pubBtn" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="pubMenu" aria-label="Publication: Field Notes. Switch publication" data-tip="Publication · Field Notes">FN</button>
+    </div>
+    <a class="ri" href="home.html" aria-current="page"><svg class="ic"><use href="#i-home"/></svg><span>Home</span></a>
+    <div class="rgrp" role="group" aria-labelledby="rg-write">
+      <p class="rg" id="rg-write">Write</p>
+      <a class="ri" href="editor.html"><svg class="ic"><use href="#i-posts"/></svg><span>Posts</span></a>
+      <a class="ri" href="#"><svg class="ic"><use href="#i-templates"/></svg><span>Templates</span></a>
+    </div>
+    <div class="rgrp" role="group" aria-labelledby="rg-audience">
+      <p class="rg" id="rg-audience">Audience</p>
+      <a class="ri" href="#"><svg class="ic"><use href="#i-subscribers"/></svg><span>Subscribers</span></a>
+      <a class="ri" href="#"><svg class="ic"><use href="#i-segments"/></svg><span>Segments</span></a>
+      <a class="ri" href="#"><svg class="ic"><use href="#i-forms"/></svg><span>Signup forms</span></a>
+    </div>
+    <div class="rgrp" role="group" aria-labelledby="rg-grow">
+      <p class="rg" id="rg-grow">Grow</p>
+      <a class="ri" href="#"><svg class="ic"><use href="#i-automations"/></svg><span>Automations</span></a>
+      <a class="ri" href="#"><svg class="ic"><use href="#i-referrals"/></svg><span>Referrals &amp; growth</span></a>
+    </div>
+    <div class="rgrp" role="group" aria-labelledby="rg-earn">
+      <p class="rg" id="rg-earn">Earn</p>
+      <a class="ri" href="#"><svg class="ic"><use href="#i-paid"/></svg><span>Paid subscriptions</span></a>
+    </div>
+    <div class="rgrp" role="group" aria-labelledby="rg-publish">
+      <p class="rg" id="rg-publish">Publish</p>
+      <a class="ri" href="#"><svg class="ic"><use href="#i-website"/></svg><span>Website</span></a>
+      <a class="ri" href="#"><svg class="ic"><use href="#i-sending"/></svg><span>Sending &amp; delivery</span></a>
+    </div>
+    <div class="rail-end">
+      <a class="ri" href="#"><svg class="ic"><use href="#i-settings"/></svg><span>Settings</span></a>
+      <button class="avatar" type="button" data-tip="Mara Lind · Owner" aria-label="Mara Lind, Owner. Account">ML</button>
+    </div>
+  </nav>
+
+  <div class="main">
+    <header class="topbar">
+      <div class="crumbs">
+        <button class="pub pub-tb" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="pubMenu" aria-label="Publication: Field Notes. Switch publication">FN</button>
+        <nav aria-label="Breadcrumb" class="crumbs"><a href="#" class="hide-n">Field Notes</a><span class="sep hide-n" aria-hidden="true">/</span><span aria-current="page">Home</span></nav>
+      </div>
+      <button class="cmd" type="button" data-cmd aria-haspopup="dialog"><svg class="ic" style="width:18px;height:18px"><use href="#i-search"/></svg><span>Search or jump to — posts, subscribers, settings…</span><kbd class="kbd-k">Ctrl K</kbd></button>
+      <div class="tb-end">
+        <button class="icon-btn" type="button" data-cmd aria-label="Search or jump to"><svg class="ic"><use href="#i-search"/></svg></button>
+        <div class="np">
+          <button class="btn btn-p" id="npBtn" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="npMenu"><svg class="ic"><use href="#i-plus"/></svg><span class="lbl">New post</span><svg class="ic"><use href="#i-chev"/></svg></button>
+          <div class="pop" id="npMenu" role="menu" aria-label="Start from">
+            <div class="pop-h">Start from</div>
+            <a href="editor.html" role="menuitem"><svg class="ic"><use href="#i-posts"/></svg><span>Blank post</span></a>
+            <a href="editor.html" role="menuitem"><svg class="ic"><use href="#i-templates"/></svg><span>Template: Weekly issue<small>Intro, three links, reader letter</small></span></a>
+            <a href="editor.html" role="menuitem"><svg class="ic"><use href="#i-dup"/></svg><span>Duplicate #42 The slow web, revisited<small>Sent Tue 28 Oct</small></span></a>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="page" id="main">
+      <div class="ph">
+        <div>
+          <h1>Home</h1>
+          <p id="sub">Tuesday's send reached 99.1% of inboxes. Next send Friday 06:00.</p>
+        </div>
+        <div class="ph-end">
+          <span class="sample">Sample data</span>
+          <div class="seg" role="radiogroup" aria-label="Page state">
+            <label><input type="radio" name="state" value="setup"><span>Setup</span></label>
+            <label><input type="radio" name="state" value="established" checked><span>Established</span></label>
+          </div>
+        </div>
+      </div>
+
+      <section class="panel" data-show="setup" aria-labelledby="setup-h">
+        <div class="pn-h" style="padding-bottom:12px">
+          <div>
+            <h2 id="setup-h">Before your first send</h2>
+            <p class="muted small" style="margin-top:2px">Four steps to your first send. About ten minutes.</p>
+          </div>
+          <span class="meta">2 of 4 done</span>
+        </div>
+        <ol class="steps">
+          <li class="step"><svg class="ic okc"><use href="#i-check-c"/></svg><div><h3>1. Sending domain</h3><p>mail.fieldnotes.example verified, DKIM 2048-bit</p></div></li>
+          <li class="step cur" aria-current="step"><svg class="ic magc"><use href="#i-mark"/></svg><div><h3>2. DMARC set to quarantine</h3><p>Needs you. Details below.</p></div></li>
+          <li class="step"><svg class="ic okc"><use href="#i-check-c"/></svg><div><h3>3. First subscribers</h3><p>212 imported, 4 already suppressed</p></div></li>
+          <li class="step"><svg class="ic todo"><use href="#i-todo"/></svg><div><h3>4. First post</h3><p>Write it now. It sends once the steps above are done.</p><a class="btn btn-sm" href="editor.html">Write your first post</a></div></li>
+        </ol>
+        <div class="dns">
+          <p class="dns-lead"><svg class="ic"><use href="#i-mark"/></svg><span>Your record says <span class="m">p=none</span>. Add this TXT record at your DNS host, then check again.</span></p>
+          <table>
+            <tr><td class="k">Type</td><td class="v">TXT</td><td class="a"></td></tr>
+            <tr><td class="k">Host</td><td class="v" id="dnsHost">_dmarc.fieldnotes.example</td><td class="a"><button class="btn btn-sm" type="button" data-copy="dnsHost"><svg class="ic"><use href="#i-copy"/></svg><span>Copy</span></button></td></tr>
+            <tr><td class="k">Value</td><td class="v" id="dnsVal">v=DMARC1; p=quarantine; rua=mailto:dmarc+fn@reports.swarm.example</td><td class="a"><button class="btn btn-sm" type="button" data-copy="dnsVal"><svg class="ic"><use href="#i-copy"/></svg><span>Copy</span></button></td></tr>
+          </table>
+          <div class="dns-act">
+            <button class="btn btn-p btn-sm" type="button" id="checkBtn"><svg class="ic"><use href="#i-refresh"/></svg><span>Check again</span></button>
+            <p id="checkMsg" role="status">DNS changes can take up to an hour to appear.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel" aria-labelledby="run-title">
+        <div class="run-h">
+          <h2 id="run-title">Issue run</h2>
+          <span class="muted small" id="runRange">15 Sep – 17 Nov</span>
+          <ul class="legend" aria-label="Legend">
+            <li><i class="sw"></i>Sent</li>
+            <li><i class="sw s"></i>Scheduled</li>
+            <li><i class="sw d"></i>Draft</li>
+            <li><svg class="ic"><use href="#i-mark"/></svg>Needs attention</li>
+          </ul>
+        </div>
+        <div class="strip" id="strip" tabindex="0" role="region" aria-label="Issue run by week"></div>
+        <dl class="run-f" data-show="established">
+          <dt>Needs you</dt>
+          <dd class="attn"><svg class="ic"><use href="#i-mark"/></svg><span>#43 sends Fri 31 Oct, 06:00 — preview text is empty. Inboxes will show the first line of the post instead.</span><a class="btn btn-sm" href="editor.html#preview">Add preview text</a></dd>
+          <dt>Up next</dt>
+          <dd><span><b style="font-weight:600">#43 The gate question: free or paid?</b> <span class="muted">Scheduled Fri 31 Oct, 06:00 · to Everyone, 12,731 subscribers</span></span></dd>
+          <dt>In progress</dt>
+          <dd><span><a href="editor.html" style="font-weight:600">Notes on the popup economy</a> <span class="muted">Draft · edited 2h ago · 642 words</span></span></dd>
+        </dl>
+      </section>
+
+      <div class="grid" data-show="established">
+        <section class="panel c7" aria-labelledby="ls-h">
+          <div class="pn-h"><h2 id="ls-h">Last send · #42</h2><a href="#" class="small">Send report</a></div>
+          <div class="pn-b">
+            <p class="muted small" style="margin:-6px 0 12px">The slow web, revisited · sent Tue 28 Oct, 06:00</p>
+            <div class="split">
+              <div>
+                <table class="funnel">
+                  <thead><tr><th>Stage</th><th class="num">Count</th><th class="num">Rate</th><th style="padding-left:12px">Share of queued</th></tr></thead>
+                  <tbody>
+                    <tr><td>Queued</td><td class="num">12,731</td><td class="num">100%</td><td class="b"><div class="bar"><i class="q" style="width:100%"></i></div></td></tr>
+                    <tr><td>Delivered</td><td class="num">12,617</td><td class="num">99.1%</td><td class="b"><div class="bar"><i style="width:99.1%"></i></div></td></tr>
+                    <tr><td>Opened</td><td class="num">6,081</td><td class="num">48.2%</td><td class="b"><div class="bar"><i style="width:47.8%"></i></div></td></tr>
+                    <tr><td>Clicked</td><td class="num">593</td><td class="num">4.7%</td><td class="b"><div class="bar"><i style="width:4.7%"></i></div></td></tr>
+                  </tbody>
+                </table>
+                <div class="aside-stats"><span>Unsubscribed <b>9</b></span><span>Bounced <b>114</b> (0.9%)</span><span>Spam complaints <b>0</b></span></div>
+                <p class="cap">Open and click rates are unique, out of delivered.</p>
+              </div>
+              <div>
+                <table>
+                  <thead><tr><th>Inbox placement</th><th class="num">Inbox</th></tr></thead>
+                  <tbody>
+                    <tr><td>Gmail</td><td class="num">99.4%</td></tr>
+                    <tr><td>Outlook</td><td class="num">98.8%</td></tr>
+                    <tr><td>Apple</td><td class="num">99.2%</td></tr>
+                    <tr><td>Yahoo</td><td class="num">97.6%</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel c5" aria-labelledby="oc-h">
+          <div class="pn-h"><h2 id="oc-h">Opens and clicks, last 8 sends</h2><a href="#" class="small">All posts</a></div>
+          <div class="pn-b">
+            <svg class="chart" id="ocChart" viewBox="0 0 480 232" height="232" role="img" aria-labelledby="oc-cap"></svg>
+            <p class="cap" id="oc-cap">Unique open rate (top) and click rate (bottom) for #35 to #42, each on its own scale. Opens ranged 43.2–50.1%, clicks 3.9–5.9%.</p>
+          </div>
+        </section>
+
+        <section class="panel c5" aria-labelledby="sb-h">
+          <div class="pn-h"><h2 id="sb-h">Subscribers</h2><a href="#" class="small">All subscribers</a></div>
+          <div class="pn-b">
+            <div class="big"><strong>12,731</strong><span class="up">+2.1% (+262) vs 30 days ago</span></div>
+            <svg class="chart" id="subChart" viewBox="0 0 400 104" height="104" role="img" aria-label="Daily subscriber totals, 30 Sep to 29 Oct, rising from 12,469 to 12,731 with small dips" style="margin-top:10px"></svg>
+            <dl class="kv">
+              <dt>New this month</dt><dd>1,212</dd>
+              <dt>Unsubscribed this month</dt><dd>87</dd>
+              <dt>Top signup form</dt><dd class="t">Footer form · <span class="m" style="margin-left:4px">38%</span></dd>
+            </dl>
+          </div>
+        </section>
+
+        <section class="panel c4" aria-labelledby="au-h">
+          <div class="pn-h"><h2 id="au-h">Automations</h2><a href="#" class="small">Open</a></div>
+          <div class="pn-b">
+            <div class="auto-row">
+              <div class="top"><span>Welcome series</span><span class="m">87% done</span></div>
+              <div class="bar"><i style="width:87.1%"></i></div>
+              <p class="small muted" style="margin-top:5px"><span class="m">342</span> entered · <span class="m">298</span> completed</p>
+            </div>
+            <div class="auto-row" style="border-bottom:0">
+              <div class="top"><span>Re-engagement</span><span class="m">57% done</span></div>
+              <div class="bar"><i style="width:57.1%"></i></div>
+              <p class="small muted" style="margin-top:5px"><span class="m">156</span> entered · <span class="m">89</span> completed</p>
+            </div>
+            <h3 class="sub-h" style="border-top:1px solid var(--rule);padding-top:12px">Referrals this month</h3>
+            <dl class="kv" style="margin-top:4px">
+              <dt>Subscribers who referred someone</dt><dd>64</dd>
+              <dt>New subscribers from referrals</dt><dd>141</dd>
+            </dl>
+          </div>
+        </section>
+
+        <section class="panel c3" aria-labelledby="pd-h">
+          <div class="pn-h"><h2 id="pd-h">Paid</h2><a href="#" class="small">Open</a></div>
+          <div class="pn-b">
+            <div class="big"><strong>418</strong><span class="up">+12</span></div>
+            <p class="small muted">paid subscribers, vs 30 days ago</p>
+            <dl class="kv">
+              <dt>Monthly revenue</dt><dd>$2,508</dd>
+            </dl>
+            <p class="small muted" style="margin-top:10px">Paid at Stripe, 0% platform fee.</p>
+          </div>
+        </section>
+
+        <section class="panel c12 health" aria-label="Sending health">
+          <h2>Sending health</h2>
+          <span><svg class="ic okc"><use href="#i-check"/></svg>mail.fieldnotes.example verified · DKIM 2048-bit</span>
+          <span><svg class="ic okc"><use href="#i-check"/></svg>DMARC <span class="m">p=quarantine</span></span>
+          <span><svg class="ic okc"><use href="#i-check"/></svg>Warm-up finished · day 21, daily cap <span class="m">40,000</span></span>
+          <a href="#">Sending &amp; delivery</a>
+        </section>
+      </div>
+
+      <div class="grid" data-show="setup">
+        <section class="panel c7" aria-labelledby="ls0-h">
+          <div class="pn-h"><h2 id="ls0-h">Last send</h2></div>
+          <div class="pn-b">
+            <p class="empty-note">Results appear after your first send.</p>
+            <p class="empty-note">You'll see how many were delivered, opened and clicked, plus inbox placement at Gmail, Outlook, Apple and Yahoo.</p>
+            <div class="ghost-rows" aria-hidden="true"><i style="width:100%"></i><i style="width:96%"></i><i style="width:48%"></i><i style="width:8%"></i></div>
+          </div>
+        </section>
+        <section class="panel c5" aria-labelledby="oc0-h">
+          <div class="pn-h"><h2 id="oc0-h">Opens and clicks</h2></div>
+          <div class="pn-b">
+            <p class="empty-note">The chart starts with your first send and adds a point for each one after.</p>
+          </div>
+        </section>
+        <section class="panel c5" aria-labelledby="sb0-h">
+          <div class="pn-h"><h2 id="sb0-h">Subscribers</h2><a href="#" class="small">Import more</a></div>
+          <div class="pn-b">
+            <div class="big"><strong>212</strong><span class="muted small">from your import</span></div>
+            <p class="empty-note" style="margin-top:6px">4 addresses were already suppressed and won't be mailed. Add a signup form to start growing from your website.</p>
+            <p style="margin-top:10px"><a href="#" class="small">Add a signup form</a></p>
+          </div>
+        </section>
+        <section class="panel c4" aria-labelledby="au0-h">
+          <div class="pn-h"><h2 id="au0-h">Automations</h2></div>
+          <div class="pn-b">
+            <p class="empty-note">A welcome series is drafted and off. Turn it on to greet people who sign up through a form.</p>
+            <p style="margin-top:10px"><a href="#" class="small">Review welcome series</a></p>
+          </div>
+        </section>
+        <section class="panel c3" aria-labelledby="pd0-h">
+          <div class="pn-h"><h2 id="pd0-h">Paid</h2></div>
+          <div class="pn-b">
+            <p class="empty-note">Paid subscriptions are off. Connect Stripe when you're ready; Swarm takes 0%.</p>
+            <p style="margin-top:10px"><a href="#" class="small">Connect Stripe</a></p>
+          </div>
+        </section>
+        <section class="panel c12 health" aria-label="Sending health">
+          <h2>Sending health</h2>
+          <span><svg class="ic okc"><use href="#i-check"/></svg>mail.fieldnotes.example verified · DKIM 2048-bit</span>
+          <span><svg class="ic magc"><use href="#i-mark"/></svg>DMARC <span class="m">p=none</span>, needs quarantine (step 2)</span>
+          <span class="muted">Warm-up starts with your first send</span>
+          <a href="#">Sending &amp; delivery</a>
+        </section>
+      </div>
+
+      <footer class="switcher" aria-label="Mockup switcher"><b>Design C · Flatplan</b><span aria-hidden="true">—</span><a href="home.html" aria-current="page">Home</a><a href="editor.html">Editor</a><a href="../index.html">All designs</a></footer>
+    </main>
+  </div>
+</div>
+
+<nav class="tabbar" aria-label="Main">
+  <a href="home.html" aria-current="page"><svg class="ic"><use href="#i-home"/></svg>Home</a>
+  <a href="editor.html"><svg class="ic"><use href="#i-posts"/></svg>Posts</a>
+  <a href="#"><svg class="ic"><use href="#i-subscribers"/></svg>Subscribers</a>
+  <a href="#"><svg class="ic"><use href="#i-sending"/></svg>Sending</a>
+  <button type="button" id="moreBtn" aria-haspopup="dialog"><svg class="ic"><use href="#i-menu"/></svg>More</button>
+</nav>
+
+<dialog class="sheet" id="more" aria-labelledby="more-h">
+  <div class="sheet-in">
+    <div class="sheet-h"><h2 id="more-h">Field Notes</h2><button class="btn btn-sm" type="button" data-close aria-label="Close menu"><svg class="ic"><use href="#i-close"/></svg></button></div>
+    <div class="grp"><h3>Publication</h3><a href="#"><span class="pubsq">FN</span>Field Notes<svg class="ic" style="margin-left:auto;color:var(--cyan)"><use href="#i-check"/></svg></a><a href="#"><span class="pubsq">ML</span>Morning Ledger</a></div>
+    <div class="grp"><h3>Write</h3><a href="editor.html"><svg class="ic"><use href="#i-posts"/></svg>Posts</a><a href="#"><svg class="ic"><use href="#i-templates"/></svg>Templates</a></div>
+    <div class="grp"><h3>Audience</h3><a href="#"><svg class="ic"><use href="#i-subscribers"/></svg>Subscribers</a><a href="#"><svg class="ic"><use href="#i-segments"/></svg>Segments</a><a href="#"><svg class="ic"><use href="#i-forms"/></svg>Signup forms</a></div>
+    <div class="grp"><h3>Grow</h3><a href="#"><svg class="ic"><use href="#i-automations"/></svg>Automations</a><a href="#"><svg class="ic"><use href="#i-referrals"/></svg>Referrals &amp; growth</a></div>
+    <div class="grp"><h3>Earn</h3><a href="#"><svg class="ic"><use href="#i-paid"/></svg>Paid subscriptions</a></div>
+    <div class="grp"><h3>Publish</h3><a href="#"><svg class="ic"><use href="#i-website"/></svg>Website</a><a href="#"><svg class="ic"><use href="#i-sending"/></svg>Sending &amp; delivery</a></div>
+    <div class="grp"><a href="#"><svg class="ic"><use href="#i-settings"/></svg>Settings</a><a href="#"><span class="avatar" style="width:26px;height:26px;font-size:11px">ML</span>Mara Lind · Owner</a></div>
+  </div>
+</dialog>
+
+<div class="pop" id="pubMenu" role="menu" aria-label="Publications">
+  <div class="pop-h">Publications</div>
+  <a href="#" role="menuitem" aria-current="true"><span class="pubrow"><span class="pubsq">FN</span><span>Field Notes<small>fieldnotes.example</small></span></span><svg class="ic" style="color:var(--cyan)"><use href="#i-check"/></svg></a>
+  <a href="#" role="menuitem"><span class="pubrow"><span class="pubsq">ML</span><span>Morning Ledger<small>morningledger.example</small></span></span></a>
+  <hr>
+  <a href="#" role="menuitem"><svg class="ic"><use href="#i-plus"/></svg>New publication</a>
+  <a href="#" role="menuitem"><svg class="ic"><use href="#i-settings"/></svg>Manage publications</a>
+</div>
+
+<dialog class="cmdk" id="cmdk" aria-label="Command menu">
+  <div class="cmdk-in">
+    <div class="cmdk-q"><svg class="ic" style="color:var(--ink-2)"><use href="#i-search"/></svg><input id="cmdkQ" type="text" placeholder="Search or jump to — posts, subscribers, settings…" aria-label="Search or jump to" aria-controls="cmdkL" autocomplete="off"><kbd>Esc</kbd></div>
+    <div class="cmdk-l" id="cmdkL" role="listbox" aria-label="Results">
+      <div class="cmdk-g">Jump to</div>
+      <a href="editor.html" role="option"><svg class="ic"><use href="#i-posts"/></svg>Posts</a>
+      <a href="#" role="option"><svg class="ic"><use href="#i-subscribers"/></svg>Subscribers</a>
+      <a href="#" role="option"><svg class="ic"><use href="#i-sending"/></svg>Sending &amp; delivery</a>
+      <a href="#" role="option"><svg class="ic"><use href="#i-settings"/></svg>Settings</a>
+      <div class="cmdk-g">Create</div>
+      <a href="editor.html" role="option"><svg class="ic"><use href="#i-plus"/></svg>New post</a>
+      <a href="#" role="option"><svg class="ic"><use href="#i-upload"/></svg>Import subscribers</a>
+      <a href="#" role="option"><svg class="ic"><use href="#i-segments"/></svg>New segment</a>
+      <div class="cmdk-g">Recent</div>
+      <a href="#" role="option"><svg class="ic"><use href="#i-posts"/></svg>#42 The slow web, revisited<small>Sent</small></a>
+      <a href="editor.html" role="option"><svg class="ic"><use href="#i-posts"/></svg>Notes on the popup economy<small>Draft</small></a>
+      <p class="cmdk-none" hidden>No matches. Try a post title or a page name.</p>
+    </div>
+    <div class="cmdk-f"><span>Enter to open</span><span>Up and down to move</span><span>Esc to close</span></div>
+  </div>
+</dialog>
+
+<div class="tip" id="tip" role="tooltip"></div>
+
+<script>
+(function(){
+  var $=function(s,r){return (r||document).querySelector(s)}, $$=function(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s))};
+  var esc=function(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;")};
+
+  var RUN={
+    established:[
+      {wk:"Mon 15 Sep",items:[{n:36,t:"Small sites, long tails",d:"Tue 16 Sep",o:"45.8",c:"5.1",v:1}]},
+      {wk:"Mon 22 Sep",items:[{n:37,t:"What referrers want",d:"Tue 23 Sep",o:"43.2",c:"3.9",v:2}]},
+      {wk:"Mon 29 Sep",items:[{n:38,t:"The cost of a click",d:"Tue 30 Sep",o:"47.5",c:"5.4",v:3}]},
+      {wk:"Mon 6 Oct",items:[{n:39,t:"Reading on trains",d:"Tue 7 Oct",o:"46.0",c:"4.4",v:4}]},
+      {wk:"Mon 13 Oct",items:[{n:40,t:"Letters from readers",d:"Tue 14 Oct",o:"49.3",c:"5.9",v:3}]},
+      {wk:"Mon 20 Oct",items:[{n:41,t:"Field report: small sites, big referrers",d:"Tue 21 Oct",o:"50.1",c:"5.2",v:2}]},
+      {wk:"Mon 27 Oct",now:120,items:[{n:42,t:"The slow web, revisited",d:"Tue 28 Oct",o:"48.2",c:"4.7",v:1},{n:43,t:"The gate question: free or paid?",kind:"sched",v:5}]},
+      {wk:"Mon 3 Nov",items:[{n:44,t:"Notes on the popup economy",kind:"draft"}]},
+      {wk:"Mon 10 Nov",items:[{kind:"empty",plan:true}]},
+      {wk:"Mon 17 Nov",items:[{kind:"empty",plan:true}]}
+    ],
+    setup:[
+      {wk:"Mon 27 Oct",now:62,min:172,items:[]},
+      {wk:"Mon 3 Nov",items:[{kind:"first"}]},
+      {wk:"Mon 10 Nov",items:[{kind:"empty"}]},
+      {wk:"Mon 17 Nov",items:[{kind:"empty"}]},
+      {wk:"Mon 24 Nov",items:[{kind:"empty"}]},
+      {wk:"Mon 1 Dec",items:[{kind:"empty"}]},
+      {wk:"Mon 8 Dec",items:[{kind:"empty"}]},
+      {wk:"Mon 15 Dec",items:[{kind:"empty"}]}
+    ]
+  };
+
+  function lines(ws){return '<span class="pg-l">'+ws.map(function(w){return '<i style="width:'+w+'%"></i>'}).join("")+'</span>'}
+  function mini(it){
+    var pub='<span class="pg-pub">Field Notes</span>', t='<span class="pg-t">'+esc(it.t)+'</span>';
+    switch(it.v){
+      case 1: return pub+t+'<span class="pg-img"></span>'+lines([100,94,98,64]);
+      case 2: return pub+'<span class="pg-img tall"></span>'+t+lines([100,86,58]);
+      case 3: return pub+t+lines([100,96,90,98])+'<span class="pg-q"></span>'+lines([92,70]);
+      case 4: return pub+t+'<span class="pg-row"><span class="pg-img"></span>'+lines([100,90,96,60])+'</span>'+lines([100,80]);
+      default: return pub+t+lines([100,97,92,40])+'<span class="pg-img"></span>'+lines([96,100,70]);
+    }
+  }
+  function item(it){
+    var mark='<span class="mark" aria-hidden="true"><svg class="ic"><use href="#i-mark"/></svg></span>';
+    if(it.kind==="sched") return '<div class="it"><a class="pg sched" href="#" aria-label="#43 The gate question: free or paid?, scheduled Fri 31 Oct, 06:00. Needs attention: preview text empty">'+mini(it)+'<span class="ring" style="top:47px;height:12px"></span>'+mark+'</a><div class="pg-m"><b>#43</b><span class="sch">Scheduled Fri 06:00</span><br><a class="fix" href="editor.html#preview"><svg class="ic"><use href="#i-mark"/></svg>Preview text empty</a></div></div>';
+    if(it.kind==="draft") return '<div class="it"><a class="pg draft" href="editor.html" aria-label="#44 Notes on the popup economy, draft, edited 2 hours ago"><span class="pg-pub">Field Notes</span><span class="pg-t">'+esc(it.t)+'</span>'+lines([100,92,97,85,94,48])+'</a><div class="pg-m"><b>#44 · Draft</b><span class="muted">edited 2h ago</span></div></div>';
+    if(it.kind==="first") return '<div class="it"><a class="pg first" href="editor.html"><svg class="ic"><use href="#i-plus"/></svg>Your first post</a><div class="pg-m"><b>#1 · Not started</b><span class="muted">Sends after setup</span></div></div>';
+    if(it.kind==="empty") return '<div class="it"><div class="pg empty">No post planned</div>'+(it.plan?'<div class="pg-m"><a href="editor.html" class="small">Plan one</a></div>':'')+'</div>';
+    return '<div class="it"><a class="pg" href="#" aria-label="#'+it.n+' '+esc(it.t)+', sent '+it.d+'. Open '+it.o+'%, click '+it.c+'%">'+mini(it)+'</a><div class="pg-m"><b>#'+it.n+' · '+it.d+'</b><span class="m">Open '+it.o+'</span><span class="m">Click '+it.c+'</span></div></div>';
+  }
+  function renderStrip(state){
+    var weeks=RUN[state], html='<ol class="weeks">';
+    weeks.forEach(function(w){
+      html+='<li class="wk"'+(w.min?' style="min-width:'+w.min+'px"':'')+'><div class="wk-h">'+w.wk+'</div><div class="wk-b">'+w.items.map(item).join("")+'</div>';
+      if(w.now) html+='<div class="now" style="left:'+w.now+'px"><span>Today</span></div>';
+      html+='</li>';
+    });
+    $("#strip").innerHTML=html+'</ol>';
+    $("#runRange").textContent=state==="setup"?"27 Oct – 15 Dec":"15 Sep – 17 Nov";
+    var strip=$("#strip"), now=$(".now",strip);
+    if(now&&strip.scrollWidth>strip.clientWidth){strip.scrollLeft=Math.max(0,now.parentNode.offsetLeft-strip.clientWidth*.45)}
+  }
+
+  var SUB={established:"Tuesday's send reached 99.1% of inboxes. Next send Friday 06:00.",setup:"One step left before you can send."};
+  function setState(s){
+    document.body.dataset.state=s;
+    $$('input[name="state"]').forEach(function(r){r.checked=r.value===s});
+    $("#sub").textContent=SUB[s];
+    renderStrip(s);
+    var u=new URL(location.href);
+    if(s==="setup")u.searchParams.set("state","setup");else u.searchParams.delete("state");
+    try{history.replaceState(null,"",u)}catch(e){}
+  }
+  $$('input[name="state"]').forEach(function(r){r.addEventListener("change",function(){setState(r.value)})});
+  setState(new URLSearchParams(location.search).get("state")==="setup"?"setup":"established");
+
+  function chartLine(vals,x0,x1,y0,y1,min,max){
+    var step=(x1-x0)/(vals.length-1);
+    return vals.map(function(v,i){return [x0+i*step,y1-(v-min)/(max-min)*(y1-y0)]});
+  }
+  function d(pts){return pts.map(function(p,i){return (i?"L":"M")+p[0].toFixed(1)+" "+p[1].toFixed(1)}).join("")}
+  function drawCharts(){
+    var oc=$("#ocChart"),sc=$("#subChart");
+    var W=Math.round(oc.getBoundingClientRect().width),V=Math.round(sc.getBoundingClientRect().width);
+    if(!W||!V||(W===oc._w&&V===sc._w))return;
+    oc._w=W;sc._w=V;
+    var opens=[44.1,45.8,43.2,47.5,46.0,49.3,50.1,48.2],clicks=[4.2,5.1,3.9,5.4,4.4,5.9,5.2,4.7];
+    var X0=30,X1=W-50,s="";
+    function panel(vals,title,y0,y1,min,max,ticks){
+      var pts=chartLine(vals,X0,X1,y0,y1,min,max),o='<text class="tt" x="0" y="'+(y0-12)+'">'+title+'</text>';
+      ticks.forEach(function(t){var y=y1-(t-min)/(max-min)*(y1-y0);o+='<line x1="'+X0+'" x2="'+X1+'" y1="'+y+'" y2="'+y+'" stroke="#E1E5E9"/><text x="'+(X0-6)+'" y="'+(y+4)+'" text-anchor="end">'+t+'</text>'});
+      o+='<path d="'+d(pts)+'" fill="none" stroke="#0077B6" stroke-width="2" stroke-linejoin="round"/>';
+      pts.forEach(function(p,i){o+='<circle cx="'+p[0]+'" cy="'+p[1]+'" r="'+(i===7?3.5:2.5)+'" fill="'+(i===7?'#0077B6':'#fff')+'" stroke="#0077B6" stroke-width="1.5"><title>#'+(35+i)+': '+vals[i]+'%</title></circle>'});
+      var l=pts[7];o+='<text class="dl" x="'+(l[0]+8)+'" y="'+(l[1]+4)+'">'+vals[7]+'%</text>';
+      return o;
+    }
+    s+=panel(opens,"Unique opens, %",30,108,40,52,[40,46,52]);
+    s+=panel(clicks,"Clicks, %",150,198,3,7,[3,5,7]);
+    var every=(X1-X0)/7<30?2:1;
+    for(var i=0;i<8;i++){var x=X0+i*(X1-X0)/7;s+='<line x1="'+x+'" x2="'+x+'" y1="198" y2="203" stroke="#9AA4AF"/>';if(i%every===1%every||i===7)s+='<text x="'+x+'" y="220" text-anchor="middle"'+(i===7?' class="dl"':'')+'>#'+(35+i)+'</text>'}
+    oc.setAttribute("viewBox","0 0 "+W+" 232");oc.innerHTML=s;
+    var subs=[12469,12478,12490,12486,12497,12512,12520,12515,12528,12541,12549,12544,12556,12570,12579,12575,12588,12602,12610,12606,12619,12633,12641,12652,12648,12667,12680,12694,12712,12731];
+    var R=V-50,p=chartLine(subs,2,R,8,72,12440,12750),t='';
+    [12500,12600,12700].forEach(function(v){var y=72-(v-12440)/310*64;t+='<line x1="2" x2="'+R+'" y1="'+y+'" y2="'+y+'" stroke="#EEF1F4"/><text x="'+(R+6)+'" y="'+(y+4)+'">'+v.toLocaleString("en-US")+'</text>'});
+    t+='<path d="'+d(p)+'L'+R+' 72L2 72Z" fill="#DCEFFA" opacity=".55"/><path d="'+d(p)+'" fill="none" stroke="#0077B6" stroke-width="2" stroke-linejoin="round"/>';
+    t+='<circle cx="'+p[29][0]+'" cy="'+p[29][1]+'" r="3.5" fill="#0077B6"/><line x1="2" x2="'+R+'" y1="72" y2="72" stroke="#9AA4AF"/>';
+    t+='<text x="2" y="92">30 Sep · 12,469</text><text x="'+R+'" y="92" text-anchor="end">29 Oct · 12,731</text>';
+    sc.setAttribute("viewBox","0 0 "+V+" 104");sc.innerHTML=t;
+  }
+  drawCharts();
+  window.addEventListener("resize",drawCharts);
+  if(document.fonts)document.fonts.ready.then(drawCharts);
+
+  var openPop=null, openBtn=null;
+  function closePop(){if(openPop){openPop.classList.remove("open");openBtn.setAttribute("aria-expanded","false");openPop=null;openBtn=null}}
+  function togglePop(btn,pop,place){
+    if(openPop===pop){closePop();return}
+    closePop();
+    if(place)place(btn,pop);
+    pop.classList.add("open");btn.setAttribute("aria-expanded","true");openPop=pop;openBtn=btn;
+    var first=pop.querySelector("a,button");if(first)setTimeout(function(){first.focus()},20);
+  }
+  $("#npBtn").addEventListener("click",function(e){e.stopPropagation();togglePop(this,$("#npMenu"))});
+  $$('[aria-controls="pubMenu"]').forEach(function(b){b.addEventListener("click",function(e){
+    e.stopPropagation();
+    togglePop(b,$("#pubMenu"),function(btn,pop){var r=btn.getBoundingClientRect(),narrow=r.left<60&&r.top<60&&innerWidth<=760;pop.style.left=(narrow?r.left:r.right+10)+"px";pop.style.top=(narrow?r.bottom+6:r.top)+"px"});
+  })});
+  document.addEventListener("click",function(e){if(openPop&&!openPop.contains(e.target))closePop()});
+  document.addEventListener("keydown",function(e){
+    if(e.key==="Escape"&&openPop){var b=openBtn;closePop();b.focus()}
+    if(openPop&&(e.key==="ArrowDown"||e.key==="ArrowUp")){
+      var items=$$("a,button",openPop),i=items.indexOf(document.activeElement);
+      e.preventDefault();items[(i+(e.key==="ArrowDown"?1:-1)+items.length)%items.length].focus();
+    }
+  });
+
+  var cmdk=$("#cmdk"), q=$("#cmdkQ"), act=-1;
+  var isMac=/Mac|iPhone|iPad/.test(navigator.platform||"");
+  if(isMac)$$(".kbd-k").forEach(function(k){k.textContent="⌘ K"});
+  function visibleOpts(){return $$("a",cmdk).filter(function(a){return !a.hidden})}
+  function setAct(i){var o=visibleOpts();o.forEach(function(a){a.classList.remove("act")});act=o.length?(i+o.length)%o.length:-1;if(act>-1){o[act].classList.add("act");o[act].scrollIntoView({block:"nearest"})}}
+  function filter(){
+    var v=q.value.trim().toLowerCase(),any=false;
+    $$("a",cmdk).forEach(function(a){var m=!v||a.textContent.toLowerCase().indexOf(v)>-1;a.hidden=!m;any=any||m});
+    $$(".cmdk-g",cmdk).forEach(function(g){var n=g.nextElementSibling,show=false;while(n&&n.tagName==="A"){if(!n.hidden)show=true;n=n.nextElementSibling}g.hidden=!show});
+    $(".cmdk-none",cmdk).hidden=any;setAct(0);
+  }
+  function openCmd(){closePop();if(!cmdk.open){q.value="";filter();cmdk.showModal();q.focus()}}
+  $$("[data-cmd]").forEach(function(b){b.addEventListener("click",openCmd)});
+  q.addEventListener("input",filter);
+  q.addEventListener("keydown",function(e){
+    if(e.key==="ArrowDown"){e.preventDefault();setAct(act+1)}
+    else if(e.key==="ArrowUp"){e.preventDefault();setAct(act-1)}
+    else if(e.key==="Enter"){var o=visibleOpts()[act];if(o)o.click()}
+  });
+  cmdk.addEventListener("click",function(e){if(e.target===cmdk)cmdk.close()});
+  document.addEventListener("keydown",function(e){if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==="k"){e.preventDefault();cmdk.open?cmdk.close():openCmd()}});
+
+  var more=$("#more");
+  $("#moreBtn").addEventListener("click",function(){more.showModal()});
+  $("[data-close]",more).addEventListener("click",function(){more.close()});
+  more.addEventListener("click",function(e){if(e.target===more)more.close()});
+
+  function copyText(t){
+    if(navigator.clipboard&&window.isSecureContext)return navigator.clipboard.writeText(t);
+    return new Promise(function(res){var a=document.createElement("textarea");a.value=t;a.style.position="fixed";a.style.opacity="0";document.body.appendChild(a);a.select();try{document.execCommand("copy")}catch(e){}a.remove();res()});
+  }
+  $$("[data-copy]").forEach(function(b){b.addEventListener("click",function(){
+    var lbl=$("span",b);copyText(document.getElementById(b.dataset.copy).textContent).then(function(){
+      lbl.textContent="Copied";$("use",b).setAttribute("href","#i-check");
+      clearTimeout(b._t);b._t=setTimeout(function(){lbl.textContent="Copy";$("use",b).setAttribute("href","#i-copy")},2000);
+    });
+  })});
+  $("#checkBtn").addEventListener("click",function(){
+    var b=this,m=$("#checkMsg");b.disabled=true;$("span",b).textContent="Checking…";
+    setTimeout(function(){
+      var t=new Date(),hm=String(t.getHours()).padStart(2,"0")+":"+String(t.getMinutes()).padStart(2,"0");
+      b.disabled=false;$("span",b).textContent="Check again";
+      m.textContent="Checked at "+hm+": still p=none. DNS changes can take up to an hour to appear.";
+    },1100);
+  });
+
+  var tip=$("#tip");
+  function showTip(el){var r=el.getBoundingClientRect();tip.textContent=el.dataset.tip;tip.style.left=(r.right+8)+"px";tip.style.top=(r.top+r.height/2-12)+"px";tip.classList.add("on")}
+  function hideTip(){tip.classList.remove("on")}
+  $$(".rail [data-tip]").forEach(function(el){
+    el.addEventListener("mouseenter",function(){showTip(el)});el.addEventListener("mouseleave",hideTip);
+    el.addEventListener("focus",function(){showTip(el)});el.addEventListener("blur",hideTip);
+  });
+  $(".rail").addEventListener("scroll",hideTip);
+})();
+</script>
+</body>
+</html>

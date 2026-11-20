@@ -1,0 +1,40 @@
+{% assign s = section.settings %} {% if s.name or s.bio %}
+<section class="gate-author" aria-labelledby="{{ section.id }}-title">
+  {% if s.photo %}
+  <div class="gate-author__photo">{{ s.photo | image: '160px' }}</div>
+  {% endif %}
+  <div class="gate-author__body">
+    {% if s.heading %}
+    <h2 class="gate-head__title" id="{{ section.id }}-title">{{ s.heading }}</h2>
+    {% if s.name %}
+    <p class="gate-author__name">{{ s.name }}</p>
+    {% endif %} {% else %}
+    <h2 class="gate-head__title" id="{{ section.id }}-title">{{ s.name }}</h2>
+    {% endif %}
+    <div class="gate-author__bio">{{ s.bio | paragraphs }}</div>
+    {% if s.link_url and s.link_label %}
+    <p><a class="gate-link" href="{{ s.link_url }}">{{ s.link_label }}</a></p>
+    {% endif %}
+  </div>
+</section>
+{% endif %} {% comment %}<!-- prettier-ignore -->{% endcomment %}
+{% schema %}
+{
+  "name": "Author",
+  "description": "Who writes it.",
+  "settings": [
+    { "id": "heading", "type": "text", "label": "Heading", "max": 120, "default": "Who writes it" },
+    { "id": "name", "type": "text", "label": "Name", "max": 80 },
+    { "id": "bio", "type": "textarea", "label": "About", "max": 800 },
+    { "id": "photo", "type": "image", "label": "Photo" },
+    {
+      "id": "link_label",
+      "type": "text",
+      "label": "Link text",
+      "max": 40,
+      "default": "More about me"
+    },
+    { "id": "link_url", "type": "url", "label": "Link", "default": "/about" }
+  ]
+}
+{% endschema %}

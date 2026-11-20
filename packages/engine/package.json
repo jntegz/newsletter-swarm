@@ -1,0 +1,30 @@
+{
+  "name": "@swarm/engine",
+  "private": true,
+  "license": "AGPL-3.0-only",
+  "type": "module",
+  "version": "0.0.0",
+  "exports": {
+    ".": "./src/index.ts",
+    "./site-design": "./src/site-design.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "catalog:",
+    "@swarm/db": "workspace:*",
+    "@swarm/domain": "workspace:*",
+    "@swarm/flags": "workspace:*",
+    "@swarm/mail": "workspace:*",
+    "@swarm/site-themes": "workspace:*",
+    "@swarm/tokens": "workspace:*",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  }
+}

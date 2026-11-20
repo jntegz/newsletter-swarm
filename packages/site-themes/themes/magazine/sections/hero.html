@@ -1,0 +1,107 @@
+{% assign s = section.settings %} {% if reader.is_subscriber %}
+<section class="mag-hero mag-hero--back" aria-labelledby="{{ section.id }}-title">
+  <h1 class="mag-hero__title mag-hero__title--small" id="{{ section.id }}-title">
+    {{ s.heading | default: site.name }}
+  </h1>
+  <p class="mag-hero__welcome">
+    Welcome back. {% if posts %}{{ site.issue_count | plural: 'issue', 'issues' }} so far, the
+    newest first.{% endif %} {% if site.plans_url %}{% unless reader.is_paid %}
+    <a href="{{ site.plans_url }}">See the paid plans</a>{% endunless %}{% endif %}
+  </p>
+</section>
+{% else %} {% assign pitch = s.pitch | default: site.description %}
+<section
+  class="mag-hero mag-hero--{{ s.layout }}{% if s.image %} mag-hero--image{% endif %}"
+  aria-labelledby="{{ section.id }}-title"
+>
+  <div class="mag-hero__text">
+    {% if s.show_logo and site.logo %}
+    <div class="mag-hero__logo">{{ site.logo | image: '64px' }}</div>
+    {% endif %}
+    <h1 class="mag-hero__title" id="{{ section.id }}-title">
+      {{ s.heading | default: site.name }}
+    </h1>
+    {% if pitch %}
+    <p class="mag-hero__pitch">{{ pitch }}</p>
+    {% endif %}
+    <div class="mag-hero__form" id="subscribe">
+      {% if s.promise %}
+      <p class="mag-hero__promise">{{ s.promise }}</p>
+      {% endif %} {% subscribe_form %}
+      <p class="mag-hero__note">
+        {% if s.show_count and site.subscriber_count %}
+        <strong>Join {{ site.subscriber_count | number }} readers.</strong>
+        {% endif %} {{ s.privacy_note }}
+      </p>
+    </div>
+  </div>
+  {% if s.image %}
+  <div class="mag-hero__cover">
+    {{ s.image | image: '(min-width:960px)45vw,100vw' }} {% if site.issue_count > 0 %}
+    <p class="mag-hero__issue" aria-hidden="true">No. {{ site.issue_count }}</p>
+    {% endif %}
+  </div>
+  {% endif %}
+</section>
+{% endif %} {% comment %}<!-- prettier-ignore -->{% endcomment %}
+{% schema %}
+{
+  "name": "Hero",
+  "description": "The first screen: the promise and the signup form.",
+  "limit": 1,
+  "settings": [
+    {
+      "id": "heading",
+      "type": "text",
+      "label": "Heading",
+      "max": 120,
+      "info": "Leave it empty to use the publication’s name."
+    },
+    {
+      "id": "pitch",
+      "type": "textarea",
+      "label": "The line under it",
+      "max": 400,
+      "info": "Leave it empty to use the description."
+    },
+    {
+      "id": "promise",
+      "type": "text",
+      "label": "What and how often",
+      "max": 120,
+      "info": "Shown next to the form. For example: Every Sunday. Free."
+    },
+    {
+      "id": "show_count",
+      "type": "checkbox",
+      "label": "Show how many people read it",
+      "default": true,
+      "info": "Shown once there are at least 100 subscribers."
+    },
+    { "id": "show_logo", "type": "checkbox", "label": "Show the logo", "default": false },
+    {
+      "id": "privacy_note",
+      "type": "text",
+      "label": "Note under the form",
+      "max": 160,
+      "default": "Unsubscribe at any time."
+    },
+    {
+      "id": "layout",
+      "type": "select",
+      "label": "Layout",
+      "options": [
+        { "value": "cover", "label": "Cover, with the image beside it" },
+        { "value": "stacked", "label": "Stacked, with the image below" }
+      ],
+      "default": "cover"
+    },
+    {
+      "id": "image",
+      "type": "image",
+      "label": "Cover image",
+      "info": "Shown beside the name. Give it alt text in the media library."
+    }
+  ]
+}
+{% endschema %}

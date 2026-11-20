@@ -1,0 +1,42 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "jsx": "react-jsx",
+    "types": [],
+    "baseUrl": ".",
+    "paths": {
+      "@swarm/db": ["packages/db/src/index.ts"],
+      "@swarm/domain": ["packages/domain/src/index.ts"],
+      "@swarm/engine": ["packages/engine/src/index.ts"],
+      "@swarm/flags": ["packages/flags/src/index.ts"],
+      "@swarm/flags/*": ["packages/flags/src/*.ts"],
+      "@swarm/installer/wizard": ["packages/installer/src/wizard/index.ts"],
+      "@swarm/installer/fake": ["packages/installer/src/fake.ts"],
+      "@swarm/mail": ["packages/mail/src/index.ts"],
+      "@swarm/mail/*": ["packages/mail/src/*.ts"],
+      "@swarm/runtime": ["packages/runtime/src/index.ts"],
+      "@swarm/sdk": ["packages/sdk/src/index.ts"],
+      "@swarm/tokens": ["packages/tokens/src/index.ts"],
+      "@swarm/ui/components": ["packages/ui/src/components/index.ts"],
+      "@swarm/vault": ["packages/vault/src/index.ts"],
+      "@swarm/vault/api": ["packages/vault/src/api.ts"],
+      "@swarm/vault/core": ["packages/vault/src/core/index.ts"]
+    }
+  },
+  "include": [
+    "apps/*/src",
+    "apps/*/tests",
+    "apps/*/*.ts",
+    "apps/e2e",
+    "workers/*/src",
+    "workers/*/tests",
+    "workers/*/scripts",
+    "workers/*/*.ts",
+    "packages/*/src",
+    "packages/*/tests",
+    "packages/*/scripts",
+    "packages/*/*.ts"
+  ],
+  "exclude": ["**/node_modules", "**/dist"]
+}

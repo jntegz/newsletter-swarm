@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Swarm — Run your newsletter without the busywork</title>
+<style>
+  :root{
+    --ink:#0f0f12; --sub:#6b6b76; --purple:#6c4cf1; --purple-deep:#5636e8;
+    --lav:#efeafe; --lav-line:#e6dffb; --line:#ececf2; --card:#fff;
+    --sans:-apple-system,'Segoe UI',system-ui,'Helvetica Neue',sans-serif;
+    --shadow:0 34px 70px -34px rgba(60,40,140,.28);
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{
+    color:var(--ink);font-family:var(--sans);line-height:1.55;font-size:15.5px;
+    background:
+      radial-gradient(1100px 520px at 8% -8%, #f2edff 0%, rgba(242,237,255,0) 60%),
+      radial-gradient(900px 480px at 104% 6%, #f7f1ff 0%, rgba(247,241,255,0) 55%),
+      #ffffff;
+  }
+  ::selection{background:var(--purple);color:#fff}
+  :focus-visible{outline:2px solid var(--purple);outline-offset:3px;border-radius:10px}
+  a{color:inherit;text-decoration:none}
+  .wrap{max-width:1120px;margin:0 auto;padding:0 24px}
+  h1,h2,h3{letter-spacing:-0.035em;line-height:1.06;text-wrap:balance}
+  .btn{display:inline-flex;align-items:center;gap:9px;font-weight:600;font-size:15px;padding:14px 26px;border-radius:999px;transition:.18s;white-space:nowrap}
+  .btn-purple{background:var(--purple);color:#fff;box-shadow:0 14px 30px -14px rgba(92,60,232,.6)}
+  .btn-purple:hover{background:var(--purple-deep);transform:translateY(-1px)}
+  .btn-ghost{background:#fff;border:1px solid #e7e5ee;color:var(--ink)}
+  .btn-ghost:hover{border-color:#d6d2e4;transform:translateY(-1px)}
+  .btn-sm{padding:10px 20px;font-size:14px}
+
+  header{padding:20px 0}
+  .nav{display:flex;align-items:center;gap:32px}
+  .logo{display:flex;align-items:center;gap:10px;font-weight:700;font-size:20px;letter-spacing:-0.03em}
+  .logo-mark{width:36px;height:36px;border-radius:11px;background:var(--purple);display:grid;place-items:center;color:#fff;box-shadow:0 8px 18px -8px rgba(108,76,241,.65)}
+  nav{display:flex;gap:28px;font-size:14.5px;font-weight:500;color:#3c3c46}
+  nav a:hover{color:var(--purple)}
+  .nav .sp{flex:1}
+  .nav .signin{font-size:14.5px;font-weight:500;color:#3c3c46}
+  .nav .signin:hover{color:var(--purple)}
+
+  /* HERO with grid + plus decorations */
+  .hero{position:relative;text-align:center;padding:64px 0 0}
+  .hero .frame{position:relative;padding:56px 20px 0}
+  .hero .frame::before{
+    content:"";position:absolute;inset:22px 0 0 0;pointer-events:none;
+    background-image:linear-gradient(to right,rgba(15,15,18,.045) 1px,transparent 1px),linear-gradient(to bottom,rgba(15,15,18,.045) 1px,transparent 1px);
+    background-size:25% 100%, 100% 50%;
+    -webkit-mask-image:radial-gradient(70% 90% at 50% 40%, #000 30%, transparent 100%);
+    mask-image:radial-gradient(70% 90% at 50% 40%, #000 30%, transparent 100%);
+  }
+  .plus{position:absolute;font-weight:400;font-size:18px;line-height:1;z-index:1;user-select:none}
+  .plus.p1{left:8%;top:6%;color:#ff9ec2}
+  .plus.p2{left:24%;top:44%;color:#7cc7ff}
+  .plus.p3{right:24%;top:20%;color:#a48bff}
+  .plus.p4{right:8%;top:52%;color:#ffcf6b}
+  .plus.p5{left:44%;bottom:6%;color:#7ee0b8}
+  .badge{position:relative;z-index:2;display:inline-flex;align-items:center;gap:10px;background:#fff;border:1px solid var(--lav-line);border-radius:999px;padding:7px 16px;font-size:13px;color:var(--sub);box-shadow:0 6px 18px -12px rgba(60,40,140,.25)}
+  .badge b{background:var(--lav);color:var(--purple-deep);border-radius:999px;padding:2px 9px;font-size:12px;font-weight:700}
+  .hero h1{position:relative;z-index:2;font-size:clamp(42px,6.4vw,76px);font-weight:700;max-width:16ch;margin:22px auto 18px}
+  .hero .sub{position:relative;z-index:2;max-width:52ch;margin:0 auto 30px;color:var(--sub);font-size:17px}
+  .hero .actions{position:relative;z-index:2;display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+  .play{width:20px;height:20px;border-radius:50%;background:#0f0f12;color:#fff;display:grid;place-items:center}
+
+  /* 3 preview cards */
+  .trio{display:grid;grid-template-columns:1fr 1.5fr 1fr;gap:18px;margin:54px auto 0;text-align:left;position:relative;z-index:2}
+  .pcard{background:#fff;border:1px solid #efedf5;border-radius:22px;box-shadow:0 32px 64px -38px rgba(60,40,140,.35);padding:22px}
+  .pcard .ph{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px}
+  .pcard h3{font-size:15.5px;letter-spacing:-0.02em}
+  .pcard .sub{font-size:11.5px;color:var(--sub)}
+  .pcard .view{font-size:12px;font-weight:600;color:var(--purple)}
+  .donut-wrap{display:flex;justify-content:center;padding:6px 0 2px;position:relative}
+  .donut-wrap .ctr{position:absolute;inset:0;display:grid;place-items:center;text-align:center;font-size:10.5px;color:var(--sub);pointer-events:none}
+  .donut-wrap .ctr b{display:block;font-size:17px;letter-spacing:-0.03em;color:var(--ink)}
+  .pc-legend{display:flex;justify-content:center;gap:14px;font-size:10.5px;color:var(--sub);margin-top:8px}
+  .pc-legend i{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:5px;vertical-align:1px}
+  .chart-legend{display:flex;gap:12px;font-size:10.5px;color:var(--sub);margin-bottom:4px}
+  .chart-legend i{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:4px;vertical-align:1px}
+  .tooltip{position:absolute;background:#fff;border:1px solid #efedf5;border-radius:12px;box-shadow:0 16px 36px -18px rgba(60,40,140,.4);padding:10px 12px;font-size:10.5px;color:var(--sub);line-height:1.6}
+  .tooltip b{color:var(--ink);font-size:11.5px}
+  .flow-item{background:#f8f7fc;border:1px solid #f0eef7;border-radius:14px;padding:12px 14px}
+  .flow-item + .flow-item{margin-top:10px}
+  .flow-item .fr{display:flex;justify-content:space-between;font-size:12px;margin-bottom:2px}
+  .flow-item .fr b{font-weight:600}
+  .flow-item .num{font-size:19px;font-weight:700;letter-spacing:-0.03em;font-variant-numeric:tabular-nums}
+  .flow-item .meta{display:flex;justify-content:space-between;font-size:10px;color:var(--sub);margin-top:4px}
+  .track{height:5px;border-radius:99px;background:#e9e6f3;overflow:hidden;margin-top:8px}
+  .track i{display:block;height:100%;background:var(--purple);border-radius:inherit}
+
+  .logos{padding:54px 0 0;text-align:center}
+  .logos p{font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:#a2a2ad;margin-bottom:18px}
+  .logos .row{display:flex;gap:38px;justify-content:center;flex-wrap:wrap;color:#8f8f9b}
+  .logos .row span{font-size:16.5px;font-weight:600;letter-spacing:-0.02em}
+
+  section{padding:78px 0}
+  .eyebrow{font-size:12.5px;font-weight:600;color:var(--purple);text-align:center;margin-bottom:10px}
+  .sec-head{text-align:center;max-width:660px;margin:0 auto 46px}
+  .sec-head h2{font-size:clamp(30px,3.8vw,44px);margin-bottom:12px}
+  .sec-head p{color:var(--sub);font-size:16px}
+  .bento{display:grid;grid-template-columns:repeat(6,1fr);gap:18px}
+  .fcard{background:#fff;border:1px solid #efedf5;border-radius:22px;padding:26px;box-shadow:0 20px 50px -38px rgba(60,40,140,.35)}
+  .fcard h3{font-size:19px;letter-spacing:-0.025em;margin:14px 0 6px}
+  .fcard p{font-size:14px;color:var(--sub)}
+  .fcard .ic{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;background:var(--lav);color:var(--purple)}
+  .s4{grid-column:span 4}.s2{grid-column:span 2}.s3{grid-column:span 3}
+  .prov{margin-top:14px;border-top:1px solid #f2f0f8}
+  .prov .r{display:flex;align-items:center;gap:10px;padding:8px 0;font-size:12px;color:var(--sub);border-bottom:1px solid #f6f5fa}
+  .prov .r:last-child{border-bottom:none}
+  .prov .r b{width:52px;color:var(--ink);font-weight:600}
+  .prov .bar{flex:1;height:5px;border-radius:99px;background:#f1eff8;overflow:hidden}
+  .prov .bar i{display:block;height:100%;background:var(--purple);border-radius:inherit}
+  .prov .r span{width:50px;text-align:right;color:var(--ink);font-weight:600;font-variant-numeric:tabular-nums}
+  .nodes{margin-top:14px;display:flex;flex-direction:column}
+  .node{display:flex;align-items:center;gap:9px;font-size:12px;color:var(--sub)}
+  .node .sq{width:25px;height:25px;border-radius:8px;background:var(--lav);color:var(--purple);display:grid;place-items:center;font-size:10.5px;font-weight:700}
+  .link{width:1.5px;height:13px;background:#e6e1f4;margin-left:12px}
+  .mini-form{margin-top:14px;background:#f8f7fc;border:1px solid #f0eef7;border-radius:12px;padding:11px}
+  .mini-form .in{background:#fff;border:1px solid #e9e6f2;border-radius:8px;padding:7px 10px;font-size:11px;color:#a2a2ad;margin-bottom:8px}
+  .mini-form .go{background:var(--purple);color:#fff;border-radius:999px;padding:7px 12px;font-size:11px;font-weight:600;text-align:center}
+  .chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:14px}
+  .chip{font-size:10.5px;font-weight:600;color:#5b5b66;background:#f6f5fa;border:1px solid #eeecf5;border-radius:999px;padding:4px 9px}
+  .chip.on{background:var(--lav);border-color:var(--lav-line);color:var(--purple-deep)}
+  .code{background:#0f0f12;border-radius:12px;padding:14px;font-family:ui-monospace,'Cascadia Code','Consolas',monospace;font-size:11px;line-height:1.85;color:#c9c9d4;margin-top:14px;overflow-x:auto}
+  .code .k{color:#b9a5ff}.code .v{color:#8be3b7}.code .c{color:#6d6d7a}
+  .price{display:flex;align-items:baseline;gap:4px;margin-top:14px;font-size:28px;font-weight:700;letter-spacing:-0.03em}
+  .price small{font-size:11.5px;color:var(--sub);font-weight:500}
+  .price em{font-style:normal;font-size:10px;background:var(--lav);color:var(--purple-deep);border-radius:999px;padding:3px 8px;font-weight:600;margin-left:8px}
+
+  .cta{padding:0 0 84px}
+  .cta-inner{background:linear-gradient(115deg,#f4efff,#efe9ff 55%,#f8f3ff);border:1px solid var(--lav-line);border-radius:28px;padding:64px 40px;text-align:center}
+  .cta-inner h2{font-size:clamp(30px,4vw,46px);margin-bottom:12px}
+  .cta-inner p{color:var(--sub);margin-bottom:28px}
+  footer{padding:0 0 44px;font-size:13px;color:#9b9ba6}
+  .folio{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;border-top:1px solid var(--line);padding-top:18px}
+  @media(max-width:960px){
+    nav{display:none}
+    .trio{grid-template-columns:1fr}
+    .bento{grid-template-columns:1fr}
+    .s4,.s2,.s3{grid-column:span 1}
+    .plus{display:none}
+  }
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap nav">
+    <a class="logo" href="#"><span class="logo-mark" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="m4 7 8 6 8-6"/></svg></span>Swarm</a>
+    <nav aria-label="Main"><a href="#features">Features</a><a href="#pricing">Pricing</a><a href="#">Company</a><a href="#">Resources</a></nav>
+    <span class="sp"></span>
+    <a class="signin" href="#">Sign in</a>
+    <a class="btn btn-purple btn-sm" href="#">Get started →</a>
+  </div>
+</header>
+
+<main>
+  <div class="wrap hero">
+    <div class="frame">
+      <span class="plus p1" aria-hidden="true">+</span><span class="plus p2" aria-hidden="true">+</span><span class="plus p3" aria-hidden="true">+</span><span class="plus p4" aria-hidden="true">+</span><span class="plus p5" aria-hidden="true">+</span>
+      <div class="badge"><b>10K+</b> Trusted by 10,000+ teams</div>
+      <h1>Run your newsletter without the busywork.</h1>
+      <p class="sub">Build flows, send dispatches, and read performance — all in one calm place. Swarm handles the machinery so you can stay with the words.</p>
+      <div class="actions">
+        <a class="btn btn-purple" href="#">Get started ↗</a>
+        <a class="btn btn-ghost" href="#"><span class="play" aria-hidden="true"><svg width="8" height="8" viewBox="0 0 8 8" fill="currentColor"><path d="M1 0.5v7L7 4z"/></svg></span>Watch demo</a>
+      </div>
+    </div>
+
+    <div class="trio">
+      <div class="pcard">
+        <div class="ph"><div><h3>Dispatch types</h3><p class="sub">Distribution</p></div></div>
+        <div class="donut-wrap">
+          <svg viewBox="0 0 120 120" width="150" height="150" role="img" aria-label="Donut chart: newsletters are 35 percent of sends">
+            <circle cx="60" cy="60" r="46" fill="none" stroke="#f1eff8" stroke-width="16"/>
+            <circle cx="60" cy="60" r="46" fill="none" stroke="#6c4cf1" stroke-width="16" stroke-dasharray="101 188" stroke-linecap="round" transform="rotate(-90 60 60)"/>
+          </svg>
+          <div class="ctr"><span><b>Dispatch</b>35%</span></div>
+        </div>
+        <div class="pc-legend"><span><i style="background:#6c4cf1"></i>Dispatch</span><span><i style="background:#d9d2f5"></i>Flows</span><span><i style="background:#eceaf4"></i>Tests</span></div>
+      </div>
+
+      <div class="pcard" style="position:relative">
+        <div class="ph"><div><h3>Campaign performance</h3><p class="sub">Last 30 days overview</p></div>
+          <div class="chart-legend"><span><i style="background:#6c4cf1"></i>Opens</span><span><i style="background:#c9bfef"></i>Clicks</span><span><i style="background:#f4c99a"></i>Joins</span></div>
+        </div>
+        <svg viewBox="0 0 460 190" width="100%" height="190" role="img" aria-label="Line chart of opens, clicks, and joins over 30 days">
+          <g stroke="#f2f0f8" stroke-width="1"><path d="M0 30H460M0 70H460M0 110H460M0 150H460"/></g>
+          <path d="M0 160 L20 130 L45 120 L70 78 L95 74 L120 48 L145 52 L170 52 L200 66 L230 66 L260 84 L290 84 L320 96 L350 96 L380 90 L410 92 L440 96 L460 96" fill="none" stroke="#6c4cf1" stroke-width="2.5" stroke-linecap="round"/>
+          <path d="M0 172 L20 168 L45 166 L70 158 L95 160 L120 148 L145 154 L170 152 L200 160 L230 158 L260 162 L290 160 L320 166 L350 162 L380 158 L410 160 L440 162 L460 160" fill="none" stroke="#c9bfef" stroke-width="2" stroke-linecap="round"/>
+          <path d="M0 182 L20 180 L45 178 L70 176 L95 178 L120 172 L145 176 L170 174 L200 178 L230 176 L260 180 L290 176 L320 180 L350 178 L380 176 L410 178 L440 180 L460 178" fill="none" stroke="#f4c99a" stroke-width="2" stroke-linecap="round"/>
+          <line x1="300" y1="20" x2="300" y2="185" stroke="#d9d2f5" stroke-width="1" stroke-dasharray="4 4"/>
+          <circle cx="300" cy="92" r="4.5" fill="#fff" stroke="#6c4cf1" stroke-width="2.5"/>
+          <g font-family="sans-serif" font-size="9" fill="#a2a2ad"><text x="2" y="188">Mar 1</text><text x="105" y="188">Mar 10</text><text x="205" y="188">Mar 20</text><text x="380" y="188">Mar 31</text></g>
+        </svg>
+        <div class="tooltip" style="position:absolute;right:26px;top:86px"><b>Issue #42</b><br>Opens 2,600<br>Clicks 1,200<br>Joins 800</div>
+      </div>
+
+      <div class="pcard">
+        <div class="ph"><div><h3>Top flows</h3><p class="sub">Best performers</p></div><a class="view" href="#">View all</a></div>
+        <div class="flow-item">
+          <div class="fr"><b>Welcome series</b><span>87.1%</span></div>
+          <div class="num">87.1%</div>
+          <div class="track"><i style="width:87%"></i></div>
+          <div class="meta"><span>342 triggered</span><span>298 completed</span></div>
+        </div>
+        <div class="flow-item">
+          <div class="fr"><b>Re-engagement</b><span>57.0%</span></div>
+          <div class="num">57.0%</div>
+          <div class="track"><i style="width:57%"></i></div>
+          <div class="meta"><span>156 triggered</span><span>89 completed</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="logos">
+      <p>Trusted by writer-led teams at</p>
+      <div class="row"><span>The Meridian</span><span>Field Notes</span><span>Popup Physics</span><span>Ledger Lines</span><span>The Slow Web</span></div>
+    </div>
+  </div>
+
+  <section id="features">
+    <div class="wrap">
+      <p class="eyebrow">Features</p>
+      <div class="sec-head">
+        <h2>Powerful features built for modern newsletters.</h2>
+        <p>Find new readers, write sharper dispatches, and understand exactly what lands — without stitching five tools together.</p>
+      </div>
+      <div class="bento">
+        <div class="fcard s4">
+          <span class="ic" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 4v5c0 5-3.5 8-8 9-4.5-1-8-4-8-9V7Z"/><path d="m9 12 2 2 4-4"/></svg></span>
+          <h3>Delivery, in plain sight</h3>
+          <p>Authentication checks, per-provider verdicts, and parsed DMARC feedback — no guessing where your dispatch landed.</p>
+          <div class="prov">
+            <div class="r"><b>Gmail</b><span class="bar"><i style="width:99.4%"></i></span><span>99.4%</span></div>
+            <div class="r"><b>Outlook</b><span class="bar"><i style="width:98.8%"></i></span><span>98.8%</span></div>
+            <div class="r"><b>Apple</b><span class="bar"><i style="width:99.2%"></i></span><span>99.2%</span></div>
+            <div class="r"><b>Yahoo</b><span class="bar"><i style="width:97.6%"></i></span><span>97.6%</span></div>
+          </div>
+        </div>
+        <div class="fcard s2">
+          <span class="ic" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="5" cy="6" r="2"/><circle cx="19" cy="6" r="2"/><circle cx="12" cy="18" r="2"/><path d="M7 6h10M6 8l5 8M18 8l-5 8"/></svg></span>
+          <h3>Automations that wait</h3>
+          <p>Flows with delays, branches, and true/false paths.</p>
+          <div class="nodes">
+            <div class="node"><span class="sq">◷</span>Signup</div>
+            <div class="link"></div>
+            <div class="node"><span class="sq">→</span>Wait 2 days</div>
+            <div class="link"></div>
+            <div class="node"><span class="sq">✉</span>Welcome dispatch</div>
+            <div class="link"></div>
+            <div class="node"><span class="sq">◆</span>Opened? → yes / no</div>
+          </div>
+        </div>
+        <div class="fcard s2">
+          <span class="ic" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M7 15c1.5-4 8.5-4 10 0"/><circle cx="12" cy="10" r="2"/></svg></span>
+          <h3>Forms that fit your brand</h3>
+          <p>Popups, inline, sticky, slide-in — one script tag.</p>
+          <div class="mini-form">
+            <div class="in">you@yourdomain.com</div>
+            <div class="go">Subscribe — it's free</div>
+          </div>
+        </div>
+        <div class="fcard s2">
+          <span class="ic" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 12h8M12 8v8"/></svg></span>
+          <h3>Readers become a network</h3>
+          <p>Circles, referrals, and Signals that grow together.</p>
+          <div class="chips"><span class="chip on">Openers</span><span class="chip">Paid tier</span><span class="chip">Champions</span><span class="chip">New &lt; 30d</span></div>
+        </div>
+        <div class="fcard s3">
+          <span class="ic" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="m8 9-4 3 4 3"/><path d="m16 9 4 3-4 3"/><path d="M13 5l-2 14"/></svg></span>
+          <h3>An API you can reason about</h3>
+          <p>Send from your own stack with scoped keys and signed webhooks.</p>
+          <div class="code"><span class="c">// POST /v2/dispatches/send</span><br>{
+  <span class="k">"post"</span>: <span class="v">"post_9f3k2"</span>,
+  <span class="k">"circle"</span>: <span class="v">"active-readers"</span>,
+  <span class="k">"track"</span>: { <span class="k">"clicks"</span>: <span class="v">true</span> }
+}</div>
+        </div>
+        <div class="fcard s3" id="pricing">
+          <span class="ic" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v10M9.5 9.5c0-1.4 1.1-2.5 2.5-2.5s2.5 1.1 2.5 2.5-1.1 2.5-2.5 2.5-2.5 1.1-2.5 2.5 1.1 2.5 2.5 2.5 2.5-1.1 2.5-2.5"/></svg></span>
+          <h3>Paid tiers, your terms</h3>
+          <p>Charge for what only you can write. Keep every cent of the subscription.</p>
+          <div class="price">$5 <small>/mo</small><em>0% platform take</em></div>
+          <div class="chips"><span class="chip on">Metered gates</span><span class="chip">Coupons</span><span class="chip">Gift passes</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="wrap cta">
+    <div class="cta-inner">
+      <h2>Your readers are already out there.</h2>
+      <p>Start free, import your list, and send your next dispatch from Swarm.</p>
+      <a class="btn btn-purple" href="#">Get started ↗</a>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap folio">
+    <span>© Swarm · Design system “Indigo” — chosen direction.</span>
+    <span>Synthetic content for style preview. Sample data.</span>
+  </div>
+</footer>
+</body>
+</html>

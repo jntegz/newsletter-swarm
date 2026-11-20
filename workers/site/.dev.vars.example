@@ -1,0 +1,24 @@
+# Copy to .dev.vars for local development. Never commit .dev.vars.
+# Signs reader sign-in links and reader session cookies. Generate a real one with:
+#   node -e "console.log('k1:' + require('crypto').randomBytes(32).toString('hex'))"
+READER_KEYS=k1:development-only-reader-key-replace-before-using-this-file
+# Legacy: signed every link before the per-link keyrings below. Locally (wrangler.jsonc) links are
+# signed with those from the start and no old link is taken, so it only matters on a deployed
+# install, until the installer removes it.
+MEMBER_KEYS=k1:development-only-member-key-replace-before-using-this-file
+# Cloudflare's always-passing Turnstile test secret (refused outside development).
+TURNSTILE_SECRET_KEY=1x0000000000000000000000000000000AA
+# FIELD_KEYS, SIGNUP_KEYS, the goods signing key and the Stripe key are the vault worker's alone
+# (workers/vault/.dev.vars.example).
+
+# Per-link keyrings (docs/security.md "Keys"): each link family signs with its own. A worker that
+# signs holds *_KEYS; one that only checks an Ed25519 link holds its public keys, *_VERIFY_KEYS.
+# Each value must be the same in every worker that has it. The installer makes real ones; these
+# (and any dev0 key) are refused when deployed.
+CONFIRM_KEYS=k1:development-only-confirm-key-replace-before-using-this-file
+FORM_STAMP_KEYS=k1:development-only-form-stamp-key-replace-before-using-this-file
+ASK_PAGE_VERIFY_KEYS=dev0:LJalorVh9GPlGPVPlZPFqXK61KPdBA-q2GBfqKNRGBk
+GOODS_VERIFY_KEYS=dev0:uYIKJrWCUQ_XRlRBNh33f7_fXMAh31ND5Yt3FCusLIk
+CHECKOUT_SIGNING_KEYS=dev0:MC4CAQAwBQYDK2VwBCIEINeYmpA6Aen4ONn-9uLprX98D5hqtLk11nLMDB996OqP
+SITE_LINK_VERIFY_KEYS=dev0:KWg3W2noR9A1bb83QxZS05Ou6fw_2EKzk7FGZg-8e2I
+SPONSOR_REPORT_VERIFY_KEYS=dev0:BZPC7I__wRJIoaZxffFraWbA2UAh2TMQ97Yxf9-NzZs

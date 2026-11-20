@@ -1,0 +1,41 @@
+node_modules/
+dist/
+.wrangler/
+.dev.vars
+.dev.vars.*
+!.dev.vars.example
+.env
+.env.*
+!.env.example
+coverage/
+playwright-report/
+test-results/
+.DS_Store
+*.log
+
+# research artifacts and captures (private, never committed)
+research-do-not-commit/
+.kilo/
+*.zip
+
+# design tool scratch (screenshots, sketches, logs); surface briefs stay tracked
+.impeccable/review/
+**/.impeccable/review/
+**/.impeccable/mocks/
+**/.impeccable/*.log
+**/.impeccable/decision-*.json
+**/.impeccable/brief-*.md
+
+
+# self-host installer state (ids, secrets) and generated wrangler configs
+.swarm/
+workers/*/wrangler.*.generated.jsonc
+
+# Threat-model runs describe attack paths: review before sharing, never publish.
+threat-model/
+
+# release signing keys and their logs: keep them outside the repository (docs/releasing.md)
+*.pem
+*.key
+*.pem.pub
+*.signing-log

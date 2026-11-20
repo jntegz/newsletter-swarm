@@ -1,0 +1,17 @@
+<article class="lx-card{% if post.image and s.show_images %} lx-card--image{% endif %}">
+  {% if post.image and s.show_images %}
+  <div class="lx-card__image">{{ post.image | image: '(min-width:960px)33vw,100vw' }}</div>
+  {% endif %}
+  <div class="lx-card__body">
+    <p class="lx-card__meta">
+      <time datetime="{{ post.date | date: 'iso' }}">{{ post.date | date: 'long' }}</time>
+      {% if post.is_paid %}<span class="lx-badge">Paid</span>{% endif %}
+    </p>
+    <h3 class="lx-card__title"><a href="{{ post.url }}">{{ post.title }}</a></h3>
+    {% if s.show_excerpt and post.excerpt %}
+    <p class="lx-card__excerpt">{{ post.excerpt | truncatewords: 28 }}</p>
+    {% endif %} {% if post.reading_minutes %}
+    <p class="lx-card__time">{{ post.reading_minutes }} min read</p>
+    {% endif %}
+  </div>
+</article>

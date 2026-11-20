@@ -1,0 +1,30 @@
+Return-Path: <noreply-dmarc-support@google.com>
+Received: by mail-sor-f69.google.com with SMTP id 6a1803df08f44-6fb3d6d3e4bso1038456d6.2
+        for <dmarc+sd_0192f8a0c0de7c3a9e2b4f1d6a8b0c11@dmarc.swarm.localhost>; Tue, 28 Oct 2025 01:05:12 -0700 (PDT)
+Date: Mon, 27 Oct 2025 17:59:59 -0700
+From: noreply-dmarc-support@google.com
+To: dmarc+sd_0192f8a0c0de7c3a9e2b4f1d6a8b0c11@dmarc.swarm.localhost
+Message-ID: <4381273540812537241@google.com>
+Subject: Report domain: news.example.com Submitter: google.com Report-ID: 4381273540812537241
+MIME-Version: 1.0
+Content-Type: application/zip;
+	name="google.com!news.example.com!1761523200!1761609599.zip"
+Content-Disposition: attachment;
+	filename="google.com!news.example.com!1761523200!1761609599.zip"
+Content-Transfer-Encoding: base64
+
+UEsDBBQAAAAIAAAAXFsRI0AViAIAAN4JAAA1AAAAZ29vZ2xlLmNvbSFuZXdzLmV4YW1wbGUuY29t
+ITE3NjE1MjMyMDAhMTc2MTYwOTU5OS54bWztVstu2zAQvOcrBN8jipJsJwbD9NQvaM/CmlrJbCSS
+JanY6dcXCvVK6qRBArQo0JOp2Qd3ZndlsdtT20T3aJ3U6mZF42QVoRK6lKq+WX398vnyahXd8gtW
+IZZ7EHf8IoqYRaOtL1r0UIKHHosipm1dKGiR11rXDcZCt4xMYPDBFmTDlbZomofLsgUrLl1n+nSf
+lmHBb4g5eQuF0MqD8IVUleYH743bETKExnMoAQLKHdGSNN9s1lcJI2fiQ+KBhix5nl3RdJut8+SK
+putsm+aUkdkc3EvwWFhQ9UAmitgea6k43W7oOs3SJGEkIKMdVflo3STX6+trRvrnkIw8zTbdttSU
+Gd1I8VCYbt9Id8CpEN2CVFzh0cV4gtaMqg2G4AXlnWy5ZSQcBtCZ6hHrfwNk+PcOLCgvFTJiBtQ9
+hd2IG+E57Yn2hwCpp67KBELnimcWhbYjD6uPk1JOd1ZgIQ1f53GaJ3G6jemGkRkfPYXulOf0Ue1w
+Hi3DjXgPTQd+lCtIJp3RTnqpFVe6L3OJLPx6qQw4x8is2iBINRgm6RYsn93JyMSNyRKVl5VE66aw
+A0KJtqisbs+0cWkd0v2ShEHnD4VF1zV+zvus5jcNyrAKfaKB4PCw4I4NCq8th70osaoPaZavGZng
+SY3l/S8UAy380Mqh+1glXb1Ve1/ltRBtY47fsjSFU2Y2+rh5qFxX/7a6RRfn4va6UwLjjwm2mBBG
+nrepdx5X4C3bkEJCd5TSXZUnya7CROx2WT/6Ly1G9se3ogLZ/N+Kt27F2blrpPNzMdrWf3PikixO
+YkqzePva6/edY7b8p3hl2MJM/YvDdra//dcM2ukKhf7lBjtd+cDyXU1mZP5U+wlQSwECFAAUAAAA
+CAAAAFxbESNAFYgCAADeCQAANQAAAAAAAAAAAAAAAAAAAAAAZ29vZ2xlLmNvbSFuZXdzLmV4YW1w
+bGUuY29tITE3NjE1MjMyMDAhMTc2MTYwOTU5OS54bWxQSwUGAAAAAAEAAQBjAAAA2wIAAAAA

@@ -1,0 +1,66 @@
+/* Indigo design tokens. Source of truth: DESIGN.md. Components use these, never raw hex. */
+:root {
+  /* Surfaces */
+  --surface: #ffffff;
+  --surface-alt: #f8f7fc;
+  --page: #fbfbfd;
+
+  /* Text */
+  --ink: #0f0f12;
+  --text-sub: #6b6b76;
+  --text-muted: #a2a2ad;
+
+  /* Brand */
+  --purple: #6c4cf1;
+  --purple-deep: #5636e8;
+  --lavender: #efeafe;
+  --lavender-line: #e6dffb;
+
+  /* Lines */
+  --line: #ececf2;
+  --line-soft: #f1eff7;
+  --line-app: #efedf6;
+  --line-control: #e7e5ee;
+  --line-control-hover: #d6d2e4;
+
+  /* Status */
+  --success: #1f7a4d;
+  --success-soft: #e9f5ee;
+  --danger: #b5401f;
+  --danger-soft: #ffe9e2;
+  /* Worth a look, not wrong: an orange email check. */
+  --caution: #9a5400;
+  --caution-soft: #fff1de;
+  --rose: #e85d8a;
+  --scheduled: #4a5a86;
+  --scheduled-soft: #eef1fa;
+
+  /* Charts */
+  --chart-1: #6c4cf1;
+  --chart-2: #c9bfef;
+  --chart-3: #f4c99a;
+  --chart-grid: #f2f0f8;
+  --chart-marker: #d9d2f5;
+  --chart-track: #f1eff8;
+  --meter-track: #eae6f6;
+
+  /* Elevation */
+  --shadow-card: 0 34px 70px -34px rgba(60, 40, 140, 0.28);
+  --shadow-soft: 0 12px 34px -28px rgba(24, 20, 16, 0.3);
+  --shadow-purple: 0 14px 30px -14px rgba(92, 60, 232, 0.6);
+
+  /* Radii */
+  --r-pill: 999px;
+  --r-card: 22px;
+  --r-card-app: 18px;
+  --r-shell: 24px;
+  --r-control: 12px;
+
+  /* Type */
+  --font-sans: 'Geist Variable', -apple-system, 'Segoe UI', system-ui, sans-serif;
+  --font-mono: 'Geist Mono Variable', ui-monospace, Menlo, Consolas, monospace;
+
+  /* Motion */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --duration-hover: 160ms;
+}

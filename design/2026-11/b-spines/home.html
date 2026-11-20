@@ -1,0 +1,847 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Home · Field Notes · Swarm</title>
+<style>
+@font-face{font-family:"Schibsted";src:url(../fonts/schibsted-grotesk-latin-wght-normal.woff2) format("woff2");font-weight:400 900;font-display:swap}
+@font-face{font-family:"Schibsted";src:url(../fonts/schibsted-grotesk-latin-wght-italic.woff2) format("woff2");font-weight:400 900;font-style:italic;font-display:swap}
+@font-face{font-family:"JB Mono";src:url(../fonts/jetbrains-mono-latin-wght-normal.woff2) format("woff2");font-weight:400 800;font-display:swap}
+:root{
+  --ink:#161616;--bar:#141414;--sub:#50545B;--line:#E1E2E4;--g2:#F2F3F4;--field:#868B94;
+  --ok:#1F7A4C;--warn:#8A5300;--warn-bg:#FFF4D6;--bad:#B42318;--bad-bg:#FDEEEC;
+  --pop:0 10px 30px -12px rgba(0,0,0,.25);--t:160ms cubic-bezier(.2,.7,.2,1);
+  --mono:"JB Mono",ui-monospace,Consolas,monospace;
+}
+.c-home{--c:#FFFFFF;--on:#161616;--on2:#50545B}
+.c-write{--c:#EE6A1F;--on:#17110A;--on2:#3A2410}
+.c-aud{--c:#1F7A4C;--on:#FFFFFF;--on2:#E8F5EE}
+.c-grow{--c:#1E4E8C;--on:#FFFFFF;--on2:#D9E4F4}
+.c-earn{--c:#B8174F;--on:#FFFFFF;--on2:#FBE3EB}
+.c-pub{--c:#46505E;--on:#FFFFFF;--on2:#E3E7ED}
+*{box-sizing:border-box}
+html{scrollbar-color:#B4B8BF var(--g2);-webkit-text-size-adjust:100%}
+::-webkit-scrollbar{width:12px;height:12px}
+::-webkit-scrollbar-track{background:var(--g2)}
+::-webkit-scrollbar-thumb{background:#B4B8BF;border-radius:6px;border:3px solid var(--g2)}
+body{margin:0;font:15px/1.5 "Schibsted",system-ui,sans-serif;color:var(--ink);background:#fff;caret-color:var(--ink);accent-color:var(--ink);-webkit-font-smoothing:antialiased}
+::selection{background:#FFD9BF;color:var(--ink)}
+.d,input{font-variant-numeric:tabular-nums}
+h1,h2,h3,p,ul,ol,dl,dd,figure{margin:0}
+ul,ol{padding:0;list-style:none}
+a{color:inherit;text-underline-offset:3px;text-decoration-thickness:1px}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+.i{width:16px;height:16px;flex:none;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.skip{position:absolute;left:12px;top:-60px;background:#fff;padding:8px 12px;border-radius:6px;z-index:90}
+.skip:focus{top:8px}
+.wrap{max-width:1240px;margin:0 auto;padding:0 32px}
+
+.top{background:var(--bar);color:#fff;position:relative;z-index:40}
+.top-in{height:56px;display:flex;align-items:center;gap:8px;padding:0 20px}
+.top :focus-visible{outline-color:#fff}
+.logo{display:flex;align-items:center;gap:9px;font-weight:800;font-size:17px;letter-spacing:-.01em;text-decoration:none;padding:6px 4px;border-radius:6px}
+.mark{width:20px;height:20px}
+.pop-wrap{position:relative}
+.pub-btn{display:flex;align-items:center;gap:6px;height:36px;padding:0 10px;border:0;border-radius:6px;background:transparent;color:#fff;font-weight:600;margin-left:6px;transition:background var(--t)}
+.pub-btn::before{content:"";width:1px;height:20px;background:#3A3D42;margin-right:10px}
+.pub-btn:hover{background:#262626}
+.pub-btn .i{width:14px;height:14px;color:#AEB2B9}
+.groups{display:flex;align-items:stretch;height:56px;margin-left:14px}
+.tab{position:relative;display:flex;align-items:center;gap:8px;height:56px;padding:0 13px;border:0;background:transparent;color:#D5D7DB;font-weight:550;text-decoration:none;white-space:nowrap;transition:color var(--t),background var(--t)}
+.tab:hover,.pop-wrap.hot .tab{color:#fff;background:#1F1F1F}
+.tab .i{width:12px;height:12px;color:#8E939B;margin-left:-2px}
+.sw{width:10px;height:10px;background:var(--c);outline:1px solid rgba(255,255,255,.55);outline-offset:0}
+.tab[aria-current="page"],.cur>.tab{color:#fff;font-weight:650}
+.tab[aria-current="page"]::after,.cur>.tab::after{content:"";position:absolute;left:0;right:0;bottom:0;height:4px;background:var(--c)}
+.top-r{margin-left:auto;display:flex;align-items:center;gap:8px}
+.search{display:flex;align-items:center;gap:8px;height:36px;padding:0 8px 0 12px;min-width:200px;border:1px solid #33363B;border-radius:6px;background:#1E1E1E;color:#C9CBCF;transition:border-color var(--t)}
+.search:hover{border-color:#5A5E66}
+.search span{margin-right:auto}
+kbd{font:600 12px/1 "Schibsted",sans-serif;padding:4px 6px;border-radius:4px;background:#2E3035;color:#E4E6E9}
+.icon-btn{display:grid;place-items:center;width:36px;height:36px;border:0;border-radius:6px;background:transparent;color:#D5D7DB;transition:background var(--t),color var(--t)}
+.icon-btn:hover{background:#262626;color:#fff}
+.icon-btn .i{width:18px;height:18px}
+.avatar{display:grid;place-items:center;width:32px;height:32px;border-radius:50%;background:#F2F3F4;color:#161616;font-size:13px;font-weight:700;margin-left:2px}
+.set-btn{display:flex;align-items:center;gap:7px;height:36px;padding:0 10px;border-radius:6px;color:#D5D7DB;font-weight:550;text-decoration:none;transition:background var(--t),color var(--t)}
+.set-btn:hover{background:#262626;color:#fff}
+.set-btn .i{width:18px;height:18px}
+.menu-btn{display:none}
+
+.menu{position:absolute;top:calc(100% + 6px);left:0;min-width:240px;background:#fff;color:var(--ink);border:1px solid var(--line);border-radius:6px;box-shadow:var(--pop);padding:6px;z-index:50;visibility:hidden;opacity:0;transform:translateY(-4px);transition:opacity var(--t),transform var(--t),visibility 0s var(--t)}
+.menu.open{visibility:visible;opacity:1;transform:none;transition:opacity var(--t),transform var(--t),visibility 0s}
+.menu :focus-visible{outline-color:var(--ink);outline-offset:-2px}
+.menu a,.menu button{display:flex;align-items:center;gap:10px;width:100%;padding:8px 10px;border:0;border-radius:4px;background:none;text-align:left;text-decoration:none;font-size:15px}
+.menu a:hover,.menu button:hover{background:var(--g2)}
+.menu hr{border:0;border-top:1px solid var(--line);margin:6px 0}
+.menu-h{font-size:13px;color:var(--sub);padding:6px 10px 4px}
+.menu .tick{margin-left:auto;color:var(--ok)}
+.menu small{display:block;color:var(--sub);font-size:13px}
+.dd{top:calc(100% + 4px);min-width:300px;padding:8px 6px}
+.dd a{display:block;padding:9px 10px}
+.dd b{display:flex;align-items:center;gap:8px;font-weight:650}
+.dd b::before{content:"";width:10px;height:10px;flex:none;background:var(--c)}
+.dd small{padding-left:18px}
+
+.ph{border-bottom:1px solid var(--line)}
+.ph-in{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;padding-top:26px;padding-bottom:24px}
+.crumb{display:flex;gap:8px;font-size:13px;color:var(--sub);margin-bottom:6px}
+.crumb a{text-decoration:none}
+.crumb a:hover{text-decoration:underline}
+h1{font-size:28px;line-height:1.15;font-weight:750;letter-spacing:-.015em}
+.ph-sub{color:var(--sub);margin-top:6px}
+.ph-r{display:flex;align-items:center;gap:12px;flex-wrap:wrap;justify-content:flex-end}
+.sample{font-size:13px;color:var(--sub);padding:3px 8px;border:1px dashed #A7ABB2;border-radius:4px}
+.seg{display:inline-flex;padding:3px;background:var(--g2);border-radius:6px;border:1px solid var(--line)}
+.seg button{height:30px;padding:0 12px;border:0;border-radius:4px;background:transparent;color:var(--sub);font-size:13px;font-weight:600;transition:background var(--t),color var(--t)}
+.seg button[aria-pressed="true"]{background:#fff;color:var(--ink);outline:1px solid var(--line)}
+.seg button:focus-visible{outline:2px solid var(--ink);outline-offset:1px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:38px;padding:0 14px;border:1px solid #C9CCD1;border-radius:6px;background:#fff;color:var(--ink);font-size:15px;font-weight:600;text-decoration:none;white-space:nowrap;transition:background var(--t),border-color var(--t)}
+.btn:hover{background:var(--g2);border-color:#A7ABB2}
+.btn.primary{background:var(--ink);border-color:var(--ink);color:#fff}
+.btn.primary:hover{background:#2E2E2E}
+.btn .i{width:16px;height:16px}
+.np .menu{left:auto;right:0;min-width:300px}
+.ph-ctl{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+
+main{padding-bottom:56px}
+.needs{display:flex;align-items:center;gap:14px;margin-top:20px;padding:12px 12px 12px 16px;background:var(--g2);border-radius:6px}
+.needs .i{width:20px;height:20px;color:var(--warn)}
+.needs p{flex:1}
+.needs b{font-weight:650}
+
+.stack{display:flex;flex-direction:column;gap:12px;margin-top:20px}
+.band{display:grid;grid-template-columns:200px 1fr;min-height:120px}
+.spine{background:var(--c);color:var(--on);padding:18px 20px 18px;display:flex;flex-direction:column;gap:2px}
+.spine h2{font-size:22px;line-height:1.2;font-weight:750;letter-spacing:-.01em}
+.spine p{font-size:13px;color:var(--on2)}
+.spine ul{margin-top:auto;padding-top:16px;display:flex;flex-direction:column;gap:2px}
+.spine a{font-size:13px;font-weight:600;text-underline-offset:3px}
+.spine a:hover{text-decoration-thickness:2px}
+.spine :focus-visible{outline-color:var(--on)}
+.bb{border:1px solid var(--line);border-left:0;padding:20px 28px 22px;min-width:0}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:0 40px}
+.cols>*+*{border-left:1px solid var(--line);padding-left:40px}
+.cols.c3{grid-template-columns:1.1fr 1fr .9fr}
+h3{font-size:15px;font-weight:650;margin-bottom:8px}
+* + h3{margin-top:20px}
+.meta{display:block;font-size:13px;color:var(--sub)}
+.rows li{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;padding:9px 0;border-top:1px solid var(--line)}
+.rows li:last-child{border-bottom:1px solid var(--line)}
+.t{font-weight:600;text-decoration:none}
+a.t:hover{text-decoration:underline}
+.pill{flex:none;font-size:13px;font-weight:600;padding:1px 8px;border-radius:999px;border:1px solid #C9CCD1;color:var(--sub)}
+.pill.sched{border-color:var(--ink);color:var(--ink)}
+.results{margin-top:6px}
+.results b{font-weight:700}
+.more{display:inline-flex;align-items:center;gap:4px;margin-top:8px;font-weight:600;font-size:13px}
+.more .i{width:14px;height:14px}
+.chart{container-type:inline-size}
+.chart svg{display:block;width:100%;max-width:520px;height:auto;overflow:visible}
+.chart .cn{display:none}
+.chart text{font:13.5px "Schibsted",sans-serif;fill:var(--sub)}
+.chart .cn text{font-size:12px}
+@container (max-width:379px){.chart .cw{display:none}.chart .cn{display:block}}
+.chart .grid line{stroke:var(--line);stroke-width:1}
+.chart .base{stroke:#A7ABB2}
+.chart .yl{text-anchor:end}
+.chart .xl,.chart .v{text-anchor:middle}
+.chart .xs{text-anchor:start}
+.chart .xe{text-anchor:end}
+.chart .v{fill:var(--ink)}
+.chart .v-last{font-weight:700}
+.chart .lab{fill:var(--ink);font-weight:600}
+.b-o{fill:#EE6A1F}
+.b-c{fill:#3A2410}
+figcaption{font-size:13px;color:var(--sub);margin-top:8px}
+.fig{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+.n{font-size:30px;line-height:1.1;font-weight:700;letter-spacing:-.01em}
+.fig .l{color:var(--sub)}
+.delta{display:flex;align-items:center;gap:4px;font-size:13px;font-weight:600;color:var(--ok);margin-top:2px}
+.delta .i{width:14px;height:14px}
+.kv{margin-top:14px;display:grid;gap:0}
+.kv div{display:flex;justify-content:space-between;gap:16px;padding:7px 0;border-top:1px solid var(--line)}
+.kv dt{color:var(--sub)}
+.kv dd{font-weight:600;text-align:right}
+.line-path{fill:none;stroke:#1F7A4C;stroke-width:2.25;stroke-linejoin:round;stroke-linecap:round}
+.auto li{padding:8px 0;border-top:1px solid var(--line)}
+.auto li:last-child{border-bottom:1px solid var(--line)}
+.auto .top-row{display:flex;justify-content:space-between;gap:12px}
+.auto .bar{height:4px;background:#E4EAF3;margin-top:8px}
+.auto .bar i{display:block;height:100%;background:#1E4E8C}
+.pair{display:flex;gap:40px;flex-wrap:wrap}
+.pair .l{display:block;font-size:13px;color:var(--sub);max-width:20ch}
+.note{font-size:13px;color:var(--sub);margin-top:12px}
+.checks li{display:flex;gap:8px;align-items:flex-start;padding:5px 0}
+.checks .i{color:var(--ok);margin-top:3px}
+.checks .w{color:var(--warn)}
+.tbl-wrap{overflow-x:auto}
+.tbl{border-collapse:collapse;width:100%;font-size:15px}
+.tbl th,.tbl td{padding:7px 10px 7px 0;text-align:left;border-bottom:1px solid var(--line);white-space:nowrap}
+.tbl thead th{font-size:13px;font-weight:600;color:var(--sub)}
+.tbl td{font-weight:600}
+.empty{max-width:62ch}
+.empty .t{font-size:17px;font-weight:650;display:block}
+.empty p{color:var(--sub);margin-top:4px}
+.empty .btn{margin-top:14px}
+.links{display:flex;gap:16px;flex-wrap:wrap;margin-top:10px;font-weight:600;font-size:13px}
+
+.ready{margin-top:20px;background:#141414;color:#fff;padding:24px 28px 26px}
+.ready :focus-visible{outline-color:#fff}
+.ready-head{display:flex;align-items:baseline;gap:16px;flex-wrap:wrap}
+.ready h2{font-size:22px;font-weight:750;letter-spacing:-.01em}
+.ready-head p{color:#C4C7CC}
+.ready-head .prog{margin-left:auto;font-size:13px;color:#C4C7CC}
+.stepper{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:22px;counter-reset:s}
+.stepper li{position:relative;display:flex;flex-direction:column;gap:10px}
+.stepper li::after{content:"";position:absolute;left:38px;right:-6px;top:14px;height:1px;background:#4A4E55}
+.stepper li:last-child::after{display:none}
+.dot{display:grid;place-items:center;flex:none;width:28px;height:28px;border-radius:50%;border:1px solid #6B7079;color:#C4C7CC;font-size:13px;font-weight:700}
+.done .dot{background:#fff;border-color:#fff;color:#1F7A4C}
+.done .dot .i{stroke-width:2.75}
+.cur .dot{border:2px solid #fff;color:#fff}
+.stepper b{display:block;font-weight:650}
+.stepper li > div > span{display:block;font-size:13px;color:#C4C7CC;margin-top:2px;max-width:30ch}
+.stepper .cur b{text-decoration:underline;text-decoration-color:#EE6A1F;text-decoration-thickness:2px;text-underline-offset:5px}
+.stepper a{display:inline-block;margin-top:6px;font-size:13px;font-weight:600}
+.detail{margin-top:22px;padding-top:20px;border-top:1px solid #33363B;display:grid;grid-template-columns:minmax(0,1fr);gap:12px;max-width:860px}
+.detail h3{font-size:17px;margin:0}
+.detail p{color:#DADCE0}
+.dns{display:grid;gap:0;border-top:1px solid #33363B}
+.dns div{display:grid;grid-template-columns:72px minmax(0,1fr);gap:12px;padding:9px 0;border-bottom:1px solid #33363B}
+.dns dt{font-size:13px;color:#C4C7CC;padding-top:1px}
+.dns code{font:14px/1.5 var(--mono);color:#fff;overflow-wrap:anywhere}
+.acts{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:4px}
+.btn.light{background:#fff;border-color:#fff;color:var(--ink)}
+.btn.light:hover{background:#E8E9EB}
+.btn.ghost{background:transparent;border-color:#6B7079;color:#fff}
+.btn.ghost:hover{background:#262626}
+.acts .msg{font-size:13px;color:#C4C7CC}
+
+.foot{border-top:1px solid var(--line);margin-top:40px;padding:16px 0 24px;font-size:13px;color:var(--sub)}
+.switch{position:fixed;right:14px;bottom:14px;z-index:30;display:flex;align-items:center;gap:2px;padding:4px 4px 4px 12px;background:#fff;border:1px solid var(--line);border-radius:999px;font-size:13px;box-shadow:var(--pop)}
+.switch span{font-weight:650;margin-right:6px}
+.switch a{padding:3px 9px;border-radius:999px;text-decoration:none;color:var(--sub)}
+.switch a:hover{background:var(--g2);color:var(--ink)}
+.switch a[aria-current]{background:var(--ink);color:#fff}
+
+.cmd{position:fixed;inset:0;z-index:80;background:rgba(20,20,20,.42);display:flex;justify-content:center;align-items:flex-start;padding:12vh 16px 16px;visibility:hidden;opacity:0;transition:opacity var(--t),visibility 0s var(--t)}
+.cmd.open{visibility:visible;opacity:1;transition:opacity var(--t),visibility 0s}
+.cmd-box{width:min(580px,100%);background:#fff;border-radius:8px;box-shadow:var(--pop);overflow:hidden}
+.cmd-in{display:flex;align-items:center;gap:10px;padding:0 16px;border-bottom:1px solid var(--line)}
+.cmd-in .i{width:18px;height:18px;color:var(--sub)}
+.cmd-in input{flex:1;height:52px;border:0;outline:0;font-size:17px;background:none}
+.cmd-in kbd{background:var(--g2);color:var(--sub)}
+.cmd-list{max-height:min(420px,60vh);overflow-y:auto;padding:6px}
+.cmd-g p{font-size:13px;color:var(--sub);padding:10px 10px 4px}
+.cmd-list a{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:4px;text-decoration:none}
+.cmd-list a .i{color:var(--sub)}
+.cmd-list a.act,.cmd-list a:hover{background:var(--g2)}
+.cmd-list a:focus-visible{outline-offset:-2px}
+.cmd-empty{padding:18px 10px;color:var(--sub)}
+.sheet{position:fixed;inset:0;z-index:70;background:#fff;display:flex;flex-direction:column;visibility:hidden;opacity:0;transform:translateY(-8px);transition:opacity var(--t),transform var(--t),visibility 0s var(--t)}
+.sheet.open{visibility:visible;opacity:1;transform:none;transition:opacity var(--t),transform var(--t),visibility 0s}
+.sheet-h{display:flex;align-items:center;justify-content:space-between;height:56px;padding:0 12px 0 20px;background:var(--bar);color:#fff}
+.sheet-h :focus-visible{outline-color:#fff}
+.sheet-b{overflow-y:auto;padding:8px 20px 32px}
+.sheet .btn{width:100%;justify-content:flex-start;margin:12px 0 4px}
+.sg{padding:12px 0;border-bottom:1px solid var(--line)}
+.sg>a,.sg>p{display:flex;align-items:center;gap:10px;font-weight:700;font-size:17px;text-decoration:none}
+.sg .sw{width:12px;height:12px;outline:0}
+.c-home .sw{outline:1px solid #A7ABB2}
+.sg ul{display:flex;flex-wrap:wrap;gap:4px 18px;margin:6px 0 0 22px}
+.sg ul a{display:inline-block;padding:4px 0;color:var(--sub);font-weight:550}
+.who{display:flex;align-items:center;gap:10px;padding-top:16px;font-size:13px;color:var(--sub)}
+.who b{display:block;color:var(--ink);font-size:15px}
+
+body[data-state="setup"] [data-est],body:not([data-state="setup"]) [data-setup]{display:none!important}
+
+@media (max-width:1100px){
+  .cols:not(.c3){grid-template-columns:1fr}
+  .cols:not(.c3)>*+*{border-left:0;padding-left:0;border-top:1px solid var(--line);padding-top:16px;margin-top:20px}
+}
+@media (max-width:1180px){.search{min-width:0}.search span,.search kbd{display:none}.tab{padding:0 10px}}
+@media (max-width:980px){
+  .groups,.search,.top-r>.icon-btn:not(.menu-btn),.set-btn,.avatar{display:none}
+  .menu-btn{display:grid}
+  .cols.c3{grid-template-columns:1fr 1fr}
+  .cols.c3>:nth-child(3){grid-column:1/-1;border-left:0;padding-left:0;border-top:1px solid var(--line);padding-top:16px;margin-top:20px}
+}
+@media (max-width:760px){
+  .wrap{padding-left:16px;padding-right:16px}
+  .top-in{padding:0 8px 0 14px}
+  .ph-in{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:0 12px;align-items:center;padding-top:18px;padding-bottom:18px}
+  .ph-in>div{display:contents}
+  .crumb,.ph-sub,.ph-ctl{grid-column:1/-1}
+  .crumb{grid-row:1}
+  .ph-in h1{grid-row:2;grid-column:1}
+  .np{grid-row:2;grid-column:2}
+  .ph-sub{grid-row:3}
+  .ph-ctl{grid-row:4;margin-top:14px}
+  .band{grid-template-columns:1fr}
+  .spine{flex-direction:row;flex-wrap:wrap;align-items:baseline;gap:2px 10px;padding:12px 16px}
+  .spine ul{flex-direction:row;flex-wrap:wrap;gap:4px 14px;width:100%;margin-top:4px;padding-top:0}
+  .bb{border-left:1px solid var(--line);border-top:0;padding:16px}
+  .cols,.cols.c3{grid-template-columns:1fr}
+  .cols>*+*,.cols.c3>:nth-child(3){border-left:0;padding-left:0;border-top:1px solid var(--line);padding-top:16px;margin-top:20px}
+  .needs{flex-wrap:wrap;align-items:flex-start}
+  .needs p{flex-basis:calc(100% - 40px)}
+  .needs .btn{margin-left:34px}
+  .ready{padding:20px 16px}
+  .ready-head .prog{margin-left:0}
+  .stepper{grid-template-columns:1fr;gap:14px}
+  .stepper li{flex-direction:row;gap:12px}
+  .stepper li::after{left:14px;top:34px;bottom:-12px;right:auto;width:1px;height:auto}
+  .switch{position:static;margin:0 16px 20px;justify-content:center;flex-wrap:wrap;box-shadow:none}
+  .pair{gap:24px}
+}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important}}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-stack" viewBox="0 0 24 24"><path d="M12 3l9 5-9 5-9-5z"/><path d="M3 12.5l9 5 9-5M3 17l9 5 9-5"/></symbol>
+  <symbol id="i-chev" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></symbol>
+  <symbol id="i-chev-r" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
+  <symbol id="i-check-c" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.7 2.7L16 9.8"/></symbol>
+  <symbol id="i-copy" viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="i-settings" viewBox="0 0 24 24"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></symbol>
+  <symbol id="i-alert" viewBox="0 0 24 24"><path d="M10.3 4.2L2.8 17.5A2 2 0 0 0 4.5 20.5h15a2 2 0 0 0 1.7-3L13.7 4.2a2 2 0 0 0-3.4 0z"/><path d="M12 9.5v4M12 17h.01"/></symbol>
+  <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
+  <symbol id="i-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+  <symbol id="i-up" viewBox="0 0 24 24"><path d="M12 19V5M6 11l6-6 6 6"/></symbol>
+  <symbol id="i-mail" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3.5 7l8.5 6 8.5-6"/></symbol>
+  <symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.4 2.5 3.6 5.5 3.6 9s-1.2 6.5-3.6 9c-2.4-2.5-3.6-5.5-3.6-9S9.6 5.5 12 3z"/></symbol>
+  <symbol id="i-doc" viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></symbol>
+  <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-6.5 8-6.5s8 2.5 8 6.5"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+</svg>
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="top">
+  <div class="top-in">
+    <a class="logo" href="home.html" aria-label="Swarm, home">
+      <svg class="mark" viewBox="0 0 20 20" aria-hidden="true"><rect x="1" y="1" width="12" height="3.5" fill="#EE6A1F"/><rect x="1" y="6" width="18" height="3.5" fill="#fff"/><rect x="1" y="11" width="9" height="3.5" fill="#fff"/><rect x="1" y="16" width="15" height="3.5" fill="#fff"/></svg>
+      <span>Swarm</span>
+    </a>
+    <div class="pop-wrap">
+      <button class="pub-btn" aria-haspopup="true" aria-expanded="false" aria-controls="pub-menu" data-pop>Field Notes<svg class="i"><use href="#i-chev"/></svg></button>
+      <div class="menu" id="pub-menu">
+        <p class="menu-h">Publications</p>
+        <a href="home.html" aria-current="true"><span>Field Notes<small>fieldnotes.example</small></span><svg class="i tick"><use href="#i-check"/></svg></a>
+        <a href="#"><span>Morning Ledger<small>morningledger.example</small></span></a>
+        <hr>
+        <a href="#"><svg class="i"><use href="#i-plus"/></svg>New publication</a>
+        <a href="#"><svg class="i"><use href="#i-stack"/></svg>Manage publications</a>
+      </div>
+    </div>
+    <nav class="groups" aria-label="Main">
+      <a class="tab c-home" href="home.html" aria-current="page"><span class="sw"></span>Home</a>
+      <div class="pop-wrap c-write" data-hover>
+        <button class="tab" aria-haspopup="true" aria-expanded="false" aria-controls="dd-write" data-pop><span class="sw"></span>Write<svg class="i"><use href="#i-chev"/></svg></button>
+        <div class="menu dd" id="dd-write">
+          <a href="editor.html"><b>Posts</b><small>Drafts, scheduled and sent issues</small></a>
+          <a href="#"><b>Templates</b><small>Reusable layouts for regular issues</small></a>
+        </div>
+      </div>
+      <div class="pop-wrap c-aud" data-hover>
+        <button class="tab" aria-haspopup="true" aria-expanded="false" aria-controls="dd-aud" data-pop><span class="sw"></span>Audience<svg class="i"><use href="#i-chev"/></svg></button>
+        <div class="menu dd" id="dd-aud">
+          <a href="#"><b>Subscribers</b><small>Everyone on your list, with history</small></a>
+          <a href="#"><b>Segments</b><small>Saved groups to send to or leave out</small></a>
+          <a href="#"><b>Signup forms</b><small>Embeds and pages that collect emails</small></a>
+        </div>
+      </div>
+      <div class="pop-wrap c-grow" data-hover>
+        <button class="tab" aria-haspopup="true" aria-expanded="false" aria-controls="dd-grow" data-pop><span class="sw"></span>Grow<svg class="i"><use href="#i-chev"/></svg></button>
+        <div class="menu dd" id="dd-grow">
+          <a href="#"><b>Automations</b><small>Welcome and re-engagement sequences</small></a>
+          <a href="#"><b>Referrals &amp; growth</b><small>Reader referrals and recommendations</small></a>
+        </div>
+      </div>
+      <div class="pop-wrap c-earn" data-hover>
+        <button class="tab" aria-haspopup="true" aria-expanded="false" aria-controls="dd-earn" data-pop><span class="sw"></span>Earn<svg class="i"><use href="#i-chev"/></svg></button>
+        <div class="menu dd" id="dd-earn">
+          <a href="#"><b>Paid subscriptions</b><small>Plans, prices and payouts through Stripe</small></a>
+        </div>
+      </div>
+      <div class="pop-wrap c-pub" data-hover>
+        <button class="tab" aria-haspopup="true" aria-expanded="false" aria-controls="dd-pub" data-pop><span class="sw"></span>Publish<svg class="i"><use href="#i-chev"/></svg></button>
+        <div class="menu dd" id="dd-pub">
+          <a href="#"><b>Website</b><small>Your public archive at fieldnotes.example</small></a>
+          <a href="#"><b>Sending &amp; delivery</b><small>Domain, authentication and inbox placement</small></a>
+        </div>
+      </div>
+    </nav>
+    <div class="top-r">
+      <button class="search" data-cmd><svg class="i"><use href="#i-search"/></svg><span>Search</span><kbd>Ctrl K</kbd></button>
+      <a class="set-btn" href="#"><svg class="i" aria-hidden="true"><use href="#i-settings"/></svg>Settings</a>
+      <span class="avatar" role="img" aria-label="Mara Lind, Owner" title="Mara Lind, Owner">ML</span>
+      <button class="icon-btn menu-btn" aria-label="Open navigation" aria-expanded="false" aria-controls="sheet" data-sheet><svg class="i"><use href="#i-menu"/></svg></button>
+    </div>
+  </div>
+</header>
+
+<header class="ph">
+  <div class="wrap ph-in">
+    <div>
+      <nav class="crumb" aria-label="Breadcrumb"><a href="home.html">Field Notes</a><span aria-hidden="true">/</span><span aria-current="page">Home</span></nav>
+      <h1>Home</h1>
+      <p class="ph-sub" data-est>Tuesday's send reached 99.1% of inboxes. Next send Friday 06:00.</p>
+      <p class="ph-sub" data-setup>One step left before you can send.</p>
+    </div>
+    <div class="ph-r">
+      <div class="ph-ctl">
+        <span class="sample">Sample data</span>
+        <div class="seg" role="group" aria-label="Page state">
+          <button type="button" data-state="setup" aria-pressed="false">Setup</button>
+          <button type="button" data-state="established" aria-pressed="true">Established</button>
+        </div>
+      </div>
+      <div class="pop-wrap np">
+        <button class="btn primary" aria-haspopup="true" aria-expanded="false" aria-controls="np-menu" data-pop><svg class="i"><use href="#i-plus"/></svg>New post<svg class="i"><use href="#i-chev"/></svg></button>
+        <div class="menu" id="np-menu">
+          <p class="menu-h">Start from</p>
+          <a href="editor.html"><svg class="i"><use href="#i-doc"/></svg>Blank post</a>
+          <a href="editor.html"><svg class="i"><use href="#i-doc"/></svg>Template: Weekly issue</a>
+          <a href="editor.html"><svg class="i"><use href="#i-copy"/></svg>Duplicate #42 The slow web, revisited</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main id="main">
+  <div class="wrap">
+    <div class="needs" data-est role="region" aria-label="Needs you">
+      <svg class="i" role="img" aria-label="Needs attention"><use href="#i-alert"/></svg>
+      <p><b>Needs you.</b> #43 sends Fri 31 Oct, 06:00. Its preview text is empty, so inboxes will show the first line of the post instead.</p>
+      <a class="btn" href="editor.html">Add preview text</a>
+    </div>
+
+    <section class="ready" data-setup aria-labelledby="ready-h">
+      <div class="ready-head">
+        <h2 id="ready-h">Get ready to send</h2>
+        <p>Four steps to your first send. About ten minutes.</p>
+        <span class="prog">2 of 4 done</span>
+      </div>
+      <ol class="stepper">
+        <li class="done"><span class="dot"><svg class="i" role="img" aria-label="Done"><use href="#i-check"/></svg></span><div><b>Sending domain</b><span>mail.fieldnotes.example verified, DKIM 2048-bit</span></div></li>
+        <li class="cur" aria-current="step"><span class="dot">2</span><div><b>DMARC set to quarantine</b><span>Your record says p=none</span></div></li>
+        <li class="done"><span class="dot"><svg class="i" role="img" aria-label="Done"><use href="#i-check"/></svg></span><div><b>First subscribers</b><span>212 imported, 4 already suppressed</span></div></li>
+        <li><span class="dot">4</span><div><b>First post</b><span>Write it now. It sends once the steps above are done.</span><a href="editor.html">Write your first post</a></div></li>
+      </ol>
+      <div class="detail">
+        <h3>Step 2: DMARC set to quarantine</h3>
+        <p>Your record says p=none. Add this TXT record at your DNS host, then check again.</p>
+        <dl class="dns">
+          <div><dt>Type</dt><dd><code>TXT</code></dd></div>
+          <div><dt>Host</dt><dd><code>_dmarc.fieldnotes.example</code></dd></div>
+          <div><dt>Value</dt><dd><code id="dmarc-val">v=DMARC1; p=quarantine; rua=mailto:dmarc+fn@reports.swarm.example</code></dd></div>
+        </dl>
+        <div class="acts">
+          <button class="btn light" type="button" data-copy="dmarc-val"><svg class="i"><use href="#i-copy"/></svg><span>Copy</span></button>
+          <button class="btn ghost" type="button" id="recheck">Check again</button>
+          <span class="msg" id="recheck-msg" aria-live="polite">DNS changes can take up to an hour to appear.</span>
+        </div>
+      </div>
+    </section>
+
+    <div class="stack">
+      <section class="band c-write" aria-labelledby="b-write">
+        <div class="spine">
+          <h2 id="b-write">Write</h2>
+          <p>Posts and templates</p>
+          <ul><li><a href="editor.html">Posts</a></li><li><a href="#">Templates</a></li></ul>
+        </div>
+        <div class="bb cols" data-est>
+          <div>
+            <h3>Up next</h3>
+            <ul class="rows">
+              <li><div><a class="t" href="#">#43 The gate question: free or paid?</a><span class="meta">Fri 31 Oct, 06:00 · Everyone, 12,731 subscribers</span></div><span class="pill sched">Scheduled</span></li>
+              <li><div><a class="t" href="editor.html">Notes on the popup economy</a><span class="meta">Edited 2h ago · 642 words</span></div><span class="pill">Draft</span></li>
+            </ul>
+            <h3>Last send</h3>
+            <p><a class="t" href="#">#42 The slow web, revisited</a><span class="meta">Sent Tue 28 Oct, 06:00 to 12,731 subscribers</span></p>
+            <p class="results">Delivered <b>12,617</b> (99.1%) · Opened <b>48.2%</b> · Clicked <b>4.7%</b> · Unsubscribed <b>9</b></p>
+            <a class="more" href="#">Send report<svg class="i"><use href="#i-chev-r"/></svg></a>
+          </div>
+          <figure class="chart">
+            <h3>Opens and clicks, last 8 sends</h3>
+            <svg class="cw" viewBox="0 0 460 248" role="img" aria-labelledby="ch1-cap">
+              <text x="50" y="13" class="lab xs">Opened, % unique</text>
+              <g class="grid">
+                <line x1="50" x2="452" y1="109.3" y2="109.3"/>
+                <line x1="50" x2="452" y1="68.7" y2="68.7"/>
+                <line x1="50" x2="452" y1="28" y2="28"/>
+              </g>
+              <line class="base" x1="50" x2="452" y1="150" y2="150"/>
+              <text x="44" y="154" class="yl">0</text><text x="44" y="113.3" class="yl">20</text><text x="44" y="72.7" class="yl">40</text><text x="44" y="32" class="yl">60</text>
+              <rect x="61.1" y="60.3" width="28" height="89.7" class="b-o"/><text x="75.1" y="55.3" class="v">44.1</text>
+              <rect x="111.4" y="56.9" width="28" height="93.1" class="b-o"/><text x="125.4" y="51.9" class="v">45.8</text>
+              <rect x="161.6" y="62.2" width="28" height="87.8" class="b-o"/><text x="175.6" y="57.2" class="v">43.2</text>
+              <rect x="211.9" y="53.4" width="28" height="96.6" class="b-o"/><text x="225.9" y="48.4" class="v">47.5</text>
+              <rect x="262.1" y="56.5" width="28" height="93.5" class="b-o"/><text x="276.1" y="51.5" class="v">46.0</text>
+              <rect x="312.4" y="49.8" width="28" height="100.2" class="b-o"/><text x="326.4" y="44.8" class="v">49.3</text>
+              <rect x="362.6" y="48.1" width="28" height="101.9" class="b-o"/><text x="376.6" y="43.1" class="v">50.1</text>
+              <rect x="412.9" y="52" width="28" height="98" class="b-o"/><text x="426.9" y="47" class="v v-last">48.2</text>
+              <text x="50" y="182" class="lab xs">Clicked, %</text>
+              <line class="base" x1="50" x2="452" y1="220" y2="220"/>
+              <rect x="61.1" y="205.3" width="28" height="14.7" class="b-c"/><text x="75.1" y="201.3" class="v">4.2</text>
+              <rect x="111.4" y="202.2" width="28" height="17.8" class="b-c"/><text x="125.4" y="198.2" class="v">5.1</text>
+              <rect x="161.6" y="206.3" width="28" height="13.7" class="b-c"/><text x="175.6" y="202.3" class="v">3.9</text>
+              <rect x="211.9" y="201.1" width="28" height="18.9" class="b-c"/><text x="225.9" y="197.1" class="v">5.4</text>
+              <rect x="262.1" y="204.6" width="28" height="15.4" class="b-c"/><text x="276.1" y="200.6" class="v">4.4</text>
+              <rect x="312.4" y="199.3" width="28" height="20.7" class="b-c"/><text x="326.4" y="195.3" class="v">5.9</text>
+              <rect x="362.6" y="201.8" width="28" height="18.2" class="b-c"/><text x="376.6" y="197.8" class="v">5.2</text>
+              <rect x="412.9" y="203.6" width="28" height="16.4" class="b-c"/><text x="426.9" y="199.6" class="v v-last">4.7</text>
+              <text x="75.1" y="242" class="xl">#35</text><text x="125.4" y="242" class="xl">#36</text><text x="175.6" y="242" class="xl">#37</text><text x="225.9" y="242" class="xl">#38</text><text x="276.1" y="242" class="xl">#39</text><text x="326.4" y="242" class="xl">#40</text><text x="376.6" y="242" class="xl">#41</text><text x="426.9" y="242" class="xl">#42</text>
+            </svg>
+            <svg class="cn" viewBox="0 0 320 236" role="img" aria-labelledby="ch1-cap">
+              <text x="34" y="13" class="lab xs">Opened, % unique</text>
+              <g class="grid">
+                <line x1="34" x2="316" y1="102.7" y2="102.7"/>
+                <line x1="34" x2="316" y1="65.3" y2="65.3"/>
+                <line x1="34" x2="316" y1="28" y2="28"/>
+              </g>
+              <line class="base" x1="34" x2="316" y1="140" y2="140"/>
+              <text x="28" y="144" class="yl">0</text><text x="28" y="106.7" class="yl">20</text><text x="28" y="69.3" class="yl">40</text><text x="28" y="32" class="yl">60</text>
+              <rect x="41.6" y="57.7" width="20" height="82.3" class="b-o"/>
+              <rect x="76.9" y="54.5" width="20" height="85.5" class="b-o"/>
+              <rect x="112.1" y="59.4" width="20" height="80.6" class="b-o"/>
+              <rect x="147.4" y="51.3" width="20" height="88.7" class="b-o"/>
+              <rect x="182.6" y="54.1" width="20" height="85.9" class="b-o"/>
+              <rect x="217.9" y="48" width="20" height="92" class="b-o"/>
+              <rect x="253.1" y="46.5" width="20" height="93.5" class="b-o"/>
+              <rect x="288.4" y="50" width="20" height="90" class="b-o"/><text x="298.4" y="45" class="v v-last">48.2</text>
+              <text x="34" y="170" class="lab xs">Clicked, %</text>
+              <line class="base" x1="34" x2="316" y1="206" y2="206"/>
+              <rect x="41.6" y="192.3" width="20" height="13.7" class="b-c"/>
+              <rect x="76.9" y="189.4" width="20" height="16.6" class="b-c"/>
+              <rect x="112.1" y="193.3" width="20" height="12.7" class="b-c"/>
+              <rect x="147.4" y="188.4" width="20" height="17.6" class="b-c"/>
+              <rect x="182.6" y="191.7" width="20" height="14.3" class="b-c"/>
+              <rect x="217.9" y="186.8" width="20" height="19.2" class="b-c"/>
+              <rect x="253.1" y="189.1" width="20" height="16.9" class="b-c"/>
+              <rect x="288.4" y="190.7" width="20" height="15.3" class="b-c"/><text x="298.4" y="186.7" class="v v-last">4.7</text>
+              <text x="51.6" y="228" class="xl">#35</text><text x="86.9" y="228" class="xl">#36</text><text x="122.1" y="228" class="xl">#37</text><text x="157.4" y="228" class="xl">#38</text><text x="192.6" y="228" class="xl">#39</text><text x="227.9" y="228" class="xl">#40</text><text x="263.1" y="228" class="xl">#41</text><text x="298.4" y="228" class="xl">#42</text>
+            </svg>
+            <figcaption id="ch1-cap">Unique open rate (top, 0 to 60%) and click rate (bottom, 0 to 8%) for sends #35 to #42. Latest, #42: 48.2% opened, 4.7% clicked.</figcaption>
+          </figure>
+        </div>
+        <div class="bb" data-setup>
+          <div class="empty">
+            <span class="t">Write your first post</span>
+            <p>Results appear here after your first send: delivered, opened and clicked, with each send compared to the ones before.</p>
+            <a class="btn primary" href="editor.html"><svg class="i"><use href="#i-plus"/></svg>Write your first post</a>
+          </div>
+        </div>
+      </section>
+
+      <section class="band c-aud" aria-labelledby="b-aud">
+        <div class="spine">
+          <h2 id="b-aud">Audience</h2>
+          <p>Subscribers, segments and forms</p>
+          <ul><li><a href="#">Subscribers</a></li><li><a href="#">Segments</a></li><li><a href="#">Signup forms</a></li></ul>
+        </div>
+        <div class="bb cols" data-est>
+          <div>
+            <p class="fig"><span class="n">12,731</span><span class="l">subscribers</span></p>
+            <p class="delta"><svg class="i" aria-hidden="true"><use href="#i-up"/></svg>+2.1% (+262) vs 30 days ago</p>
+            <dl class="kv">
+              <div><dt>New this month</dt><dd>1,212</dd></div>
+              <div><dt>Unsubscribed this month</dt><dd>87</dd></div>
+              <div><dt>Top signup form</dt><dd>Footer form · 38% of new subscribers</dd></div>
+            </dl>
+          </div>
+          <figure class="chart">
+            <h3>Subscribers, last 30 days</h3>
+            <svg class="cw" viewBox="0 0 460 160" role="img" aria-labelledby="ch2-cap">
+              <g class="grid">
+                <line x1="58" x2="448" y1="114" y2="114"/>
+                <line x1="58" x2="448" y1="78" y2="78"/>
+                <line x1="58" x2="448" y1="42" y2="42"/>
+              </g>
+              <line class="base" x1="58" x2="448" y1="132" y2="132"/>
+              <text x="52" y="118" class="yl">12,500</text><text x="52" y="82" class="yl">12,600</text><text x="52" y="46" class="yl">12,700</text>
+              <path class="line-path" d="M58 125.2 L71.4 121.9 L84.9 117.6 L98.3 119 L111.8 115.1 L125.2 110.8 L138.7 108.6 L152.1 109.7 L165.6 103.9 L179 101 L192.5 97.1 L205.9 98.5 L219.4 93.8 L232.8 89.2 L246.3 87.4 L259.7 88.8 L273.2 83.4 L286.6 79.1 L300.1 75.8 L313.5 77.6 L327 71.5 L340.4 67.2 L353.9 63.2 L367.3 59.3 L380.8 60.7 L394.2 53.9 L407.7 48.1 L421.1 42.4 L434.6 37.7 L448 30.8"/>
+              <circle cx="448" cy="30.8" r="3.5" fill="#1F7A4C"/>
+              <circle cx="58" cy="125.2" r="3" fill="#fff" stroke="#1F7A4C" stroke-width="2"/>
+              <text x="440" y="29.8" class="lab xe">12,731</text>
+              <text x="58" y="154" class="xs">30 Sep</text><text x="246.3" y="154" class="xl">14 Oct</text><text x="448" y="154" class="xe">29 Oct</text>
+            </svg>
+            <svg class="cn" viewBox="0 0 320 150" role="img" aria-labelledby="ch2-cap">
+              <g class="grid">
+                <line x1="46" x2="312" y1="103.7" y2="103.7"/>
+                <line x1="46" x2="312" y1="71" y2="71"/>
+                <line x1="46" x2="312" y1="38.3" y2="38.3"/>
+              </g>
+              <line class="base" x1="46" x2="312" y1="120" y2="120"/>
+              <text x="40" y="107.7" class="yl">12,500</text><text x="40" y="75" class="yl">12,600</text><text x="40" y="42.3" class="yl">12,700</text>
+              <path class="line-path" d="M46 113.8 L55.2 110.9 L64.3 106.9 L73.5 108.2 L82.7 104.6 L91.9 100.7 L101 98.8 L110.2 99.7 L119.4 94.5 L128.6 91.9 L137.7 88.3 L146.9 89.6 L156.1 85.4 L165.2 81.1 L174.4 79.5 L183.6 80.8 L192.8 75.9 L201.9 72 L211.1 69 L220.3 70.7 L229.4 65.1 L238.6 61.2 L247.8 57.6 L257 54 L266.1 55.3 L275.3 49.1 L284.5 43.9 L293.7 38.7 L302.8 34.4 L312 28.2"/>
+              <circle cx="312" cy="28.2" r="3.5" fill="#1F7A4C"/>
+              <circle cx="46" cy="113.8" r="3" fill="#fff" stroke="#1F7A4C" stroke-width="2"/>
+              <text x="304" y="27.2" class="lab xe">12,731</text>
+              <text x="46" y="142" class="xs">30 Sep</text><text x="174.4" y="142" class="xl">14 Oct</text><text x="312" y="142" class="xe">29 Oct</text>
+            </svg>
+            <figcaption id="ch2-cap">Daily total subscribers, 30 Sep to 29 Oct, rising from 12,469 to 12,731 with small dips.</figcaption>
+          </figure>
+        </div>
+        <div class="bb" data-setup>
+          <div class="empty">
+            <span class="t">212 subscribers from your import</span>
+            <p>4 addresses were already suppressed and won't be mailed. Add a signup form to your website so new readers can join.</p>
+            <p class="links"><a href="#">Add a signup form</a><a href="#">Import more subscribers</a></p>
+          </div>
+        </div>
+      </section>
+
+      <section class="band c-grow" aria-labelledby="b-grow">
+        <div class="spine">
+          <h2 id="b-grow">Grow</h2>
+          <p>Automations and referrals</p>
+          <ul><li><a href="#">Automations</a></li><li><a href="#">Referrals &amp; growth</a></li></ul>
+        </div>
+        <div class="bb cols" data-est>
+          <div>
+            <h3>Automations</h3>
+            <ul class="auto">
+              <li><div class="top-row"><a class="t" href="#">Welcome series</a><span>342 entered, <b>298</b> completed</span></div><div class="bar" role="img" aria-label="87% completed"><i style="width:87.1%"></i></div></li>
+              <li><div class="top-row"><a class="t" href="#">Re-engagement</a><span>156 entered, <b>89</b> completed</span></div><div class="bar" role="img" aria-label="57% completed"><i style="width:57.1%"></i></div></li>
+            </ul>
+          </div>
+          <div>
+            <h3>Referrals this month</h3>
+            <div class="pair">
+              <p><span class="n">64</span><span class="l">subscribers referred someone</span></p>
+              <p><span class="n">141</span><span class="l">new subscribers came from referrals</span></p>
+            </div>
+          </div>
+        </div>
+        <div class="bb" data-setup>
+          <div class="empty">
+            <span class="t">No automations running yet</span>
+            <p>A welcome series is the usual first one: it greets each new subscriber with your best posts. It starts sending once your setup is done.</p>
+            <p class="links"><a href="#">Set up a welcome series</a></p>
+          </div>
+        </div>
+      </section>
+
+      <section class="band c-earn" aria-labelledby="b-earn">
+        <div class="spine">
+          <h2 id="b-earn">Earn</h2>
+          <p>Paid subscriptions</p>
+          <ul><li><a href="#">Paid subscriptions</a></li></ul>
+        </div>
+        <div class="bb" data-est>
+          <div class="pair">
+            <div><p><span class="n">418</span><span class="l">paid subscribers</span></p><p class="delta"><svg class="i" aria-hidden="true"><use href="#i-up"/></svg>+12 vs 30 days ago</p></div>
+            <div><p><span class="n">$2,508</span><span class="l">monthly revenue</span></p></div>
+          </div>
+          <p class="note">Paid at Stripe, 0% platform fee.</p>
+        </div>
+        <div class="bb" data-setup>
+          <div class="empty">
+            <span class="t">Connect Stripe to offer paid subscriptions</span>
+            <p>Readers pay you directly at Stripe. Swarm takes a 0% platform fee.</p>
+            <a class="btn" href="#">Connect Stripe</a>
+          </div>
+        </div>
+      </section>
+
+      <section class="band c-pub" aria-labelledby="b-pub">
+        <div class="spine">
+          <h2 id="b-pub">Publish</h2>
+          <p>Website and delivery</p>
+          <ul><li><a href="#">Website</a></li><li><a href="#">Sending &amp; delivery</a></li></ul>
+        </div>
+        <div class="bb cols c3" data-est>
+          <div>
+            <h3>Sending &amp; delivery</h3>
+            <ul class="checks">
+              <li><svg class="i" aria-hidden="true"><use href="#i-check-c"/></svg><span>mail.fieldnotes.example verified<span class="meta">DKIM 2048-bit</span></span></li>
+              <li><svg class="i" aria-hidden="true"><use href="#i-check-c"/></svg><span>DMARC p=quarantine</span></li>
+              <li><svg class="i" aria-hidden="true"><use href="#i-check-c"/></svg><span>Warm-up finished<span class="meta">Day 21, daily cap 40,000</span></span></li>
+            </ul>
+          </div>
+          <div>
+            <h3>Inbox placement, #42</h3>
+            <div class="tbl-wrap">
+              <table class="tbl">
+                <thead><tr><th scope="col">Gmail</th><th scope="col">Outlook</th><th scope="col">Apple</th><th scope="col">Yahoo</th></tr></thead>
+                <tbody><tr><td>99.4%</td><td>98.8%</td><td>99.2%</td><td>97.6%</td></tr></tbody>
+              </table>
+            </div>
+            <p class="note">Bounced 114 (0.9%) · Spam complaints 0</p>
+          </div>
+          <div>
+            <h3>Website</h3>
+            <p class="t">fieldnotes.example</p>
+            <p class="meta">Every sent post is published here, with its own web address.</p>
+            <a class="more" href="#">Open website<svg class="i"><use href="#i-chev-r"/></svg></a>
+          </div>
+        </div>
+        <div class="bb cols" data-setup>
+          <div>
+            <h3>Sending &amp; delivery</h3>
+            <ul class="checks">
+              <li><svg class="i" aria-hidden="true"><use href="#i-check-c"/></svg><span>mail.fieldnotes.example verified<span class="meta">DKIM 2048-bit</span></span></li>
+              <li><svg class="i w" aria-hidden="true"><use href="#i-alert"/></svg><span>DMARC is p=none<span class="meta">Set it to quarantine in step 2 above</span></span></li>
+              <li><svg class="i" aria-hidden="true" style="color:var(--sub)"><use href="#i-clock"/></svg><span>Warm-up starts with your first send<span class="meta">Inbox placement appears after it</span></span></li>
+            </ul>
+          </div>
+          <div>
+            <h3>Website</h3>
+            <p><a class="t" href="#">fieldnotes.example</a></p>
+            <p class="meta">Live, with no posts yet. Your first post appears here when it sends.</p>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+  <div class="wrap"><p class="foot">Sample data. Every number on this page is illustrative.</p></div>
+</main>
+
+<nav class="switch" aria-label="Mockup switcher"><span>Design B · Spines</span><a href="home.html" aria-current="page">Home</a><a href="editor.html">Editor</a><a href="../index.html">All designs</a></nav>
+
+<div class="cmd" id="cmd" role="dialog" aria-modal="true" aria-label="Command menu">
+  <div class="cmd-box">
+    <div class="cmd-in"><svg class="i" aria-hidden="true"><use href="#i-search"/></svg><input id="cmd-q" type="text" placeholder="Search or jump to" aria-label="Search or jump to" autocomplete="off"><kbd>Esc</kbd></div>
+    <div class="cmd-list" id="cmd-list">
+      <div class="cmd-g"><p>Jump to</p>
+        <a href="editor.html"><svg class="i"><use href="#i-doc"/></svg>Posts</a>
+        <a href="#"><svg class="i"><use href="#i-user"/></svg>Subscribers</a>
+        <a href="#"><svg class="i"><use href="#i-mail"/></svg>Sending &amp; delivery</a>
+        <a href="#"><svg class="i"><use href="#i-settings"/></svg>Settings</a>
+      </div>
+      <div class="cmd-g"><p>Create</p>
+        <a href="editor.html"><svg class="i"><use href="#i-plus"/></svg>New post</a>
+        <a href="#"><svg class="i"><use href="#i-plus"/></svg>Import subscribers</a>
+        <a href="#"><svg class="i"><use href="#i-plus"/></svg>New segment</a>
+      </div>
+      <div class="cmd-g"><p>Recent</p>
+        <a href="#"><svg class="i"><use href="#i-clock"/></svg>#42 The slow web, revisited</a>
+        <a href="editor.html"><svg class="i"><use href="#i-clock"/></svg>Notes on the popup economy</a>
+      </div>
+      <p class="cmd-empty" hidden>No matches. Try a page name, like "Subscribers".</p>
+    </div>
+  </div>
+</div>
+
+<div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-label="Navigation">
+  <div class="sheet-h">
+    <span class="logo"><svg class="mark" viewBox="0 0 20 20" aria-hidden="true"><rect x="1" y="1" width="12" height="3.5" fill="#EE6A1F"/><rect x="1" y="6" width="18" height="3.5" fill="#fff"/><rect x="1" y="11" width="9" height="3.5" fill="#fff"/><rect x="1" y="16" width="15" height="3.5" fill="#fff"/></svg>Swarm</span>
+    <button class="icon-btn" aria-label="Close navigation" data-sheet-close><svg class="i"><use href="#i-close"/></svg></button>
+  </div>
+  <div class="sheet-b">
+    <button class="btn" data-cmd><svg class="i"><use href="#i-search"/></svg>Search</button>
+    <div class="sg c-home"><a href="home.html" aria-current="page"><span class="sw"></span>Home</a></div>
+    <div class="sg c-write"><p><span class="sw"></span>Write</p><ul><li><a href="editor.html">Posts</a></li><li><a href="#">Templates</a></li></ul></div>
+    <div class="sg c-aud"><p><span class="sw"></span>Audience</p><ul><li><a href="#">Subscribers</a></li><li><a href="#">Segments</a></li><li><a href="#">Signup forms</a></li></ul></div>
+    <div class="sg c-grow"><p><span class="sw"></span>Grow</p><ul><li><a href="#">Automations</a></li><li><a href="#">Referrals &amp; growth</a></li></ul></div>
+    <div class="sg c-earn"><p><span class="sw"></span>Earn</p><ul><li><a href="#">Paid subscriptions</a></li></ul></div>
+    <div class="sg c-pub"><p><span class="sw"></span>Publish</p><ul><li><a href="#">Website</a></li><li><a href="#">Sending &amp; delivery</a></li></ul></div>
+    <div class="sg"><a href="#"><svg class="i"><use href="#i-settings"/></svg>Settings</a></div>
+    <div class="who"><span class="avatar" aria-hidden="true">ML</span><span><b>Mara Lind</b>Owner · Field Notes</span></div>
+  </div>
+</div>
+
+<script>
+const $=(s,r=document)=>r.querySelector(s),$$=(s,r=document)=>[...r.querySelectorAll(s)];
+function tnum(root=document.body){
+  const NS='http://www.w3.org/2000/svg',w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT,{acceptNode:n=>/\d/.test(n.data)&&!n.parentNode.closest('script,style,option,textarea,[contenteditable],.d')?1:2}),list=[];
+  while(w.nextNode())list.push(w.currentNode);
+  list.forEach(n=>{const svg=n.parentNode.namespaceURI===NS,f=document.createDocumentFragment();
+    n.data.split(/(\d+)/).forEach((part,i)=>{if(!part)return;if(i%2){const e=svg?document.createElementNS(NS,'tspan'):document.createElement('span');e.setAttribute('class','d');e.textContent=part;f.appendChild(e)}else f.appendChild(document.createTextNode(part))});
+    if(!svg&&/flex|grid/.test(getComputedStyle(n.parentNode).display)){const box=document.createElement('span');box.appendChild(f);n.replaceWith(box)}else n.replaceWith(f)});
+}
+tnum();
+const pops=[];
+const closePops=keep=>pops.forEach(p=>{if(p!==keep&&p.isOpen())p.close()});
+$$('[data-pop]').forEach(btn=>{
+  const wrap=btn.closest('.pop-wrap'),panel=document.getElementById(btn.getAttribute('aria-controls'));let t=0;
+  const p={btn,hov:false,isOpen:()=>panel.classList.contains('open'),
+    open(focus){closePops(p);panel.classList.add('open');wrap.classList.add('hot');btn.setAttribute('aria-expanded','true');if(focus){const f=panel.querySelector('a,button');f&&f.focus()}},
+    close(ret){panel.classList.remove('open');wrap.classList.remove('hot');btn.setAttribute('aria-expanded','false');p.hov=false;if(ret)btn.focus()}};
+  pops.push(p);
+  btn.addEventListener('click',()=>{clearTimeout(t);if(p.isOpen()&&!p.hov)p.close();else{p.open();p.hov=false}});
+  btn.addEventListener('keydown',e=>{if(e.key==='ArrowDown'){e.preventDefault();p.open(true)}});
+  panel.addEventListener('keydown',e=>{
+    const items=$$('a,button',panel),i=items.indexOf(document.activeElement);
+    if(e.key==='ArrowDown'||e.key==='ArrowUp'){e.preventDefault();items[(i+(e.key==='ArrowDown'?1:-1)+items.length)%items.length].focus()}
+    if(e.key==='Escape'){e.stopPropagation();p.close(true)}
+  });
+  wrap.addEventListener('focusout',e=>{if(e.relatedTarget&&!wrap.contains(e.relatedTarget))p.close()});
+  if(wrap.hasAttribute('data-hover')){
+    wrap.addEventListener('mouseenter',()=>{if(!matchMedia('(hover:hover)').matches)return;clearTimeout(t);t=setTimeout(()=>{if(!p.isOpen()){p.open();p.hov=true}},90)});
+    wrap.addEventListener('mouseleave',()=>{clearTimeout(t);if(p.hov)t=setTimeout(()=>p.close(),200)});
+  }
+});
+document.addEventListener('click',e=>{if(!e.target.closest('.pop-wrap'))closePops()});
+
+const cmd=$('#cmd'),cq=$('#cmd-q');let cmdBack=null,act=-1;
+const cmdItems=()=>$$('#cmd-list a').filter(a=>!a.hidden);
+function setAct(i){const it=cmdItems();it.forEach(a=>a.classList.remove('act'));act=it.length?(i+it.length)%it.length:-1;if(act>-1){it[act].classList.add('act');it[act].scrollIntoView({block:'nearest'})}}
+function filterCmd(){
+  const q=cq.value.trim().toLowerCase();
+  $$('#cmd-list a').forEach(a=>a.hidden=!!q&&!a.textContent.toLowerCase().includes(q));
+  $$('.cmd-g').forEach(g=>g.hidden=!$$('a',g).some(a=>!a.hidden));
+  $('.cmd-empty').hidden=cmdItems().length>0;setAct(0);
+}
+function openCmd(){cmdBack=document.activeElement;closePops();closeSheet(false);cmd.classList.add('open');cq.value='';filterCmd();cq.focus()}
+function closeCmd(){cmd.classList.remove('open');if(cmdBack&&cmdBack.focus)cmdBack.focus()}
+$$('[data-cmd]').forEach(b=>b.addEventListener('click',openCmd));
+cq.addEventListener('input',filterCmd);
+cq.addEventListener('keydown',e=>{
+  if(e.key==='ArrowDown'||e.key==='ArrowUp'){e.preventDefault();setAct(act+(e.key==='ArrowDown'?1:-1))}
+  if(e.key==='Enter'&&act>-1){e.preventDefault();cmdItems()[act].click()}
+});
+cmd.addEventListener('mousedown',e=>{if(e.target===cmd)closeCmd()});
+cmd.addEventListener('keydown',e=>{if(e.key!=='Tab')return;const f=[cq,...cmdItems()],i=f.indexOf(document.activeElement);e.preventDefault();f[(i+(e.shiftKey?-1:1)+f.length)%f.length].focus()});
+
+const sheet=$('#sheet'),sheetBtn=$('[data-sheet]');
+function openSheet(){closePops();sheet.classList.add('open');sheetBtn.setAttribute('aria-expanded','true');document.body.style.overflow='hidden';$('[data-sheet-close]').focus()}
+function closeSheet(ret=true){if(!sheet.classList.contains('open'))return;sheet.classList.remove('open');sheetBtn.setAttribute('aria-expanded','false');document.body.style.overflow='';if(ret)sheetBtn.focus()}
+sheetBtn.addEventListener('click',openSheet);
+$('[data-sheet-close]').addEventListener('click',()=>closeSheet());
+matchMedia('(min-width:981px)').addEventListener('change',e=>{if(e.matches)closeSheet(false)});
+
+document.addEventListener('keydown',e=>{
+  if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='k'){e.preventDefault();cmd.classList.contains('open')?closeCmd():openCmd();return}
+  if(e.key!=='Escape')return;
+  if(cmd.classList.contains('open'))return closeCmd();
+  if(sheet.classList.contains('open'))return closeSheet();
+  const o=pops.find(p=>p.isOpen());if(o)o.close(true);
+});
+
+function setState(s){
+  document.body.dataset.state=s;
+  $$('.seg button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.state===s)));
+  const u=new URL(location.href);if(s==='setup')u.searchParams.set('state','setup');else u.searchParams.delete('state');
+  history.replaceState(null,'',u);
+}
+$$('.seg button').forEach(b=>b.addEventListener('click',()=>setState(b.dataset.state)));
+setState(new URLSearchParams(location.search).get('state')==='setup'?'setup':'established');
+
+function copyText(text){
+  const fallback=()=>{const ta=document.createElement('textarea');ta.value=text;ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();try{document.execCommand('copy')}finally{ta.remove()}};
+  if(navigator.clipboard&&window.isSecureContext)return navigator.clipboard.writeText(text).catch(fallback);
+  fallback();return Promise.resolve();
+}
+$$('[data-copy]').forEach(b=>b.addEventListener('click',()=>{
+  const label=$('span',b);
+  copyText(document.getElementById(b.dataset.copy).textContent).then(()=>{label.textContent='Copied';setTimeout(()=>label.textContent='Copy',2000)});
+}));
+$('#recheck').addEventListener('click',e=>{
+  const b=e.currentTarget,m=$('#recheck-msg');b.disabled=true;b.textContent='Checking…';
+  setTimeout(()=>{b.disabled=false;b.textContent='Check again';m.textContent='Still p=none at '+new Date().toTimeString().slice(0,5)+'. DNS changes can take up to an hour to appear.';tnum(m)},1100);
+});
+</script>
+</body>
+</html>

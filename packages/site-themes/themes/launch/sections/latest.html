@@ -1,0 +1,59 @@
+{% assign s = section.settings %}
+<section class="lx-latest lx-latest--{{ s.style }}" aria-labelledby="{{ section.id }}-title">
+  <div class="lx-head">
+    {% if s.heading %}
+    <h2 class="lx-h2" id="{{ section.id }}-title">{{ s.heading }}</h2>
+    {% else %}
+    <h2 class="sw-sr" id="{{ section.id }}-title">Latest issues</h2>
+    {% endif %} {% if posts %}<a class="lx-link" href="{{ site.archive_url }}">All issues</a>{%
+    endif %}
+  </div>
+  {% if posts %}
+  <ul class="lx-cards" role="list">
+    {% for post in posts limit: s.count %}
+    <li>{% render 'card', post: post, s: s %}</li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <p class="lx-empty">The first issue is on its way. Subscribe and it comes straight to you.</p>
+  {% endif %}
+</section>
+
+{% comment %}<!-- prettier-ignore -->{% endcomment %}
+{% schema %}
+{
+  "name": "Latest issues",
+  "description": "The newest issues.",
+  "settings": [
+    {
+      "id": "heading",
+      "type": "text",
+      "label": "Heading",
+      "max": 120,
+      "default": "Read the latest"
+    },
+    {
+      "id": "count",
+      "type": "range",
+      "label": "How many",
+      "min": 1,
+      "max": 12,
+      "step": 1,
+      "default": 3
+    },
+    {
+      "id": "style",
+      "type": "select",
+      "label": "Style",
+      "options": [
+        { "value": "cards", "label": "Cards" },
+        { "value": "list", "label": "List" },
+        { "value": "compact", "label": "Compact" }
+      ],
+      "default": "cards"
+    },
+    { "id": "show_images", "type": "checkbox", "label": "Show images", "default": true },
+    { "id": "show_excerpt", "type": "checkbox", "label": "Show summaries", "default": true }
+  ]
+}
+{% endschema %}

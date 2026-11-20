@@ -1,0 +1,13 @@
+{
+  "zone": "example.com",
+  "dnsToken": "dry-run-dns-token-0000000000000000000000",
+  "storeDnsToken": false,
+  "owner": { "name": "Ada Example", "email": "ada@example.com" },
+  "publication": { "name": "The Example Letter", "slug": "letter" },
+  "mail": {
+    "provider": "resend",
+    "region": "eu-west-1",
+    "resendApiKey": "re_dry_run_0000000000000000"
+  },
+  "excludeHosts": []
+}

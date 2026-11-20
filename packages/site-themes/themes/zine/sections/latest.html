@@ -1,0 +1,60 @@
+{% assign s = section.settings %}
+<section class="zn-latest zn-latest--{{ s.style }}" aria-labelledby="{{ section.id }}-title">
+  <div class="zn-head">
+    {% if s.heading %}
+    <h2 class="zn-h2" id="{{ section.id }}-title">{{ s.heading }}</h2>
+    {% else %}
+    <h2 class="sw-sr" id="{{ section.id }}-title">Latest issues</h2>
+    {% endif %} {% if posts %}<a class="zn-link" href="{{ site.archive_url }}">All issues</a>{%
+    endif %}
+  </div>
+  {% if posts %} {% if s.style == 'stack' or s.style == 'cards' %}
+  <ul class="zn-cards" role="list">
+    {% for post in posts limit: s.count %}
+    <li class="zn-cards__item">{% render 'card', post: post, s: s %}</li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <ol class="zn-rows" role="list">
+    {% for post in posts limit: s.count %}
+    <li>{% render 'row', post: post, s: s %}</li>
+    {% endfor %}
+  </ol>
+  {% endif %} {% else %}
+  <p class="zn-empty">The first issue is on its way. Subscribe and it comes straight to you.</p>
+  {% endif %}
+</section>
+
+{% comment %}<!-- prettier-ignore -->{% endcomment %}
+{% schema %}
+{
+  "name": "Latest issues",
+  "description": "The newest issues, as a stack of colour cards or in rows.",
+  "settings": [
+    { "id": "heading", "type": "text", "label": "Heading", "max": 120, "default": "Fresh off the press" },
+    {
+      "id": "count",
+      "type": "range",
+      "label": "How many",
+      "min": 1,
+      "max": 12,
+      "step": 1,
+      "default": 6
+    },
+    {
+      "id": "style",
+      "type": "select",
+      "label": "Style",
+      "options": [
+        { "value": "stack", "label": "Colour cards" },
+        { "value": "cards", "label": "Plain cards" },
+        { "value": "list", "label": "List" },
+        { "value": "compact", "label": "Compact" }
+      ],
+      "default": "stack"
+    },
+    { "id": "show_images", "type": "checkbox", "label": "Show images", "default": true },
+    { "id": "show_excerpt", "type": "checkbox", "label": "Show summaries", "default": true }
+  ]
+}
+{% endschema %}

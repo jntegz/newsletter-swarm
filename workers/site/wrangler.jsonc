@@ -1,0 +1,193 @@
+{
+  "$schema": "../../node_modules/wrangler/config-schema.json",
+  // Channel websites on <slug>.<PLATFORM_SITE_DOMAIN> and verified custom hostnames, plus public
+  // media. Secrets (READER_KEYS, and the AWS credentials where SES is used) go in .dev.vars
+  // locally and `wrangler secret put` elsewhere. Locally, sites answer at
+  // http://<slug>.site.localhost:8792 (browsers resolve *.localhost to this machine).
+  // READER_LIMITER (Workers Rate Limiting) caps reader sign-in posts at 10 a minute per client IP;
+  // ratelimits are not inherited, so every environment declares its own namespace.
+  // CHECKOUT_LIMITER caps checkout, pledge, portal and gift posts the same way. Payments: PAYMENTS
+  // is "dev" locally (the DevStripe fake and its /_swarm/checkout/dev page) and "stripe" elsewhere,
+  // where STRIPE_SECRET_KEY is a secret. The link keyrings (.dev.vars.example) and
+  // TURNSTILE_SECRET_KEY are secrets too.
+  // Not the production name: a deploy that names no environment makes a separate, harmless
+  // "-local" script, never a production one with these development settings.
+  "name": "swarm-site-local",
+  // No provider default hostname and no preview URLs: a worker answers only on the routes
+  // the installer gives it (docs/deployment.md, "Public surface"). Stated here, in each
+  // environment too, so nothing rests on a platform default.
+  "workers_dev": false,
+  "preview_urls": false,
+  "main": "src/index.ts",
+  "compatibility_date": "2026-10-01",
+  "observability": { "enabled": true },
+  "vars": {
+    "ENVIRONMENT": "development",
+    // Links are signed per family (docs/security.md "Keys"). Locally there are no old links to
+    // keep: v2 from the start, and no v1 link is taken.
+    "LINK_SIGNING_MODE": "v2",
+    "LINK_LEGACY_CUTOFF": "0",
+    "PLATFORM_SITE_DOMAIN": "site.localhost",
+    "SITE_SCHEME": "http",
+    "MEDIA_ORIGIN": "http://localhost:8792",
+    "CAPTURE_ORIGIN": "http://localhost:8791",
+    "APP_ORIGIN": "http://localhost:5273",
+    "PLATFORM_MAIL_DOMAIN": "mail.swarm.localhost",
+    "MAIL_ADAPTER": "dev",
+    "AWS_REGION": "us-east-1",
+    "DNS_RESOLVER": "dev",
+    "LINK_HOSTNAMES": "off",
+    "PAYMENTS": "dev",
+    "TURNSTILE_SITE_KEY": "1x00000000000000000000AA",
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "swarm",
+      "database_id": "local",
+      "migrations_dir": "../../migrations",
+    },
+  ],
+  "kv_namespaces": [{ "binding": "CACHE", "id": "local" }],
+  "ratelimits": [
+    { "name": "READER_LIMITER", "namespace_id": "4101", "simple": { "limit": 10, "period": 60 } },
+    { "name": "CHECKOUT_LIMITER", "namespace_id": "4111", "simple": { "limit": 10, "period": 60 } },
+  ],
+  "r2_buckets": [
+    { "binding": "MEDIA", "bucket_name": "swarm-media" },
+    { "binding": "DEV_MAILBOX", "bucket_name": "swarm-dev-mailbox" },
+  ],
+  // The install's sending limits (the realtime worker's SendPacer): this worker's mail counts too.
+  "durable_objects": {
+    "bindings": [
+      { "name": "SEND_PACER", "class_name": "SendPacer", "script_name": "swarm-realtime-local" },
+    ],
+  },
+  // The vault (workers/vault), through its SiteVault entrypoint and no other: sealed values,
+  // the links it signs and the provider credentials it holds. Every env block names it too.
+  "services": [{ "binding": "VAULT", "service": "swarm-vault-local", "entrypoint": "SiteVault" }],
+  "env": {
+    "staging": {
+      "name": "swarm-site-staging",
+      "workers_dev": false,
+      "preview_urls": false,
+      "vars": {
+        "ENVIRONMENT": "staging",
+        // The installer sets both: v1 until the cutover, then v2 and its time.
+        "LINK_SIGNING_MODE": "v1",
+        "PLATFORM_SITE_DOMAIN": "staging.site.swarm.example",
+        "SITE_SCHEME": "https",
+        "MEDIA_ORIGIN": "https://media.staging.swarm.example",
+        "CAPTURE_ORIGIN": "https://forms.staging.swarm.example",
+        "APP_ORIGIN": "https://app.staging.swarm.example",
+        "PLATFORM_MAIL_DOMAIN": "mail.staging.swarm.example",
+        "MAIL_ADAPTER": "ses",
+        "AWS_REGION": "eu-west-1",
+        "SES_CONFIGURATION_SET": "swarm-staging-transactional",
+        "DNS_RESOLVER": "doh",
+        "LINK_HOSTNAMES": "off",
+        "PAYMENTS": "stripe",
+        "TURNSTILE_SITE_KEY": "unprovisioned",
+      },
+      "d1_databases": [
+        {
+          "binding": "DB",
+          "database_name": "swarm-staging",
+          "database_id": "unprovisioned",
+          "migrations_dir": "../../migrations",
+        },
+      ],
+      "kv_namespaces": [{ "binding": "CACHE", "id": "unprovisioned" }],
+      "r2_buckets": [{ "binding": "MEDIA", "bucket_name": "swarm-staging-media" }],
+      // Cloudflare Images: media variants, OG cards and favicon sizes (edge/images.ts).
+      "images": { "binding": "IMAGES" },
+      "ratelimits": [
+        {
+          "name": "READER_LIMITER",
+          "namespace_id": "4102",
+          "simple": { "limit": 10, "period": 60 },
+        },
+        {
+          "name": "CHECKOUT_LIMITER",
+          "namespace_id": "4112",
+          "simple": { "limit": 10, "period": 60 },
+        },
+      ],
+      "durable_objects": {
+        "bindings": [
+          {
+            "name": "SEND_PACER",
+            "class_name": "SendPacer",
+            "script_name": "swarm-realtime-staging",
+          },
+        ],
+      },
+      "services": [
+        {
+          "binding": "VAULT",
+          "service": "swarm-vault-staging",
+          "entrypoint": "SiteVault",
+        },
+      ],
+    },
+    "production": {
+      "name": "swarm-site",
+      "workers_dev": false,
+      "preview_urls": false,
+      "vars": {
+        "ENVIRONMENT": "production",
+        // The installer sets both: v1 until the cutover, then v2 and its time.
+        "LINK_SIGNING_MODE": "v1",
+        "PLATFORM_SITE_DOMAIN": "site.swarm.example",
+        "SITE_SCHEME": "https",
+        "MEDIA_ORIGIN": "https://media.swarm.example",
+        "CAPTURE_ORIGIN": "https://forms.swarm.example",
+        "APP_ORIGIN": "https://app.swarm.example",
+        "PLATFORM_MAIL_DOMAIN": "mail.swarm.example",
+        "MAIL_ADAPTER": "ses",
+        "AWS_REGION": "eu-west-1",
+        "SES_CONFIGURATION_SET": "swarm-production-transactional",
+        "DNS_RESOLVER": "doh",
+        "LINK_HOSTNAMES": "off",
+        "PAYMENTS": "stripe",
+        "TURNSTILE_SITE_KEY": "unprovisioned",
+      },
+      "d1_databases": [
+        {
+          "binding": "DB",
+          "database_name": "swarm-production",
+          "database_id": "unprovisioned",
+          "migrations_dir": "../../migrations",
+        },
+      ],
+      "kv_namespaces": [{ "binding": "CACHE", "id": "unprovisioned" }],
+      "r2_buckets": [{ "binding": "MEDIA", "bucket_name": "swarm-production-media" }],
+      // Cloudflare Images: media variants, OG cards and favicon sizes (edge/images.ts).
+      "images": { "binding": "IMAGES" },
+      "ratelimits": [
+        {
+          "name": "READER_LIMITER",
+          "namespace_id": "4103",
+          "simple": { "limit": 10, "period": 60 },
+        },
+        {
+          "name": "CHECKOUT_LIMITER",
+          "namespace_id": "4113",
+          "simple": { "limit": 10, "period": 60 },
+        },
+      ],
+      "durable_objects": {
+        "bindings": [
+          { "name": "SEND_PACER", "class_name": "SendPacer", "script_name": "swarm-realtime" },
+        ],
+      },
+      "services": [
+        {
+          "binding": "VAULT",
+          "service": "swarm-vault",
+          "entrypoint": "SiteVault",
+        },
+      ],
+    },
+  },
+}

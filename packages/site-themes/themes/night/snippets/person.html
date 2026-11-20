@@ -1,0 +1,19 @@
+{% if item.name %}
+<span class="nt-person">
+  {% if item.photo %}
+  <img
+    class="nt-person__photo"
+    src="{{ item.photo.url }}"
+    alt=""
+    width="40"
+    height="40"
+    loading="lazy"
+    decoding="async"
+  />
+  {% endif %}
+  <span class="nt-person__text">
+    <cite class="nt-person__name">{{ item.name }}</cite>
+    {% if item.role %}<span class="nt-person__role">{{ item.role }}</span>{% endif %}
+  </span>
+</span>
+{% endif %}

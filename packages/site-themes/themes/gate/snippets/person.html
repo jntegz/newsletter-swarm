@@ -1,0 +1,21 @@
+{% if item.name %}
+<span class="gate-person">
+  {% if item.photo %}
+  <img
+    class="gate-person__photo"
+    src="{{ item.photo.url }}"
+    alt=""
+    width="44"
+    height="44"
+    loading="lazy"
+    decoding="async"
+  />
+  {% else %}
+  <span class="gate-person__initial" aria-hidden="true">{{ item.name | truncate: 1, '' }}</span>
+  {% endif %}
+  <span class="gate-person__text">
+    <cite class="gate-person__name">{{ item.name }}</cite>
+    {% if item.role %}<span class="gate-person__role">{{ item.role }}</span>{% endif %}
+  </span>
+</span>
+{% endif %}

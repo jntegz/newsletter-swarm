@@ -1,0 +1,17 @@
+<article class="br-card">
+  {% if post.image and s.show_images %}
+  <div class="br-card__image">{{ post.image | image: '(min-width:960px)25vw,100vw' }}</div>
+  {% endif %}
+  <p class="br-card__meta br-fig">
+    <span>{% render 'no', n: n %}</span>
+    <time datetime="{{ post.date | date: 'iso' }}">{{ post.date | date: 'short' }}</time>
+  </p>
+  <h3 class="br-card__title"><a href="{{ post.url }}">{{ post.title }}</a></h3>
+  {% if s.show_excerpt and post.excerpt %}
+  <p class="br-card__excerpt">{{ post.excerpt | truncatewords: 26 }}</p>
+  {% endif %}
+  <p class="br-card__foot br-fig">
+    {% if post.reading_minutes %}<span>{{ post.reading_minutes }} min</span>{% endif %} {% if
+    post.is_paid %}<span class="br-tag">Paid</span>{% endif %}
+  </p>
+</article>

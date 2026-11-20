@@ -1,0 +1,50 @@
+{% assign s = section.settings %} {% if featured %}
+<section class="letter-featured" aria-labelledby="{{ section.id }}-title">
+  {% if s.heading %}
+  <h2 class="letter-h2" id="{{ section.id }}-title">{{ s.heading }}</h2>
+  {% else %}
+  <h2 class="sw-sr" id="{{ section.id }}-title">A recent letter</h2>
+  {% endif %}
+  <article class="letter-sheet">
+    <p class="letter-sheet__date">
+      <time datetime="{{ featured.date | date: 'iso' }}">{{ featured.date | date: 'long' }}</time>
+    </p>
+    <h3 class="letter-sheet__title">{{ featured.title }}</h3>
+    {% if featured.image %}
+    <div class="letter-sheet__image">
+      {{ featured.image | image: '(min-width:760px)640px,100vw' }}
+    </div>
+    {% endif %} {% if featured.excerpt %}
+    <p class="letter-sheet__excerpt">{{ featured.excerpt }}</p>
+    {% endif %}
+    <p class="letter-sheet__action">
+      <a class="sw-button" href="{{ featured.url }}"
+        >{{ s.button_label | default: featured.title }}</a
+      >
+    </p>
+  </article>
+</section>
+{% endif %} {% comment %}<!-- prettier-ignore -->{% endcomment %}
+{% schema %}
+{
+  "name": "Featured issue",
+  "description": "One issue up close: the pinned one, else the latest.",
+  "limit": 1,
+  "settings": [
+    {
+      "id": "heading",
+      "type": "text",
+      "label": "Heading",
+      "max": 120,
+      "default": "A recent letter"
+    },
+    {
+      "id": "button_label",
+      "type": "text",
+      "label": "Button",
+      "max": 40,
+      "default": "Read the letter"
+    }
+  ]
+}
+{% endschema %}

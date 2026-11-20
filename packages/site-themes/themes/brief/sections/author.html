@@ -1,0 +1,44 @@
+{% assign s = section.settings %} {% if s.name or s.bio %}
+<section class="br-author br-split" aria-labelledby="{{ section.id }}-title">
+  <div class="br-split__head">
+    {% if s.heading %}
+    <h2 class="br-h2" id="{{ section.id }}-title">{{ s.heading }}</h2>
+    {% else %}
+    <h2 class="sw-sr" id="{{ section.id }}-title">{{ s.name | default: 'About the author' }}</h2>
+    {% endif %}
+  </div>
+  <div class="br-byline br-split__body">
+    <div class="br-byline__bio">{{ s.bio | paragraphs }}</div>
+    <div class="br-byline__sign">
+      {% if s.photo %}
+      <div class="br-byline__photo">{{ s.photo | image: '56px' }}</div>
+      {% endif %}
+      <p class="br-byline__name">
+        {% if s.name %}<span class="br-byline__sig">{{ s.name }}</span>{% endif %} {% if s.link_url
+        and s.link_label %}<a class="br-link" href="{{ s.link_url }}">{{ s.link_label }}</a>{% endif
+        %}
+      </p>
+    </div>
+  </div>
+</section>
+{% endif %} {% comment %}<!-- prettier-ignore -->{% endcomment %}
+{% schema %}
+{
+  "name": "Author",
+  "description": "Who writes it, as a short signed note.",
+  "settings": [
+    { "id": "heading", "type": "text", "label": "Heading", "max": 120, "default": "Who writes it" },
+    { "id": "name", "type": "text", "label": "Name", "max": 80 },
+    { "id": "bio", "type": "textarea", "label": "About", "max": 800 },
+    { "id": "photo", "type": "image", "label": "Photo" },
+    {
+      "id": "link_label",
+      "type": "text",
+      "label": "Link text",
+      "max": 40,
+      "default": "More about me"
+    },
+    { "id": "link_url", "type": "url", "label": "Link", "default": "/about" }
+  ]
+}
+{% endschema %}

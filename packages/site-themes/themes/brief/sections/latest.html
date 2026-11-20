@@ -1,0 +1,99 @@
+{% assign s = section.settings %}
+<section class="br-latest br-latest--{{ s.style }}" aria-labelledby="{{ section.id }}-title">
+  <div class="br-head">
+    {% if s.heading %}
+    <h2 class="br-h2" id="{{ section.id }}-title">{{ s.heading }}</h2>
+    {% else %}
+    <h2 class="sw-sr" id="{{ section.id }}-title">Latest issues</h2>
+    {% endif %} {% if posts %}<a class="br-link" href="{{ site.archive_url }}">The archive</a>{%
+    endif %}
+  </div>
+  {% if posts %} {% if s.style == 'table' or s.style == 'compact' %}
+  <table class="br-table">
+    <thead>
+      <tr>
+        <th scope="col" class="br-table__no">No.</th>
+        <th scope="col">Title</th>
+        <th scope="col" class="br-table__date">Date</th>
+        <th scope="col" class="br-table__time">Read</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for post in posts limit: s.count %} {% assign n = site.issue_count | minus: forloop.index0
+      %}
+      <tr>
+        <td class="br-table__no br-fig">
+          {% if n > 0 %}{% if n < 10 %}00{% elsif n < 100 %}0{% endif %}{{ n }}{% endif %}
+        </td>
+        <td class="br-table__title">
+          {% if post.image and s.show_images %}
+          <span class="br-table__image">{{ post.image | image: '64px' }}</span>
+          {% endif %}
+          <span class="br-table__text">
+            <a href="{{ post.url }}">{{ post.title }}</a>
+            {% if post.is_paid %}<span class="br-tag">Paid</span>{% endif %} {% if s.show_excerpt
+            and post.excerpt %}
+            <span class="br-table__excerpt">{{ post.excerpt | truncatewords: 24 }}</span>
+            {% endif %}
+          </span>
+        </td>
+        <td class="br-table__date br-fig">
+          <time datetime="{{ post.date | date: 'iso' }}">{{ post.date | date: 'short' }}</time>
+        </td>
+        <td class="br-table__time br-fig">
+          {% if post.reading_minutes %}{{ post.reading_minutes }} min{% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% elsif s.style == 'cards' %}
+  <ul class="br-cards" role="list">
+    {% for post in posts limit: s.count %} {% assign n = site.issue_count | minus: forloop.index0 %}
+    <li>{% render 'card', post: post, s: s, n: n %}</li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <ol class="br-rows" role="list">
+    {% for post in posts limit: s.count %} {% assign n = site.issue_count | minus: forloop.index0 %}
+    <li>{% render 'row', post: post, s: s, n: n %}</li>
+    {% endfor %}
+  </ol>
+  {% endif %} {% else %}
+  <p class="br-empty">The first issue is on its way. Subscribe and it comes straight to you.</p>
+  {% endif %}
+</section>
+
+{% comment %}<!-- prettier-ignore -->{% endcomment %}
+{% schema %}
+{
+  "name": "Latest issues",
+  "description": "The newest issues, as a ruled table or in rows.",
+  "settings": [
+    { "id": "heading", "type": "text", "label": "Heading", "max": 120, "default": "Recent issues" },
+    {
+      "id": "count",
+      "type": "range",
+      "label": "How many",
+      "min": 1,
+      "max": 12,
+      "step": 1,
+      "default": 8
+    },
+    {
+      "id": "style",
+      "type": "select",
+      "label": "Style",
+      "options": [
+        { "value": "table", "label": "A ruled table" },
+        { "value": "cards", "label": "Cards" },
+        { "value": "list", "label": "List" },
+        { "value": "compact", "label": "Compact table" }
+      ],
+      "default": "table"
+    },
+    { "id": "show_images", "type": "checkbox", "label": "Show images", "default": false },
+    { "id": "show_excerpt", "type": "checkbox", "label": "Show summaries", "default": false }
+  ]
+}
+{% endschema %}
