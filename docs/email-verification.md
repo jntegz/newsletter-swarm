@@ -15,7 +15,7 @@ Each address DeBounce checks uses one DeBounce credit. Swarm's own checks come f
 
 DeBounce is set up once for the whole Swarm, by the person who installed it. The key is a secret of the Swarm's workers, like its email service key: it is never typed into the dashboard and never stored in the database.
 
-1. **Create a DeBounce account** at [tegze.link/debounce](https://tegze.link/debounce) and buy credits there.
+1. **Create a DeBounce account** at [debounce.io](https://tegze.link/debounce) and buy credits there.
 2. In DeBounce, open **API settings** ([app.debounce.io/api](https://app.debounce.io/api)) and copy the API key.
 3. On the computer you installed Swarm from, run:
 
